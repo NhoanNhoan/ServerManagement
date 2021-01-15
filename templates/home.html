@@ -1,0 +1,159 @@
+{{ define "templates/home.html"}}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Server Management</title>
+	<style type="text/css">
+		.left {
+			background-color: #121432;
+			border-radius: 100px;
+			float: left;
+			height: 900px;
+			margin: 20px;
+			text-align: center;
+			width: 20%;
+		}
+
+		.right {
+			background-color: #FFFFFF;
+			float: right;
+			width: 70%;
+			height: 900px;
+		}
+
+		.navigation {
+			color: #FFFFFF;
+			font-size: 20px;
+			list-style-type: none;
+			text-align: left;
+		}
+
+		.navigation > li {
+			padding: 12px;
+		}
+		.search {
+			border-radius: 30px;
+			border: none;
+			background: #EFF3FB;
+			margin: 20px 20px;
+			padding: 15px;
+			width: 50%;
+		}
+
+		.dashboard {
+			margin: 20px;
+		}
+
+		.dashboard-content {
+			margin: auto;
+		}
+
+		.tag {
+			border-radius: 30px;
+			margin-top: 30px;
+			margin-right: 7%;
+			width: 23%;
+			padding: 12px;
+		}
+
+		.dashboard a:hover {
+			padding: 0px 22px;
+		}
+
+	</style>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+	<script type="text/javascript">
+		function random_bg_color() {
+			var colors = ["#E8523F", "#4CCBA0", "#B47DF5", "#D9D9D9", "#04040E"];
+			var rand_idx = Math.floor(Math.random() * colors.length);
+			console.log(colors[rand_idx]);
+			return colors[rand_idx];
+		}
+
+		random_bg = (id) => document
+				.getElementById(id)
+				.style.background = random_bg_color();
+	</script>
+
+</head>
+<body>
+	<div class="left">
+		<h1 style="color: white; padding: 20px;">System</h1>
+		<ul class="navigation">
+			<li><a href="http://localhost:8080/user/login">Sign In<a></li>
+			<li><a href="http://localhost:8080/server/summary">Summary<a></li>
+			<li><a href="#">Filter<a></li>
+			<li><a href="#">View Log<a></li>
+			<li><a href="http://localhost:8080/error/register">Error<a></li>
+			<li><a href="http://localhost:8080/error/list">List Errors<a></li>
+		</ul>
+	</div>
+
+	<div class="right">
+		<div>
+			<input type="search" 
+					id="txtSearch" 
+					name="txtSearch" 
+					placeholder="Search" 
+					class="search">
+		</div>
+
+		<div class="dashboard">
+			<h1 style="display: inline-block; font-size: 24px;">Dashboard</h1>
+			<div style="display: inline-block; float: right; margin-right: 50px;">
+				<a href="server/register"
+					style="
+							background: #6672FB;
+							border-radius: 20px;
+							margin-right: 50px;
+							color: #FFFFFF;
+							text-decoration: none; 
+							padding: 12px 50px;">
+					Add new
+				</a>
+
+				<select style="
+							background-color: #D2DEF7;
+							border: none;
+							border-radius: 12px;
+							padding: 12px 50px;">
+					<optgroup>Sort</optgroup>
+					<option>Name</option>
+					<option>Date</option>
+					<option>Price</option>
+				</select>
+			</div>
+
+			<div>
+				{{range .info}}
+					<form method="post" action="server/list" style="display: inline; cursor: pointer;">
+						<input type="hidden" name="txtId" value="{{.Id}}">
+						<input type="hidden" name="txtName" value="{{.Name}}">
+						<a id="{{.Id}}" 
+							class="tag" 
+							style=" display: inline-block;
+									color: white;
+									text-decoration: none" 
+							onclick="this.parentNode.submit()">		
+							<div>
+								<h2>{{.Name}}</h2>
+							</div>
+
+							<script type="text/javascript">
+								random_bg({{.Id}})
+							</script>
+						</a>
+					</form>
+
+				{{ end }}
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>
+
+{{ end }}
