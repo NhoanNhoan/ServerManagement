@@ -33,6 +33,7 @@
 		.navigation > li {
 			padding: 12px;
 		}
+
 		.search {
 			border-radius: 30px;
 			border: none;
@@ -131,15 +132,17 @@
 				{{range .info}}
 					<form method="post" action="server/list" style="display: inline; cursor: pointer;">
 						<input type="hidden" name="txtId" value="{{.Id}}">
-						<input type="hidden" name="txtName" value="{{.Name}}">
+
+						<input type="hidden" name="txtName" value="{{.Description}}">
 						<a id="{{.Id}}" 
 							class="tag" 
 							style=" display: inline-block;
 									color: white;
 									text-decoration: none" 
 							onclick="this.parentNode.submit()">		
+							
 							<div>
-								<h2>{{.Name}}</h2>
+								<h2>{{.Description}}</h2>
 							</div>
 
 							<script type="text/javascript">

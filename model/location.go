@@ -1,28 +1,23 @@
 package model
 
 type Location struct {
-	DataCenter
+	DC DataCenter
 	Rack
-	UStart RackUnit
-	UEnd RackUnit
+	Ustart RackUnit
+	Uend RackUnit
 }
 
 type DataCenter struct {
 	Id string
-	Name string
+	Description string
 }
 
 type Rack struct {
 	Id string
-	Name string
+	Description string
 }
 
 type RackUnit struct {
 	Id string
-	Name string
-}
-
-func (loc *Location) String() string {
-	return loc.DataCenter.Name + " - " + loc.Rack.Name +
-	" - [" + loc.UStart.Name + ", " + loc.UEnd.Name + "]"
+	Description string
 }

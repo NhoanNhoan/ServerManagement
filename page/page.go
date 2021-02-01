@@ -1,7 +1,5 @@
 package page
 
-type Page struct {
-	queries []string
-	MakeQuery() string
-	Init()
+type Page interface {
+	New()
 }

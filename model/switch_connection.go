@@ -2,14 +2,7 @@ package model
 
 type SwitchConnection struct {
 	Id string
-	*Server
-	*Switch
-	ServerPort, SwitchPort int
-	*CableType
-}
-
-type CableType struct {
-	Id string
-	Name string
-	SignPort string
+	Id_SERVER string
+	Id_SWITCH string
+	Id_CABLE_TYPE string
 }

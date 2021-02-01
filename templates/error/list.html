@@ -363,13 +363,13 @@
             <div class="row">
               <div class="col-sm-2 col-sm-offset-5">
                 <div class="alt-module-subtitle"><span class="holder-w"></span>
-                  <h5 class="font-serif">Describtion</h5><span class="holder-w"></span>
+                  <h5 class="font-serif">Description</h5><span class="holder-w"></span>
                 </div>
               </div>
             </div>
             <div class="row">
               <div class="col-sm-8 col-sm-offset-2">
-                <h2 class="module-title font-alt mb-0">{{.ServerName}}</h2>
+                <h2 class="module-title font-alt mb-0">Server</h2>
               </div>
             </div>
           </div>
@@ -378,41 +378,71 @@
           <div class="container">
             <div class="row multi-columns-row">
               
-                {{range .Errors}}
-                  <form method="post" action="http://localhost:8080/error/view">
-                    <input type="hidden" name="txtId" value="{{.Id}}">
+                {{range .ErrArr}}
+                  <form method="post" 
+                      action="http://localhost:8080/error/view">
                     <a 
                         class="tag"
                         onclick="this.parentNode.submit()" 
                         style="cursor: pointer;
                               text-decoration: none;">
+
                       <div class="col-sm-4">
                         <div class="menu">
                           <div class="row">
                             <div class="col-sm-8">
 
                               <h4 class="menu-title font-alt">
+                                <input type="hidden" 
+                                    name="txtSummary" 
+                                    value="{{.Summary}}">
                                 {{.Summary}}
                               </h4>
 
                               <div class="menu-detail font-serif">
-                                {{.LastOccur}}
+                                <input type="hidden" 
+                                      name="txtOccurs"
+                                      value="{{.Occurs}}">
+                                {{.Occurs}}
                               </div>
 
                             </div>
 
                             <div class="col-sm-4 menu-price-detail">
                               <h4 class="menu-price font-alt">
-                                {{.ErrorStatus.Describe}}
+                                <input type="hidden"
+                                      name="txtErrStateDes"
+                                      value="{{.ErrorState.Description}}">
+                                {{.ErrorState.Description}}
                               </h4>
                             </div>
-
                           </div>
                         </div>
+
+
+                        <input type="hidden" 
+                          name="txtIdError" 
+                          value="{{.Id}}">
+
+                        <input type="hidden" 
+                              name="txtIdState"
+                              value="{{.ErrorState.Id}}">
+
+                        <input type="hidden" 
+                              name="txtDescription"
+                              value="{{.Description}}">
+
+                        <input type="hidden" 
+                                name="txtSolution"
+                                value="{{.Solution}}">
+
+                        <input type="hidden" 
+                                name="txtIdServer"
+                                value="{{.Server.Id}}">
                     </div>
                   </a>
-                  </form>
-                {{ end }}
+                </form>
+              {{ end }}
 
                 
     <script src="../templates/assets/lib/jquery/dist/jquery.js"></script>

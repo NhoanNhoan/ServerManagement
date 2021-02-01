@@ -1,46 +1,63 @@
-create database server_managerment_db.db;
+create database ServerManagement;
 
-use server_managerment_db.db;
+use ServerManagement;
 
 create table if not exists STATUS_ROW (
-	id int primary key,
-	describe varchar(20)
+	id int,
+	description varchar(20),
+
+	primary key(id)
 );
 
 create table if not exists DC (
-	id varchar(6) primary key,
-	describe nvarchar(20)
-	id_STATUS_ROW int
+	id varchar(6),
+	description nvarchar(20),
+
+	primary key(id)
 );
 
 create table if not exists RACK (
-	id varchar(6) primary key,
-	describe nvarchar(20),
-	id_STATUS_ROW int
+	id varchar(6),
+	description nvarchar(20),
+
+	primary key(id)
 );
 
 create table if not exists RACK_UNIT(
-	id varchar(6) primary key,
-	describe nvarchar(20),
-	id_STATUS_ROW int
+	id varchar(6),
+	description nvarchar(20),
+
+	primary key(id)
 );
 
 create table if not exists IP_NET(
-	id varchar(6) primary key,
+	id varchar(6),
 	value varchar(12),
 	id_STATUS_ROW int,
+
+	primary key(id),
 	foreign key(id_STATUS_ROW) references STATUS_ROW(id)
 );
 
+create table if not exists SERVER_STATUS (
+	id varchar(6),
+	description varchar(20),
+
+	primary key(id)
+);
+
 create table if not exists ERROR_STATUS(
-	id varchar(6) primary key,
-	describe nvarchar(20),
-	id_STATUS_ROW int
+	id varchar(6),
+	description nvarchar(20),
+
+	primary key(id)
 );
 
 create table if not exists PERSON (
-	id varchar(6) primary key,
+	id varchar(6),
 	name nvarchar(50),
+
+	primary key(id)
 );
 
 create table if not exists PARAMETER (
@@ -48,14 +65,18 @@ create table if not exists PARAMETER (
 );
 
 create table if not exists PORT_TYPE (
-	id varchar(4) primary key,
-	describe nvarchar(10)
+	id varchar(4),
+	description nvarchar(10),
+
+	primary key(id)
 );
 
 create table if not exists CABLE_TYPE (
-	id varchar(6) primary key,
+	id varchar(6),
 	name nvarchar(12),
-	sign_port varchar(5)
+	sign_port varchar(5),
+
+	primary key(id)
 );
 
 create table if not exists SERVER (
@@ -131,7 +152,7 @@ create table if not exists SWITCH (
 
 create table if not exists IP_SWITCH (
 	id_SWITCH varchar(10),
-	id_IP_NET varchar(6)
+	id_IP_NET varchar(6),
 	ip_host int,
 
 	foreign key (id_SWITCH) references SWITCH(id),
@@ -145,33 +166,34 @@ create table if not exists SWITCH_CONNECTION (
 	id_SWITCH varchar(10),
 	id_CABLE_TYPE varchar(6),
 
-	foreign key id_SERVER references SERVER(id),
-	foreign key id_SWITCH references SWITCH(id),
-	foreign key id_CABLE_TYPE references CABLE_TYPE(id)
+	foreign key (id_SERVER) references SERVER(id),
+	foreign key (id_SWITCH )references SWITCH(id),
+	foreign key (id_CABLE_TYPE) references CABLE_TYPE(id)
 );
 
 create table if not exists SWITCH_CONNECTION_PORT (
 	id_SWITCH varchar(10),
-	sv_port int
+	sv_port int,
 	switch_port int,
 
-	foreign key id_SWITCH references SWITCH(id),
+	foreign key (id_SWITCH) references SWITCH(id),
 	primary key(id_SWITCH, sv_port, switch_port)
 );
 
 create table if not exists ERROR (
-	id varchar(6) primary key,
+	id varchar(6),
 	summary nvarchar(50),
-	describe nvarchar(500),
+	description nvarchar(500),
 	solution nvarchar(1000),
 	occurs date,
 	id_SERVER varchar(12),
 	id_ERROR_STATUS varchar(6),
 	id_STATUS_ROW int,
 
-	foreign key id_SERVER references SERVER(id),
-	foreign key id_ERROR_STATUS references ERROR_STATUS(id),
-	foreign key id_STATUS_ROW references STATUS_ROW(id),
+	primary key(id),
+	foreign key (id_SERVER) references SERVER(id),
+	foreign key (id_ERROR_STATUS) references ERROR_STATUS(id),
+	foreign key (id_STATUS_ROW) references STATUS_ROW(id)
 );
 
 create table if not exists USER (
@@ -185,12 +207,12 @@ create table if not exists USER (
 );
 
 create table if not exists CURATOR (
-	id_PERSON varchar(10),
+	id_PERSON varchar(6),
 	id_ERROR varchar(6),
 	id_STATUS_ROW int,
 
-	foreign key id_PERSON references USER(id),
-	foreign key id_ERROR references ERROR(id),
-	foreign key id_STATUS_ROW references STATUS_ROW(id),
+	foreign key (id_PERSON) references PERSON(id),
+	foreign key (id_ERROR) references ERROR(id),
+	foreign key (id_STATUS_ROW) references STATUS_ROW(id),
 	primary key(id_PERSON, id_ERROR)
 );

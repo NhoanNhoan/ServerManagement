@@ -2,64 +2,97 @@ package database
 
 import (
 	"database/sql"
+	_ "fmt"
+
 	_ "github.com/go-sql-driver/mysql"
-	"strings"
 )
-
-type SQLComponents struct {
-	tables []string
-	columns []string
-	selection string
-	selectionArgs []string
-	groupBy string
-	having string
-	orderBy string
-	limit string
-}
-
-func MakeQuery(components SQLComponents) string {
-	return concat("SELECT", 
-					makeClause(components.columns, ", "), 
-					"FROM", 
-					makeClause(components.tables, ", "), 
-					"WHERE",
-					replace(components.selection, selectionArgs, "?", 1)))
-}
-
-func makeClause(values []string, delim string) string {
-	return strings.Join(values, delim)
-}
-
-func concat(clause ...string) string {
-	return strings.Join(clause, " ")
-}
-
-func replace(s string, values []string, delim string, times uint) string {
-	var ans strings.Builder
-
-	for s, _ := range values {
-		s = strings.Replace(s, delim, s, times)
-	}
-
-	return s
-}
 
 func DBConn() (db *sql.DB) {
 	dbDriver := "mysql"
-	dbUser := "root"
+	//dbUser := "root"
 	//dbPass := "kali"
-	dbName := "server_management"
-	db, err := sql.Open(dbDriver, dbUser + "@/" + dbName)
+	//dbName := "ServerManagement"
+	//dbUser + "@/" + dbName)
+	db, err := sql.Open(dbDriver, "root:root@tcp(127.0.0.1:3306)/ServerManagement")
 	if nil != err {
-		panic (err.Error())
+		panic(err.Error())
 	}
 
 	return db
 }
 
-func Query(components SQLComponents) (*sql.Rows, error) {
-	sql := MakeQuery(components)
+func Query(component QueryComponent) (*sql.Rows, error) {
 	db := DBConn()
 	defer db.Close()
-	return db.Query(sql)
+
+	sql := MakeQuery(component)
+	stmp, err := db.Prepare(sql)
+
+	if nil != err {
+		panic(err)
+	}
+
+	args := toInterfaceSplice(component.SelectionArgs)
+	rows, err := stmp.Query(args...)
+
+	if nil != err {
+		panic(err)
+	}
+
+	return rows, err
+}
+
+func Insert(component InsertComponent) (err error) {
+	sql := MakeInsert(component)
+
+	for _, value := range component.Values {
+		err = executeStatement(sql, value...)
+
+		if nil != err {
+			return err
+		}
+	}
+
+	return err
+}
+
+func Update(component UpdateComponent) (err error) {
+	sql := MakeUpdateStatement(component)
+	concatenation := append(component.Values,
+		component.SelectionArgs...)
+	return executeStatement(sql, concatenation...)
+}
+
+func Delete(component DeleteComponent) (err error) {
+	sql := MakeDeleteStatement(component)
+	return executeStatement(sql, component.selectionArgs...)
+}
+
+func executeStatement(statement string, values ...string) (err error) {
+	db := DBConn()
+	defer db.Close()
+
+	stmp, err := db.Prepare(statement)
+
+	if nil != err {
+		panic(err)
+	}
+
+	args := toInterfaceSplice(values)
+	_, err = stmp.Exec(args...)
+
+	return err
+}
+
+func MakeQueryAll(tables []string, columns []string) QueryComponent {
+	return QueryComponent{
+		Tables:        tables,
+		Columns:       columns,
+		Selection:     "",
+		SelectionArgs: nil,
+		GroupBy:       "",
+		Having:        "",
+		OrderBy:       "",
+		Limit:         "",
+	}
 }

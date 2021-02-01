@@ -1,0 +1,15 @@
+[2021-01-25 09:04:57.801] [sharedprocess] [info] main {"machineId":"eb05a8fcfe956d139310c2fcfe12e96f566d36431c07f56148bb6188ed7fc2f5","windowId":2}
+[2021-01-25 09:04:57.853] [sharedprocess] [error] [File Watcher (node.js)] Error: ENOENT: no such file or directory, stat '/root/go/src/CURD/User/snippets'
+[2021-01-25 09:05:37.815] [sharedprocess] [info] Starting to clean up unused language packs.
+[2021-01-25 09:08:52.715] [sharedprocess] [info] Installing extension: golang.go
+[2021-01-25 09:08:53.198] [sharedprocess] [info] Downloaded extension: golang.go undefined
+[2021-01-25 09:08:53.293] [sharedprocess] [info] Extracted extension to /root/.vscode/extensions/.golang.go-0.21.1: golang.go
+[2021-01-25 09:08:53.293] [sharedprocess] [info] Renamed to /root/.vscode/extensions/golang.go-0.21.1
+[2021-01-25 09:08:53.294] [sharedprocess] [info] Installation completed. golang.go
+[2021-01-25 09:08:53.301] [sharedprocess] [info] Extensions installed successfully: golang.go
+[2021-01-25 09:09:09.317] [sharedprocess] [info] Installing extension: teabyii.ayu
+[2021-01-25 09:09:09.768] [sharedprocess] [info] Downloaded extension: teabyii.ayu undefined
+[2021-01-25 09:09:10.170] [sharedprocess] [info] Extracted extension to /root/.vscode/extensions/.teabyii.ayu-0.20.1: teabyii.ayu
+[2021-01-25 09:09:10.170] [sharedprocess] [info] Renamed to /root/.vscode/extensions/teabyii.ayu-0.20.1
+[2021-01-25 09:09:10.170] [sharedprocess] [info] Installation completed. teabyii.ayu
+[2021-01-25 09:09:10.174] [sharedprocess] [info] Extensions installed successfully: teabyii.ayu

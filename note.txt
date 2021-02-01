@@ -1,0 +1,21 @@
+// Get Parameters in path: Param
+// Get Parameters in GET method: DefaultQuery("name", "value") for default
+// Query("name") for value of parameter
+// QueryMap("name") for map
+// Get Parameters in POST method: DefaultPostForm, PostForm, PostFormMap, respectively
+// Get file upload, using PostFile
+// HTML Reponse
+// r.LoadHTMLGlob("templates/**")
+// File html: {{ define "templates/index.html"}}{{end}}
+// Response by json, html, string: gin.Context object supports JSON, HTML, String methods.
+// String method of gin.Context get http status code, content, value. Ex: c.String(http.StatusOK, "hello %s", value)
+// JSON method of gin.Context get http status code, g.H object. Ex: c.JSON(http.StatusOK, gin.H{"status":  "posted","message": message,"nick": nick})
+
+// Every Context have Keys attributes type map[string]interface{}.
+// How using? Ex: if every user have id, Let store it by c.Set("username", id)
+// It's same global dictionary in php
+// It's store custom data of user
+
+// Bind: When client send a request that contains some info
+// info will be unmarshall to json(xml, yml)
+// must set json:"fieldname" in custom struct.

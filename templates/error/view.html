@@ -370,13 +370,19 @@
           <div class="container">
             <div class="row">
               <div class="col-sm-8 col-sm-offset-2">
-                <h4 class="font-alt mb-0">error modification</h4>
+                <h4 class="font-alt mb-0">error</h4>
                 <hr class="divider-w mt-10 mb-20">
-                <form class="form" role="form">
+                <form id="form-info" class="form" role="form" method="post" action="update_error">
+
+                  <input type="hidden" name="txtErrorId" value="{{.Error.Id}}">
+
+                  <input type="hidden" name="txtServerId" value="{{.Error.Server.Id}}">
+
                   <div class="form-group">
                     <label for="exampleFormControlSelect1">Summary</label>
                     <input 
                         id="txtSummary"
+                        name="txtSummary"
                         class="form-control input-lg" 
                         type="text"
                         value="{{.Summary}}"
@@ -384,70 +390,104 @@
                   </div>
 
                   <div class="form-group">
-                    <label for="exampleFormControlSelect1">Describe</label>
-                    <textarea 
-                      id="txtDescribe"
+                    <label for="exampleFormControlSelect1">Description</label>
+                    <textarea style="height: 120px;"
+                      id="txtDescription"
+                      name="txtDescription"
                       class="form-control" 
-                      aria-label="With textarea" disabled>{{.Describe}}
+                      aria-label="With textarea" disabled>{{.Description}}
                     </textarea>
                   </div>
 
                    <div class="form-group">
                     <label for="exampleFormControlSelect1">Solution</label>
-                    <textarea 
+                    <textarea style="height: 120px;"
                       id="txtSolution"
+                      name="txtSolution"
                       class="form-control" 
                       aria-label="With textarea" disabled>{{.Solution}}
                       </textarea>
-
-                    <div class="col-sm">
-                        <label for="cbServer">Server</label>
-                        <select class="form-control" id="cbServer" disabled>
-                          <option>Notification 1</option>
-                          <option>Notification 2</option>
-                          <option>Notification 3</option>
-                          <option>Notification 4</option>
-                        </select>
-                    </div>
                   </div>
 
                   <div class="form-group">
-                      <label for="cbStatus">Status</label>
-                      <select class="form-control" id="cbStatus" disabled>
-                        <option>Resolve</option>
-                        <option>Occur</option>
+                    <label for="exampleFormControlSelect1">Status</label>
+                      <select id="cbState" 
+                          name="cbStateId" 
+                          class="form-control" disabled>
+                        {{range $state := .AllErrorStates}}
+                          <option id="{{$state.Id}}"
+                            value="{{$state.Id}}">
+                            {{$state.Description}}
+                          </option>
+                        {{end}}
                       </select>
                   </div>
-                      <div class="col">
-                          <label for="cbCurator">Curator</label>
-                          <select class="form-control" id="cbCurator" disabled>
-                            <option>ASDFAFEWFAS</option>
-                            <option>GADSF</option>
-                            <option>ASDFDSF</option>
-                            <option>HFSFDSGF</option>
-                          </select>
-                      </div>
+
+                  <div id="curatorArea">
+                    <label for="cbCurator">Curator</label>
+
+                    {{ $curators := .Curators }}
+                    {{ $allPersons := .AllPersons }}
+
+                    {{range $i, $curator := $curators}}
+
+                    <div class="col">
+                      <input type="hidden" 
+                          name="txtCuratorId{{$i}}"
+                          value="{{$curator.Id}}">
+                      <select class="form-control"
+                            id="cbCurator{{$i}}"
+                            name="cbCurator{{$i}}" disabled>
+                          {{range $person := $allPersons}}
+                            <option 
+                              id="{{$person.Id}}{{$i}}"
+                              value="txtCuratorId">
+                              {{$person.Name}}    
+                            </option>
+                          {{end}}
+                      </select>
+                    </div>
+                    <h4></h4>
+
+                    {{end}}
+
+                  </div>
+
+                  <input type="hidden" id="txtNumCurators"
+                    name="txtNumCurators">
 
                     <div class="form-group row">
-                      <div class="col-sm-6">
+                      <div class="col-sm-4">
                         <h1></h1>
                         <button 
                           id="btnUnclock"
                           type="button"
-                          class="btn btn-primary" 
+                          class="form-control btn btn-primary"
                           onclick="unclock_click()">
                             unclock
                         </button>
                       </div>
 
-                      <div class="col-sm-6">
+                      <div class="col-sm-4">
+                        <h1></h1>
+                        <button 
+                          id="btnCurator"
+                          type="button" 
+                          class="form-control btn btn-primary" 
+                          style="display: block"
+                          onclick="curator_click()">
+                            add curator
+                        </button>
+                      </div>
+
+                      <div class="col-sm-4">
                         <h1></h1>
                         <button 
                           id="btnModify"
                           type="submit" 
-                          class="btn btn-primary" 
+                          class="form-control btn btn-primary"
                           style="display: none">
-                          modify
+                            modify
                         </button>
                       </div>
                     </div>
@@ -551,39 +591,82 @@
     <script src="../templates/assets/lib/simple-text-rotator/jquery.simple-text-rotator.min.js"></script>
     <script src="../templates/assets/js/plugins.js"></script>
     <script src="../templates/assets/js/main.js"></script>
+  </body>
 
     <script type="text/javascript">
+      var numCurator = {{ len .Curators }}
       var get = (id) => document.getElementById(id)
-
-      function curator() {
-        var rdiv = document.createElement("div")
-        var cdiv = document.createElement("div")
-        var cb = document.createElement("input")
-      }
 
       function forEach() {
         perform = arguments[0]
         for (var i = 1; i < arguments.length; i++) {
-          perform(get(arguments[i]))
+          ele = get(arguments[i])
+
+          if (ele != null) {
+            perform(ele)
+          }
         }
       }
 
       function unclock_click() {
         forEach((ele) => ele.disabled = false, 
                 'txtSummary',
-                'txtDescribe',
+                'txtDescription',
                 'txtSolution',
-                'cbServer',
-                'cbStatus',
-                'cbCurator')
+                'txtDesState',
+                'cbState',)
+        unclock_cb_curator()
 
         var btn = get("btnModify")
         btn.style.display="block"
+        set_txtNumCurators()
       }
 
-      forEach((ele) => ele.selected = true)
+      function unclock_cb_curator() {
+        var cbName = "cbCurator"
+        for (i = 0; i < numCurator; i++) {
+          get(cbName + i.toString())
+                                  .disabled = false
+        }
+      }
+
+      function curator_click() {
+        cbName = "cbCurator" + numCurator.toString()
+
+        var content = "<h4></h4> " +
+                    "<div class='col'> " +
+                      "<select name=" + cbName +
+                          " class='form-control'> " +
+                          "{{range $person := $allPersons}}" +
+                            "<option " +
+                              "id='txtCuratorId' " +
+                              "value={{$person.Id}}" + "txt" + "> " +
+                              "{{$person.Name}} " +    
+                            "</option> " +
+                          "{{end}} " +
+                      "</select> " +
+                    "</div>"
+          get("curatorArea").innerHTML += content;
+          numCurator = parseInt(numCurator) + 1
+          set_txtNumCurators()
+      }
+
+      function set_txtNumCurators() {
+        get("txtNumCurators").value = numCurator
+      }
+
+      forEach((ele) => ele.selected = true,
+            '{{.Error.ErrorState.Id}}')
+
+      function select_curators() {
+        "{{ range $i, $curator := $curators }}"
+          get('{{$curator.IdPerson}}{{$i}}').selected = true
+        "{{ end }}"
+      }
+
+      select_curators()
     </script>
-  </body>
+
 </html>
 
 {{ end }}

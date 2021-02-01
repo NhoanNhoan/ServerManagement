@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta Description="viewport" content="width=device-width, initial-scale=1">
     <!--  
     Document Title
     =============================================
@@ -29,9 +29,9 @@
     <link rel="icon" type="image/png" sizes="96x96" href="../templates/assets/images/favicons/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../templates/assets/images/favicons/favicon-16x16.png">
     <link rel="manifest" href="/manifest.json">
-    <meta name="msapplication-TileColor" content="#ffffff">
-    <meta name="msapplication-TileImage" content="../templates/assets/images/favicons/ms-icon-144x144.png">
-    <meta name="theme-color" content="#ffffff">
+    <meta Description="msapplication-TileColor" content="#ffffff">
+    <meta Description="msapplication-TileImage" content="../templates/assets/images/favicons/ms-icon-144x144.png">
+    <meta Description="theme-color" content="#ffffff">
     <!--  
     Stylesheets
     =============================================
@@ -369,7 +369,7 @@
             </div>
             <div class="row">
               <div class="col-sm-8 col-sm-offset-2">
-                <h2 class="module-title font-alt mb-0">{{.DataCenter.Name}}</h2>
+                <h2 class="module-title font-alt mb-0">{{.DataCenter.Description}}</h2>
               </div>
             </div>
           </div>
@@ -380,7 +380,7 @@
               
                 {{range .Items}}
                   <form method="post" action="information">
-                    <input type="hidden" name="txtId" value="{{.Id}}">
+                    <input type="hidden" name="txtIdServer" value="{{.Id}}">
                     <a 
                         class="tag"
                         onclick="this.parentNode.submit()" 
@@ -392,16 +392,16 @@
                             <div class="col-sm-8">
 
                               <h4 class="menu-title font-alt">
-                                {{.Name}}
+                                {{.SerialNumber}}
                               </h4>
                               <div class="menu-detail font-serif">
-                                {{.Location.String}}
+                                {{.DC.Description}} + {{.Rack.Description}} + [{{.UStart.Description}} - {{.UEnd.Description}}]
                               </div>
                             </div>
 
                             <div class="col-sm-4 menu-price-detail">
                               <h4 class="menu-price font-alt">
-                                ((.Status]]
+                                {{.ServerStatus.Description}}
                               </h4>
                             </div>
                           </div>

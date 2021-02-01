@@ -1,0 +1,355 @@
+Tools environment: GOPATH=/root/go
+Installing 1 tool at /root/go/bin in module mode.
+  go-outline
+
+Installing github.com/ramya-rao-a/go-outline (/root/go/bin/go-outline) SUCCEEDED
+
+All tools successfully installed. You are ready to Go :).
+Starting linting the current package at /root/go/src/CURD
+Starting "go vet" under the folder /root/go/src/CURD
+Starting building the current package at /root/go/src/CURD
+/root/go/src/CURD>Finished running tool: /usr/bin/go vet .
+/root/go/src/CURD/main.go:176:9 CURD/entity.DataCenter composite literal uses unkeyed fields
+/root/go/src/CURD/main.go:181:13 CURD/page.Servers composite literal uses unkeyed fields
+
+/root/go/src/CURD>Finished running tool: /usr/bin/go build -o /tmp/vscode-gogkoK2i/go-code-check CURD
+
+Tools environment: GOPATH=/root/go
+Installing 16 tools at /root/go/bin in module mode.
+  gocode
+  gopkgs
+  go-symbols
+  guru
+  gorename
+  gotests
+  gomodifytags
+  impl
+  fillstruct
+  goplay
+  godoctor
+  dlv
+  gocode-gomod
+  godef
+  goreturns
+  golint
+
+Installing github.com/mdempsky/gocode (/root/go/bin/gocode) SUCCEEDED
+Installing github.com/uudashr/gopkgs/v2/cmd/gopkgs (/root/go/bin/gopkgs) SUCCEEDED
+Installing github.com/acroca/go-symbols (/root/go/bin/go-symbols) SUCCEEDED
+Installing golang.org/x/tools/cmd/guru (/root/go/bin/guru) SUCCEEDED
+Installing golang.org/x/tools/cmd/gorename (/root/go/bin/gorename) SUCCEEDED
+Installing github.com/cweill/gotests/... (/root/go/bin/gotests) SUCCEEDED
+Installing github.com/fatih/gomodifytags (/root/go/bin/gomodifytags) SUCCEEDED
+Installing github.com/josharian/impl (/root/go/bin/impl) SUCCEEDED
+Installing github.com/davidrjenni/reftools/cmd/fillstruct (/root/go/bin/fillstruct) SUCCEEDED
+Installing github.com/haya14busa/goplay/cmd/goplay (/root/go/bin/goplay) SUCCEEDED
+Installing github.com/godoctor/godoctor (/root/go/bin/godoctor) SUCCEEDED
+Installing github.com/go-delve/delve/cmd/dlv (/root/go/bin/dlv) SUCCEEDED
+Installing github.com/stamblerre/gocode (/root/go/bin/gocode-gomod) SUCCEEDED
+Installing github.com/rogpeppe/godef (/root/go/bin/godef) SUCCEEDED
+Installing github.com/sqs/goreturns (/root/go/bin/goreturns) SUCCEEDED
+Installing golang.org/x/lint/golint (/root/go/bin/golint) SUCCEEDED
+
+All tools successfully installed. You are ready to Go :).
+Starting linting the current package at /root/go/src/CURD/database
+Starting "go vet" under the folder /root/go/src/CURD/database
+/root/go/src/CURD/database>Finished running tool: /root/go/bin/golint
+/root/go/src/CURD/database/SQLClauseGenerator.go:7:7 exported const DELIMETER should have comment or be unexported
+/root/go/src/CURD/database/SQLClauseGenerator.go:9:6 exported type SQLClauseUtil should have comment or be unexported
+/root/go/src/CURD/database/SQLClauseGenerator.go:13:1 exported method SQLClauseUtil.ReplaceDelimeterByValues should have comment or be unexported
+/root/go/src/CURD/database/SQLClauseGenerator.go:25:4 should replace valuesIdx += 1 with valuesIdx++
+/root/go/src/CURD/database/SQLClauseGenerator.go:32:6 exported type SQLClauseGenerator should have comment or be unexported
+/root/go/src/CURD/database/SQLClauseGenerator.go:36:1 exported method SQLClauseGenerator.SelectionClause should have comment or be unexported
+/root/go/src/CURD/database/SQLClauseGenerator.go:44:1 exported method SQLClauseGenerator.FromClause should have comment or be unexported
+/root/go/src/CURD/database/SQLClauseGenerator.go:48:1 exported method SQLClauseGenerator.WhereClause should have comment or be unexported
+/root/go/src/CURD/database/connect.go:5:2 a blank import should be only in a main or test package, or have a comment justifying it
+/root/go/src/CURD/database/connect.go:7:2 a blank import should be only in a main or test package, or have a comment justifying it
+/root/go/src/CURD/database/connect.go:10:1 exported function DBConn should have comment or be unexported
+/root/go/src/CURD/database/connect.go:24:1 exported function Query should have comment or be unexported
+/root/go/src/CURD/database/connect.go:45:1 exported function Insert should have comment or be unexported
+/root/go/src/CURD/database/connect.go:59:1 exported function Update should have comment or be unexported
+/root/go/src/CURD/database/connect.go:66:1 exported function Delete should have comment or be unexported
+/root/go/src/CURD/database/connect.go:87:1 exported function MakeQueryAll should have comment or be unexported
+/root/go/src/CURD/database/delete.go:3:6 exported type DeleteComponent should have comment or be unexported
+/root/go/src/CURD/database/delete.go:9:1 exported function MakeDeleteStatement should have comment or be unexported
+/root/go/src/CURD/database/insert.go:7:6 exported type InsertComponent should have comment or be unexported
+/root/go/src/CURD/database/insert.go:13:1 exported function MakeInsert should have comment or be unexported
+/root/go/src/CURD/database/query.go:3:6 exported type QueryComponent should have comment or be unexported
+/root/go/src/CURD/database/query.go:14:1 exported function MakeQuery should have comment or be unexported
+/root/go/src/CURD/database/update.go:3:6 exported type UpdateComponent should have comment or be unexported
+/root/go/src/CURD/database/update.go:11:1 exported function MakeUpdateStatement should have comment or be unexported
+
+Starting building the current package at /root/go/src/CURD/database
+/root/go/src/CURD/database>Finished running tool: /usr/bin/go build -o /tmp/vscode-gogkoK2i/go-code-check CURD/database
+
+/root/go/src/CURD/database>Finished running tool: /usr/bin/go vet .
+/root/go/src/CURD/database/query_test.go:89:5 unknown field tables in struct literal
+
+Starting linting the current package at /root/go/src/CURD/database
+Starting "go vet" under the folder /root/go/src/CURD/database
+Starting building the current package at /root/go/src/CURD/database
+/root/go/src/CURD/database>Finished running tool: /root/go/bin/golint
+/root/go/src/CURD/database/SQLClauseGenerator.go:7:7 exported const DELIMETER should have comment or be unexported
+/root/go/src/CURD/database/SQLClauseGenerator.go:9:6 exported type SQLClauseUtil should have comment or be unexported
+/root/go/src/CURD/database/SQLClauseGenerator.go:13:1 exported method SQLClauseUtil.ReplaceDelimeterByValues should have comment or be unexported
+/root/go/src/CURD/database/SQLClauseGenerator.go:25:4 should replace valuesIdx += 1 with valuesIdx++
+/root/go/src/CURD/database/SQLClauseGenerator.go:32:6 exported type SQLClauseGenerator should have comment or be unexported
+/root/go/src/CURD/database/SQLClauseGenerator.go:36:1 exported method SQLClauseGenerator.SelectionClause should have comment or be unexported
+/root/go/src/CURD/database/SQLClauseGenerator.go:44:1 exported method SQLClauseGenerator.FromClause should have comment or be unexported
+/root/go/src/CURD/database/SQLClauseGenerator.go:48:1 exported method SQLClauseGenerator.WhereClause should have comment or be unexported
+/root/go/src/CURD/database/connect.go:5:2 a blank import should be only in a main or test package, or have a comment justifying it
+/root/go/src/CURD/database/connect.go:7:2 a blank import should be only in a main or test package, or have a comment justifying it
+/root/go/src/CURD/database/connect.go:10:1 exported function DBConn should have comment or be unexported
+/root/go/src/CURD/database/connect.go:24:1 exported function Query should have comment or be unexported
+/root/go/src/CURD/database/connect.go:45:1 exported function Insert should have comment or be unexported
+/root/go/src/CURD/database/connect.go:59:1 exported function Update should have comment or be unexported
+/root/go/src/CURD/database/connect.go:66:1 exported function Delete should have comment or be unexported
+/root/go/src/CURD/database/connect.go:87:1 exported function MakeQueryAll should have comment or be unexported
+/root/go/src/CURD/database/delete.go:3:6 exported type DeleteComponent should have comment or be unexported
+/root/go/src/CURD/database/delete.go:9:1 exported function MakeDeleteStatement should have comment or be unexported
+/root/go/src/CURD/database/insert.go:7:6 exported type InsertComponent should have comment or be unexported
+/root/go/src/CURD/database/insert.go:13:1 exported function MakeInsert should have comment or be unexported
+/root/go/src/CURD/database/query.go:3:6 exported type QueryComponent should have comment or be unexported
+/root/go/src/CURD/database/query.go:14:1 exported function MakeQuery should have comment or be unexported
+/root/go/src/CURD/database/update.go:3:6 exported type UpdateComponent should have comment or be unexported
+/root/go/src/CURD/database/update.go:11:1 exported function MakeUpdateStatement should have comment or be unexported
+
+/root/go/src/CURD/database>Finished running tool: /usr/bin/go build -o /tmp/vscode-gogkoK2i/go-code-check CURD/database
+/root/go/src/CURD/database/connect.go:61:35 component.values undefined (type UpdateComponent has no field or method values, but does have Values)
+/root/go/src/CURD/database/connect.go:62:12 component.selectionArgs undefined (type UpdateComponent has no field or method selectionArgs, but does have SelectionArgs)
+
+/root/go/src/CURD/database>Finished running tool: /usr/bin/go vet .
+/root/go/src/CURD/database/update_test.go:60:4 unknown field table in struct literal
+
+Starting linting the current package at /root/go/src/CURD/entity
+Starting "go vet" under the folder /root/go/src/CURD/entity
+Starting building the current package at /root/go/src/CURD/entity
+/root/go/src/CURD/entity>Finished running tool: /root/go/bin/golint
+/root/go/src/CURD/entity/dc.go:8:6 exported type DataCenter should have comment or be unexported
+/root/go/src/CURD/entity/dc.go:9:2 struct field Id should be ID
+/root/go/src/CURD/entity/dc.go:13:1 comment on exported method DataCenter.Clone should be of the form "Clone ..."
+/root/go/src/CURD/entity/dc.go:18:1 exported function GetDCs should have comment or be unexported
+/root/go/src/CURD/entity/entity.go:8:6 exported type Entity should have comment or be unexported
+/root/go/src/CURD/entity/ip_address.go:3:6 exported type IpAddress should have comment or be unexported
+/root/go/src/CURD/entity/ip_address.go:3:6 type IpAddress should be IPAddress
+/root/go/src/CURD/entity/ip_address.go:5:2 struct field IpHost should be IPHost
+/root/go/src/CURD/entity/ip_address.go:8:1 exported method IpAddress.New should have comment or be unexported
+/root/go/src/CURD/entity/ip_net.go:8:6 exported type IpNet should have comment or be unexported
+/root/go/src/CURD/entity/ip_net.go:8:6 type IpNet should be IPNet
+/root/go/src/CURD/entity/ip_net.go:9:2 struct field Id should be ID
+/root/go/src/CURD/entity/ip_net.go:13:1 comment on exported method IpNet.Clone should be of the form "Clone ..."
+/root/go/src/CURD/entity/ip_net.go:18:1 exported function GetIpNets should have comment or be unexported
+/root/go/src/CURD/entity/ip_net.go:18:6 func GetIpNets should be GetIPNets
+/root/go/src/CURD/entity/ip_net.go:35:6 func toIpNetSplice should be toIPNetSplice
+/root/go/src/CURD/entity/port_type.go:8:6 exported type PortType should have comment or be unexported
+/root/go/src/CURD/entity/port_type.go:9:2 struct field Id should be ID
+/root/go/src/CURD/entity/port_type.go:13:1 comment on exported method PortType.Clone should be of the form "Clone ..."
+/root/go/src/CURD/entity/port_type.go:18:1 exported function GetPortTypes should have comment or be unexported
+/root/go/src/CURD/entity/rack.go:8:6 exported type Rack should have comment or be unexported
+/root/go/src/CURD/entity/rack.go:9:2 struct field Id should be ID
+/root/go/src/CURD/entity/rack.go:13:1 exported method Rack.Clone should have comment or be unexported
+/root/go/src/CURD/entity/rack.go:17:1 exported function GetRacks should have comment or be unexported
+/root/go/src/CURD/entity/rack_unit.go:8:6 exported type RackUnit should have comment or be unexported
+/root/go/src/CURD/entity/rack_unit.go:9:2 struct field Id should be ID
+/root/go/src/CURD/entity/rack_unit.go:13:1 comment on exported method RackUnit.Clone should be of the form "Clone ..."
+/root/go/src/CURD/entity/rack_unit.go:18:1 exported function GetRackUnits should have comment or be unexported
+/root/go/src/CURD/entity/server.go:8:6 exported type Server should have comment or be unexported
+/root/go/src/CURD/entity/server.go:9:2 struct field Id should be ID
+/root/go/src/CURD/entity/server.go:19:2 struct field IpAddrs should be IPAddrs
+/root/go/src/CURD/entity/server.go:24:1 exported method Server.New should have comment or be unexported
+/root/go/src/CURD/entity/server.go:24:27 method parameter IdServer should be IDServer
+/root/go/src/CURD/entity/server.go:49:48 method parameter IdServer should be IDServer
+/root/go/src/CURD/entity/server.go:85:1 exported method Server.FetchIpAddrs should have comment or be unexported
+/root/go/src/CURD/entity/server.go:85:23 method FetchIpAddrs should be FetchIPAddrs
+/root/go/src/CURD/entity/server.go:96:22 method makeIpQueryComponent should be makeIPQueryComponent
+/root/go/src/CURD/entity/server.go:109:23 method initIpAddrs should be initIPAddrs
+/root/go/src/CURD/entity/server.go:119:1 exported method Server.FetchServices should have comment or be unexported
+/root/go/src/CURD/entity/server_status.go:8:6 exported type ServerStatus should have comment or be unexported
+/root/go/src/CURD/entity/server_status.go:9:2 struct field Id should be ID
+/root/go/src/CURD/entity/server_status.go:13:1 comment on exported method ServerStatus.Clone should be of the form "Clone ..."
+/root/go/src/CURD/entity/server_status.go:18:1 exported function GetServerStates should have comment or be unexported
+/root/go/src/CURD/entity/switch.go:8:6 exported type Switch should have comment or be unexported
+/root/go/src/CURD/entity/switch.go:9:2 struct field Id should be ID
+/root/go/src/CURD/entity/switch.go:16:2 struct field IpAddrs should be IPAddrs
+/root/go/src/CURD/entity/switch.go:19:1 exported method Switch.New should have comment or be unexported
+/root/go/src/CURD/entity/switch.go:19:24 method parameter Id should be ID
+/root/go/src/CURD/entity/switch.go:41:39 method parameter IdSwitch should be IDSwitch
+/root/go/src/CURD/entity/switch.go:89:1 exported method Switch.FetchIpAddrs should have comment or be unexported
+/root/go/src/CURD/entity/switch.go:89:20 method FetchIpAddrs should be FetchIPAddrs
+/root/go/src/CURD/entity/switch.go:100:19 method makeIpQueryComponent should be makeIPQueryComponent
+/root/go/src/CURD/entity/switch.go:113:20 method initIpAddrs should be initIPAddrs
+
+/root/go/src/CURD/entity>Finished running tool: /usr/bin/go vet .
+/root/go/src/CURD/database/connect.go:61:35 component.values undefined (type UpdateComponent has no field or method values, but does have Values)
+/root/go/src/CURD/database/connect.go:62:12 component.selectionArgs undefined (type UpdateComponent has no field or method selectionArgs, but does have SelectionArgs)
+
+/root/go/src/CURD/entity>Finished running tool: /usr/bin/go build -o /tmp/vscode-gogkoK2i/go-code-check CURD/entity
+/root/go/src/CURD/database/connect.go:61:35 component.values undefined (type UpdateComponent has no field or method values, but does have Values)
+/root/go/src/CURD/database/connect.go:62:12 component.selectionArgs undefined (type UpdateComponent has no field or method selectionArgs, but does have SelectionArgs)
+
+Starting linting the current package at /root/go/src/CURD/entity
+Starting "go vet" under the folder /root/go/src/CURD/entity
+Starting building the current package at /root/go/src/CURD/entity
+/root/go/src/CURD/entity>Finished running tool: /root/go/bin/golint
+
+/root/go/src/CURD/entity>Finished running tool: /usr/bin/go vet .
+
+/root/go/src/CURD/entity>Finished running tool: /usr/bin/go build -o /tmp/vscode-gogkoK2i/go-code-check CURD/entity
+can't load package: package CURD/entity: found packages entity (dc.go) and page (server.go) in /root/go/src/CURD/entity
+
+
+Starting linting the current package at /root/go/src/CURD/entity
+Starting "go vet" under the folder /root/go/src/CURD/entity
+Starting building the current package at /root/go/src/CURD/entity
+/root/go/src/CURD/entity>Finished running tool: /root/go/bin/golint
+
+/root/go/src/CURD/entity>Finished running tool: /usr/bin/go vet .
+
+/root/go/src/CURD/entity>Finished running tool: /usr/bin/go build -o /tmp/vscode-gogkoK2i/go-code-check CURD/entity
+can't load package: package CURD/entity: found packages entity (dc.go) and page (server.go) in /root/go/src/CURD/entity
+
+
+Starting linting the current package at /root/go/src/CURD/entity
+Starting "go vet" under the folder /root/go/src/CURD/entity
+Starting building the current package at /root/go/src/CURD/entity
+/root/go/src/CURD/entity>Finished running tool: /root/go/bin/golint
+
+/root/go/src/CURD/entity>Finished running tool: /usr/bin/go vet .
+
+/root/go/src/CURD/entity>Finished running tool: /usr/bin/go build -o /tmp/vscode-gogkoK2i/go-code-check CURD/entity
+can't load package: package CURD/entity: found packages entity (dc.go) and page (server.go) in /root/go/src/CURD/entity
+
+
+Starting linting the current package at /root/go/src/CURD/page
+Starting "go vet" under the folder /root/go/src/CURD/page
+Starting building the current package at /root/go/src/CURD/page
+/root/go/src/CURD/page>Finished running tool: /root/go/bin/golint
+/root/go/src/CURD/page/execute_modify.go:7:6 exported type ExecuteModify should have comment or be unexported
+/root/go/src/CURD/page/execute_modify.go:11:1 exported method ExecuteModify.New should have comment or be unexported
+/root/go/src/CURD/page/home.go:10:6 exported type Home should have comment or be unexported
+/root/go/src/CURD/page/home.go:14:1 exported method Home.New should have comment or be unexported
+/root/go/src/CURD/page/information.go:8:6 exported type Information should have comment or be unexported
+/root/go/src/CURD/page/information.go:13:1 exported method Information.New should have comment or be unexported
+/root/go/src/CURD/page/information.go:13:29 method parameter IdServer should be IDServer
+/root/go/src/CURD/page/information.go:16:2 var IdSwitch should be IDSwitch
+/root/go/src/CURD/page/information.go:23:36 method parameter IdServer should be IDServer
+/root/go/src/CURD/page/information.go:29:36 method parameter IdSwitch should be IDSwitch
+/root/go/src/CURD/page/information.go:34:25 method findSwitchId should be findSwitchID
+/root/go/src/CURD/page/information.go:34:38 method parameter IdServer should be IDServer
+/root/go/src/CURD/page/information.go:37:6 var IdSwitch should be IDSwitch
+/root/go/src/CURD/page/information.go:50:25 method makeFindSwitchIdQueryComponent should be makeFindSwitchIDQueryComponent
+/root/go/src/CURD/page/information.go:50:56 method parameter IdServer should be IDServer
+/root/go/src/CURD/page/list_errors.go:7:6 exported type ListError should have comment or be unexported
+/root/go/src/CURD/page/page.go:3:6 exported type Page should have comment or be unexported
+/root/go/src/CURD/page/servers.go:5:2 a blank import should be only in a main or test package, or have a comment justifying it
+/root/go/src/CURD/page/servers.go:9:6 exported type Servers should have comment or be unexported
+/root/go/src/CURD/page/servers.go:14:1 exported method Servers.New should have comment or be unexported
+/root/go/src/CURD/page/servers.go:14:23 method parameter Id should be ID
+/root/go/src/CURD/page/servers.go:52:25 func parameter Id should be ID
+/root/go/src/CURD/page/update_server.go:7:6 exported type UpdateServer should have comment or be unexported
+/root/go/src/CURD/page/update_server.go:13:2 struct field IpNets should be IPNets
+/root/go/src/CURD/page/update_server.go:17:1 exported method UpdateServer.New should have comment or be unexported
+/root/go/src/CURD/page/update_server.go:17:30 method parameter IdServer should be IDServer
+
+/root/go/src/CURD/page>Finished running tool: /usr/bin/go vet .
+/root/go/src/CURD/page/execute_modify.go:4:2 found packages entity (dc.go) and page (server.go) in /root/go/src/CURD/entity
+
+/root/go/src/CURD/page>Finished running tool: /usr/bin/go build -o /tmp/vscode-gogkoK2i/go-code-check CURD/page
+/root/go/src/CURD/page/execute_modify.go:4:2 found packages entity (dc.go) and page (server.go) in /root/go/src/CURD/entity
+
+Starting linting the current package at /root/go/src/CURD
+Starting "go vet" under the folder /root/go/src/CURD
+Starting building the current package at /root/go/src/CURD
+/root/go/src/CURD>Finished running tool: /root/go/bin/golint
+/root/go/src/CURD/main.go:165:1 exported function HandleHome should have comment or be unexported
+/root/go/src/CURD/main.go:176:1 exported function HandleServers should have comment or be unexported
+/root/go/src/CURD/main.go:191:1 exported function HandleInfo should have comment or be unexported
+/root/go/src/CURD/main.go:202:1 exported function HandleUpdateServer should have comment or be unexported
+/root/go/src/CURD/main.go:214:1 exported function HandleExecuteModify should have comment or be unexported
+
+/root/go/src/CURD>Finished running tool: /usr/bin/go vet .
+/root/go/src/CURD/main.go:4:2 found packages entity (dc.go) and page (server.go) in /root/go/src/CURD/entity
+
+/root/go/src/CURD>Finished running tool: /usr/bin/go build -o /tmp/vscode-gogkoK2i/go-code-check CURD
+/root/go/src/CURD/main.go:4:2 found packages entity (dc.go) and page (server.go) in /root/go/src/CURD/entity
+
+Starting linting the current package at /root/go/src/CURD
+Starting "go vet" under the folder /root/go/src/CURD
+Starting building the current package at /root/go/src/CURD
+/root/go/src/CURD>Finished running tool: /root/go/bin/golint
+/root/go/src/CURD/main.go:165:1 exported function HandleHome should have comment or be unexported
+/root/go/src/CURD/main.go:176:1 exported function HandleServers should have comment or be unexported
+/root/go/src/CURD/main.go:191:1 exported function HandleInfo should have comment or be unexported
+/root/go/src/CURD/main.go:202:1 exported function HandleUpdateServer should have comment or be unexported
+/root/go/src/CURD/main.go:214:1 exported function HandleExecuteModify should have comment or be unexported
+
+/root/go/src/CURD>Finished running tool: /usr/bin/go vet .
+/root/go/src/CURD/main.go:4:2 found packages entity (dc.go) and page (server.go) in /root/go/src/CURD/entity
+
+/root/go/src/CURD>Finished running tool: /usr/bin/go build -o /tmp/vscode-gogkoK2i/go-code-check CURD
+/root/go/src/CURD/main.go:4:2 found packages entity (dc.go) and page (server.go) in /root/go/src/CURD/entity
+
+Starting linting the current package at /root/go/src/CURD
+Starting "go vet" under the folder /root/go/src/CURD
+Starting building the current package at /root/go/src/CURD
+/root/go/src/CURD>Finished running tool: /root/go/bin/golint
+/root/go/src/CURD/main.go:165:1 exported function HandleHome should have comment or be unexported
+/root/go/src/CURD/main.go:176:1 exported function HandleServers should have comment or be unexported
+/root/go/src/CURD/main.go:191:1 exported function HandleInfo should have comment or be unexported
+/root/go/src/CURD/main.go:202:1 exported function HandleUpdateServer should have comment or be unexported
+/root/go/src/CURD/main.go:214:1 exported function HandleExecuteModify should have comment or be unexported
+
+/root/go/src/CURD>Finished running tool: /usr/bin/go vet .
+/root/go/src/CURD/main.go:4:2 found packages entity (dc.go) and page (server.go) in /root/go/src/CURD/entity
+
+/root/go/src/CURD>Finished running tool: /usr/bin/go build -o /tmp/vscode-gogkoK2i/go-code-check CURD
+/root/go/src/CURD/main.go:4:2 found packages entity (dc.go) and page (server.go) in /root/go/src/CURD/entity
+
+Starting linting the current package at /root/go/src/CURD
+Starting "go vet" under the folder /root/go/src/CURD
+Starting building the current package at /root/go/src/CURD
+/root/go/src/CURD>Finished running tool: /root/go/bin/golint
+/root/go/src/CURD/main.go:165:1 exported function HandleHome should have comment or be unexported
+/root/go/src/CURD/main.go:176:1 exported function HandleServers should have comment or be unexported
+/root/go/src/CURD/main.go:191:1 exported function HandleInfo should have comment or be unexported
+/root/go/src/CURD/main.go:202:1 exported function HandleUpdateServer should have comment or be unexported
+/root/go/src/CURD/main.go:214:1 exported function HandleExecuteModify should have comment or be unexported
+
+/root/go/src/CURD>Finished running tool: /usr/bin/go vet .
+/root/go/src/CURD/main.go:4:2 found packages entity (dc.go) and page (server.go) in /root/go/src/CURD/entity
+
+/root/go/src/CURD>Finished running tool: /usr/bin/go build -o /tmp/vscode-gogkoK2i/go-code-check CURD
+/root/go/src/CURD/main.go:4:2 found packages entity (dc.go) and page (server.go) in /root/go/src/CURD/entity
+
+Starting linting the current package at /root/go/src/CURD
+Starting "go vet" under the folder /root/go/src/CURD
+Starting building the current package at /root/go/src/CURD
+/root/go/src/CURD>Finished running tool: /root/go/bin/golint
+/root/go/src/CURD/main.go:165:1 exported function HandleHome should have comment or be unexported
+/root/go/src/CURD/main.go:176:1 exported function HandleServers should have comment or be unexported
+/root/go/src/CURD/main.go:191:1 exported function HandleInfo should have comment or be unexported
+/root/go/src/CURD/main.go:202:1 exported function HandleUpdateServer should have comment or be unexported
+/root/go/src/CURD/main.go:214:1 exported function HandleExecuteModify should have comment or be unexported
+
+/root/go/src/CURD>Finished running tool: /usr/bin/go build -o /tmp/vscode-gogkoK2i/go-code-check CURD
+/root/go/src/CURD/main.go:4:2 found packages entity (dc.go) and page (server.go) in /root/go/src/CURD/entity
+
+/root/go/src/CURD>Finished running tool: /usr/bin/go vet .
+/root/go/src/CURD/main.go:4:2 found packages entity (dc.go) and page (server.go) in /root/go/src/CURD/entity
+
+Starting linting the current package at /root/go/src/CURD
+Starting "go vet" under the folder /root/go/src/CURD
+Starting building the current package at /root/go/src/CURD
+/root/go/src/CURD>Finished running tool: /root/go/bin/golint
+/root/go/src/CURD/main.go:165:1 exported function HandleHome should have comment or be unexported
+/root/go/src/CURD/main.go:176:1 exported function HandleServers should have comment or be unexported
+/root/go/src/CURD/main.go:191:1 exported function HandleInfo should have comment or be unexported
+/root/go/src/CURD/main.go:202:1 exported function HandleUpdateServer should have comment or be unexported
+/root/go/src/CURD/main.go:214:1 exported function HandleExecuteModify should have comment or be unexported
+
+/root/go/src/CURD>Finished running tool: /usr/bin/go build -o /tmp/vscode-gogkoK2i/go-code-check CURD
+/root/go/src/CURD/main.go:4:2 found packages entity (dc.go) and page (server.go) in /root/go/src/CURD/entity
+
+/root/go/src/CURD>Finished running tool: /usr/bin/go vet .
+/root/go/src/CURD/main.go:4:2 found packages entity (dc.go) and page (server.go) in /root/go/src/CURD/entity
+

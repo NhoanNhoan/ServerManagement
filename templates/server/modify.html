@@ -372,75 +372,66 @@
               <div class="col-sm-8 col-sm-offset-2">
                 <h4 class="font-alt mb-0">registration form</h4>
                 <hr class="divider-w mt-10 mb-20">
-                <form class="form" role="form">
+                <form class="form" role="form" method="post" action="execute_modify">
+                  <input type="hidden" name="txtIdServer" value="{{.Server.Id}}">
                   <div class="form-group">
                     <label for="exampleFormControlSelect1">Server Name</label>
-                    <input class="form-control input-lg" type="text" value="{{.Server.Service}}" />
+                    <input class="form-control input-lg" type="text" value="{{.Server.Services}}" />
                   </div>
 
                   <div class="form-group">
                       <label for="exampleFormControlSelect1">Data Center</label>
-                      <select class="form-control" id="exampleFormControlSelect1" name="cbDC">
-                        <option id="1">1</option>
-                        <option id="2">2</option>
-                        <option id="3">3</option>
-                        <option id="123hfjdfa">4</option>
-                        <option id="5">5</option>
+                      <select class="form-control" id="exampleFormControlSelect1" name="cbDCId">
+                        {{ range $dc := .DCs }}
+                        <option id="{{$dc.Id}}" value="{{$dc.Id}}">{{$dc.Description}}</option>
+                        {{ end }}
                       </select>
                   </div>
 
                   <div class="form-group">
                       <label for="exampleFormControlSelect1">Rack</label>
-                      <select class="form-control" id="exampleFormControlSelect1" name="cbRack">
-                        <option>1</option>
-                        <option>2</option>
-                        <option id="{{.Server.Location.Rack.Id}}">3</option>
-                        <option>4</option>
-                        <option>5</option>
+                      <select class="form-control" id="exampleFormControlSelect1" name="cbRackId">
+                         {{ range $rack := .Racks }}
+                        <option id="{{$rack.Id}}" value="{{$rack.Id}}">{{$rack.Description}}</option>
+                        {{ end }}
                       </select>
                   </div>
 
                   <div class="form-group row">
                     <div class="col-sm-6">
                         <label for="exampleFormControlSelect1">Rack Unit Start</label>
-                        <select class="form-control" id="exampleFormControlSelect1" name="cbUStart">
-                          <option id="{{.Server.Location.UStart.Id}}">1</option>
-                          <option>2</option>
-                          <option>3</option>
-                          <option>4</option>
-                          <option>5</option>
+                        <select class="form-control" id="exampleFormControlSelect1" name="cbUStartId">
+                          {{ range $unit := .RackUnits }}
+                            <option id="{{$unit.Id}}"  value="{{$unit.Id}}">{{$unit.Description}}</option>
+                          {{ end }}
                         </select>
                     </div>
 
                     <div class="col-sm-6">
                         <label for="exampleFormControlSelect1">Rack Unit End</label>
-                        <select class="form-control" id="exampleFormControlSelect1" name="cbUEnd">
-                          <option>1</option>
-                          <option>2</option>
-                          <option>3</option>
-                          <option>4</option>
-                          <option id="{{.Server.Location.UEnd.Id}}">5</option>
+                        <select class="form-control" id="exampleFormControlSelect1" name="cbUEndId">
+                          {{ range $unit := .RackUnits }}
+                            <option id="{{$unit.Id}}" value="{{$unit.Id}}">{{$unit.Description}}</option>
+                          {{ end }}
                         </select>
                     </div>
                   </div>
 
                   <div class="form-group">
                       <label for="exampleFormControlSelect1">Port Type</label>
-                      <select class="form-control" id="exampleFormControlSelect1" name="cbPortType">
-                        <option>Idrac</option>
-                        <option id="{{.Server.PortType.Id}}">Ilo</option>
-                        <option>IdEGWG</option>
-                        <option>No</option>
+                      <select class="form-control" id="exampleFormControlSelect1" name="cbPortTypeId">
+                        {{ range $types := .PortTypes }}
+                          <option id="{{$types.Id}}" value="{{$types.Id}}">{{$types.Description}}</option>
+                        {{ end }}
                       </select>
                   </div>
 
                   <div class="form-group">
                       <label for="exampleFormControlSelect1">Status</label>
-                      <select class="form-control" id="exampleFormControlSelect1" name="cbStatus">
-                        <option>Available</option>
-                        <option>Active</option>
-                        <option>Interactive</option>
-                        <option>Good</option>
+                      <select class="form-control" id="exampleFormControlSelect1" name="cbStatusId">
+                        {{ range $state := .ServerStates }}
+                          <option id="{{$state.Id}}" value="{{$state.Id}}">{{$state.Description}}</option>
+                        {{ end }}
                       </select>
                   </div>
 
@@ -452,11 +443,10 @@
                   <div class="form-group row">
                       <div class="col-sm-10">
                           <label for="exampleFormControlSelect1">Ip Net</label>
-                          <select class="form-control" id="exampleFormControlSelect1" name="cbIpRange">
-                            <option>10.0.9.</option>
-                            <option>10.0.5.</option>
-                            <option>192.168.2.</option>
-                            <option>9.1.2.</option>
+                          <select class="form-control" id="exampleFormControlSelect1" name="cbIpRangeId">
+                             {{ range $ipNet := .IpNets }}
+                              <option id="{{$ipNet.Id}}" value="{{$ipNet.Id}}">{{$ipNet.Value}}</option>
+                              {{ end }}
                           </select>
                       </div>
 
@@ -594,10 +584,11 @@
       }
 
       select(
-              "{{.Server.Location.DataCenter.Id}}",
-              "{{.Server.Location.Rack.Id}}",
-              "{{.Server.Location.UStart.Id}}",
-              "{{.Server.Location.UEnd.Id}}");
+              "{{.Server.DC.Id}}",
+              "{{.Server.Rack.Id}}",
+              "{{.Server.UStart.Id}}",
+              "{{.Server.UEnd.Id}}"
+            );
     </script>
 
   </body>

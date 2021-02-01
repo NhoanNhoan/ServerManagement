@@ -1,0 +1,135 @@
+[2021-01-25 09:05:22.481] [renderer1] [error] [File Watcher (node.js)] Error: ENOENT: no such file or directory, stat '/root/go/src/CURD/.vscode'
+[2021-01-25 09:07:03.109] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 09:10:28.076] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 09:12:20.779] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 09:12:25.303] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 09:15:06.957] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 09:15:44.897] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 09:15:46.414] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 09:15:48.674] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 09:15:50.586] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 09:17:23.128] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 09:25:08.152] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 09:26:34.089] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 09:27:25.453] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 09:27:31.547] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 09:28:23.634] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 09:29:28.732] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 09:29:42.660] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 09:29:44.064] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 09:31:00.253] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 09:32:01.160] [renderer1] [error] name must not be falsy: Error: name must not be falsy
+	at Function.validate (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:546:315)
+	at new T (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:546:264)
+	at new T (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:531:904)
+	at /root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16281:28
+	at Array.forEach (<anonymous>)
+	at convertToCodeSymbols (/root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16259:19)
+	at /root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16193:16
+	at Generator.next (<anonymous>)
+	at fulfilled (/root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16169:58)
+[2021-01-25 10:02:18.270] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 10:06:12.465] [renderer1] [warning] Check the console in dev tools to find errors when formatting.
+[2021-01-25 10:06:41.556] [renderer1] [warning] Check the console in dev tools to find errors when formatting.
+[2021-01-25 10:09:18.965] [renderer1] [warning] Settings pattern "workbench.fontAliasing" doesn't match any settings
+[2021-01-25 10:12:06.702] [renderer1] [error] name must not be falsy: Error: name must not be falsy
+	at Function.validate (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:546:315)
+	at new T (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:546:264)
+	at new T (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:531:904)
+	at /root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16281:28
+	at Array.forEach (<anonymous>)
+	at convertToCodeSymbols (/root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16259:19)
+	at /root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16193:16
+	at Generator.next (<anonymous>)
+	at fulfilled (/root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16169:58)
+	at runMicrotasks (<anonymous>)
+	at processTicksAndRejections (internal/process/task_queues.js:94:5)
+[2021-01-25 10:12:33.536] [renderer1] [error] name must not be falsy: Error: name must not be falsy
+	at Function.validate (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:546:315)
+	at new T (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:546:264)
+	at new T (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:531:904)
+	at /root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16281:28
+	at Array.forEach (<anonymous>)
+	at convertToCodeSymbols (/root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16259:19)
+	at /root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16193:16
+	at Generator.next (<anonymous>)
+	at fulfilled (/root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16169:58)
+	at runMicrotasks (<anonymous>)
+	at processTicksAndRejections (internal/process/task_queues.js:94:5)
+[2021-01-25 10:12:41.800] [renderer1] [error] name must not be falsy: Error: name must not be falsy
+	at Function.validate (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:546:315)
+	at new T (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:546:264)
+	at new T (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:531:904)
+	at /root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16281:28
+	at Array.forEach (<anonymous>)
+	at convertToCodeSymbols (/root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16259:19)
+	at /root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16193:16
+	at Generator.next (<anonymous>)
+	at fulfilled (/root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16169:58)
+	at runMicrotasks (<anonymous>)
+	at processTicksAndRejections (internal/process/task_queues.js:94:5)
+[2021-01-25 10:15:22.232] [renderer1] [error] name must not be falsy: Error: name must not be falsy
+	at Function.validate (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:546:315)
+	at new T (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:546:264)
+	at new T (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:531:904)
+	at /root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16281:28
+	at Array.forEach (<anonymous>)
+	at convertToCodeSymbols (/root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16259:19)
+	at /root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16193:16
+	at Generator.next (<anonymous>)
+	at fulfilled (/root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16169:58)
+	at runMicrotasks (<anonymous>)
+	at processTicksAndRejections (internal/process/task_queues.js:94:5)
+[2021-01-25 10:18:03.964] [renderer1] [warning] Check the console in dev tools to find errors when formatting.
+[2021-01-25 10:22:04.399] [renderer1] [error] name must not be falsy: Error: name must not be falsy
+	at Function.validate (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:546:315)
+	at new T (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:546:264)
+	at new T (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:531:904)
+	at /root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16281:28
+	at Array.forEach (<anonymous>)
+	at convertToCodeSymbols (/root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16259:19)
+	at /root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16193:16
+	at Generator.next (<anonymous>)
+	at fulfilled (/root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16169:58)
+[2021-01-25 10:22:06.016] [renderer1] [error] name must not be falsy: Error: name must not be falsy
+	at Function.validate (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:546:315)
+	at new T (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:546:264)
+	at new T (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:531:904)
+	at /root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16281:28
+	at Array.forEach (<anonymous>)
+	at convertToCodeSymbols (/root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16259:19)
+	at /root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16193:16
+	at Generator.next (<anonymous>)
+	at fulfilled (/root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16169:58)
+	at runMicrotasks (<anonymous>)
+	at processTicksAndRejections (internal/process/task_queues.js:94:5)
+[2021-01-25 10:32:18.483] [renderer1] [error] Command failed: /root/go/bin/godef -t -i -f /root/go/src/CURD/main.go -o 5088
+
+[2021-01-25 10:34:24.688] [renderer1] [error] Command failed: /root/go/bin/godef -t -i -f /root/go/src/CURD/main.go -o 5162
+
+[2021-01-25 10:34:24.802] [renderer1] [error] Command failed: /root/go/bin/godef -t -i -f /root/go/src/CURD/main.go -o 5227
+
+[2021-01-25 10:46:15.261] [renderer1] [error] name must not be falsy: Error: name must not be falsy
+	at Function.validate (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:546:315)
+	at new T (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:546:264)
+	at new T (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:531:904)
+	at /root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16281:28
+	at Array.forEach (<anonymous>)
+	at convertToCodeSymbols (/root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16259:19)
+	at /root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16193:16
+	at Generator.next (<anonymous>)
+	at fulfilled (/root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16169:58)
+	at runMicrotasks (<anonymous>)
+	at processTicksAndRejections (internal/process/task_queues.js:94:5)
+[2021-01-25 10:46:31.028] [renderer1] [error] name must not be falsy: Error: name must not be falsy
+	at Function.validate (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:546:315)
+	at new T (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:546:264)
+	at new T (/usr/share/code/resources/app/out/vs/workbench/services/extensions/node/extensionHostProcess.js:531:904)
+	at /root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16281:28
+	at Array.forEach (<anonymous>)
+	at convertToCodeSymbols (/root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16259:19)
+	at /root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16193:16
+	at Generator.next (<anonymous>)
+	at fulfilled (/root/.vscode/extensions/golang.go-0.21.1/dist/goMain.js:16169:58)
+	at runMicrotasks (<anonymous>)
+	at processTicksAndRejections (internal/process/task_queues.js:94:5)
