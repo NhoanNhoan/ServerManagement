@@ -382,93 +382,101 @@
                   </div>
 
                   <div class="form-group">
-                      <label for="exampleFormControlSelect1">Data Center</label>
+                      <label for="cbDC">Data Center</label>
                       <select class="form-control" 
-                          id="exampleFormControlSelect1"
+                          id="cbDC"
                           name="cbDC">
-                        <option>1</option>
-                        <option>2</option>
-                        <option>3</option>
-                        <option>4</option>
-                        <option>5</option>
+                          {{ range .AllDataCenters}}
+                            <option value="{{.Id}}">{{.Description}}</option>
+                          {{ end }}
                       </select>
                   </div>
 
                   <div class="form-group">
-                      <label for="exampleFormControlSelect1">Rack</label>
-                      <select class="form-control" id="exampleFormControlSelect1">
-                        <option>1</option>
-                        <option>2</option>
-                        <option>3</option>
-                        <option>4</option>
-                        <option>5</option>
+                      <label for="cbRack">Rack</label>
+                      <select class="form-control" 
+                            id="cbRack"
+                            name="cbRack">
+                            {{ range .AllRacks}}
+                              <option value="{{.Id}}">{{.Description}}</option>
+                            {{ end }}
                       </select>
                   </div>
 
                   <div class="form-group row">
                     <div class="col-sm-6">
-                        <label for="exampleFormControlSelect1">Rack Unit Start</label>
-                        <select class="form-control" id="exampleFormControlSelect1">
-                          <option>1</option>
-                          <option>2</option>
-                          <option>3</option>
-                          <option>4</option>
-                          <option>5</option>
+                        <label for="cbUStart">Rack Unit Start</label>
+                        <select class="form-control" 
+                            id="cbUStart"
+                            name="cbUStart">
+                            {{ range .AllRackUnits}}
+                              <option value="{{.Id}}">{{.Description}}</option>
+                            {{ end }}
                         </select>
                     </div>
 
                     <div class="col-sm-6">
-                        <label for="exampleFormControlSelect1">Rack Unit End</label>
-                        <select class="form-control" id="exampleFormControlSelect1">
-                          <option>1</option>
-                          <option>2</option>
-                          <option>3</option>
-                          <option>4</option>
-                          <option>5</option>
+                        <label for="cbUEnd">Rack Unit End</label>
+                        <select class="form-control" 
+                              id="cbUEnd"
+                              name="cbUEnd">
+                            {{ range .AllRackUnits}}
+                              <option value="{{.Id}}">{{.Description}}</option>
+                            {{ end }}
                         </select>
                     </div>
                   </div>
 
                   <div class="form-group">
-                      <label for="exampleFormControlSelect1">Port Type</label>
-                      <select class="form-control" id="exampleFormControlSelect1">
-                        <option>Idrac</option>
-                        <option>Ilo</option>
-                        <option>IdEGWG</option>
-                        <option>No</option>
+                      <label for="cbPortType">Port Type</label>
+                      <select class="form-control" 
+                          id="cbPortType"
+                          name="cbPortType">
+                          {{ range .AllPortTypes}}
+                            <option value="{{.Id}}">{{.Description}}</option>
+                          {{ end }}
                       </select>
                   </div>
 
                   <div class="form-group">
-                      <label for="exampleFormControlSelect1">Status</label>
-                      <select class="form-control" id="exampleFormControlSelect1">
-                        <option>Available</option>
-                        <option>Active</option>
-                        <option>Interactive</option>
-                        <option>Good</option>
+                      <label for="cbServerState">Status</label>
+                      <select class="form-control" 
+                          id="cbServerState"
+                          name="cbServerState">
+                          {{ range .AllServerStates}}
+                            <option value="{{.Id}}">{{.Description}}</option>
+                          {{ end }}
                       </select>
                   </div>
 
                   <div class="form-group">
-                    <label for="exampleFormControlSelect1">Serial Number</label>
-                    <input class="form-control input-lg" type="text" placeholder="Serial Number"/>
+                    <label for="txtSerialNumber">Serial Number</label>
+                    <input class="form-control input-lg" 
+                        type="text" 
+                        placeholder="Serial Number"
+                        name="txtSerialNumber"/>
                   </div>
 
                   <div class="form-group row">
                       <div class="col-sm-10">
-                          <label for="exampleFormControlSelect1">Ip Net</label>
-                          <select class="form-control" id="exampleFormControlSelect1">
-                            <option>10.0.9.</option>
-                            <option>10.0.5.</option>
-                            <option>192.168.2.</option>
-                            <option>9.1.2.</option>
+                          <label for="cbIpNet">Ip Net</label>
+                          <select class="form-control" 
+                              id="cbIpNet"
+                              name="cbIpNet">
+                            {{ range .AllIpNets}}
+                              <option value="{{.Id}}">{{.Value}}</option>
+                            {{ end }}
                           </select>
                       </div>
 
                       <div class="col-sm-2">
-                        <label for="exampleFormControlSelect1">Ip Host</label>
-                        <input id="txtIpHost" class="form-control input-sm" type="text" placeholder="Ex: 254"
-                        onkeypress="return is_num(event)" />
+                        <label for="txtIpHost">Ip Host</label>
+                        <input id="txtIpHost" 
+                            class="form-control input-sm" 
+                            type="text" 
+                            placeholder="Ex: 254"
+                            name="txtIpHost"
+                            onkeypress="return is_num(event)" />
                         <script type="text/javascript">
                           document.getElementById("txtIpHost").maxLength = "3"
                         </script>
@@ -477,7 +485,7 @@
 
                     <div class="form-group row">
                       <div class="col">
-                        <button type="submit" class="btn btn-primary">Registry</button>
+                        <button type="submit" class="form-control btn btn-primary">Registry</button>
                       </div>
                     </div>
 

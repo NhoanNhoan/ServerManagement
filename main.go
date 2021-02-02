@@ -244,8 +244,10 @@ func getPortTypeFromPostForm(c *gin.Context) entity.PortType {
 
 func HandleRegisterServer(r *gin.Engine) {
 	r.GET("/server/register", func (c *gin.Context) {
+		var registration page.RegistrationServer
+		registration.New()
 		r.LoadHTMLFiles("templates/server/register.html")
-		c.HTML(http.StatusOK, "templates/server/register.html", nil)
+		c.HTML(http.StatusOK, "templates/server/register.html", registration)
 	})
 }
 
