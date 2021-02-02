@@ -65,7 +65,7 @@ func Update(component UpdateComponent) (err error) {
 
 func Delete(component DeleteComponent) (err error) {
 	sql := MakeDeleteStatement(component)
-	return executeStatement(sql, component.selectionArgs...)
+	return executeStatement(sql, component.SelectionArgs...)
 }
 
 func executeStatement(statement string, values ...string) (err error) {

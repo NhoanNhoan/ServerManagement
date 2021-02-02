@@ -74,6 +74,8 @@ func setupRouter() *gin.Engine {
 	HandleInfo(r)	
 	HandleUpdateServer(r)
 	HandleExecuteModify(r)
+	HandleRegisterServer(r)
+
 	HandleListError(r)
 	HandleViewError(r)
 	HandleErrorExecuteUpdate(r)
@@ -240,6 +242,13 @@ func getPortTypeFromPostForm(c *gin.Context) entity.PortType {
 	}
 }
 
+func HandleRegisterServer(r *gin.Engine) {
+	r.GET("/server/register", func (c *gin.Context) {
+		r.LoadHTMLFiles("templates/server/register.html")
+		c.HTML(http.StatusOK, "templates/server/register.html", nil)
+	})
+}
+
 func getServerStatusFromPostForm(c *gin.Context) entity.ServerStatus {
 	return entity.ServerStatus{
 		Id: c.PostForm("cbStatusId"),
@@ -293,23 +302,22 @@ func HandleErrorExecuteUpdate(r *gin.Engine) {
 	r.POST("error/update_error", func (c *gin.Context) {
 		update := error_page.ExecuteUpdateError {}
 		update.New(c)
-		update.Execute()
+		err := update.Execute()
+		if nil != err {
+			panic (err)
+		}
+
 		r.LoadHTMLFiles("templates/error/execute_update.html")
 		c.HTML(http.StatusOK, "templates/error/execute_update.html", update)
 	})
 }
 
+
+
 /*func HandleLogin(r *gin.Engine) {
 	r.GET("/user/login", func (c *gin.Context) {
 		r.LoadHTMLFiles("templates/user/login.html")
 		c.HTML(http.StatusOK, "templates/user/login.html", nil)
-	})
-}
-
-func HandleRegisterServer(r *gin.Engine, server *model.Server) {
-	r.GET("/server/register", func (c *gin.Context) {
-		r.LoadHTMLFiles("templates/server/register.html")
-		c.HTML(http.StatusOK, "templates/server/register.html", nil)
 	})
 }
 

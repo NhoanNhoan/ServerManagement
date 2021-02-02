@@ -424,31 +424,19 @@
                   </div>
 
                   <div id="curatorArea">
-                    <label for="cbCurator">Curator</label>
+                    <label for="cbPersonId">Curator</label><br>
 
                     {{ $curators := .Curators }}
                     {{ $allPersons := .AllPersons }}
 
-                    {{range $i, $curator := $curators}}
 
-                    <div class="col">
-                      <input type="hidden" 
-                          name="txtCuratorId{{$i}}"
-                          value="{{$curator.Id}}">
-                      <select class="form-control"
-                            id="cbCurator{{$i}}"
-                            name="cbCurator{{$i}}" disabled>
-                          {{range $person := $allPersons}}
-                            <option 
-                              id="{{$person.Id}}{{$i}}"
-                              value="txtCuratorId">
-                              {{$person.Name}}    
-                            </option>
-                          {{end}}
-                      </select>
-                    </div>
-                    <h4></h4>
-
+                    {{range $person := $allPersons}}
+                      <input type="checkbox" 
+                          id="{{$person.Id}}"
+                          name="{{$person.Id}}" 
+                          value="yes">
+                      <label for="{{$person.Id}}">{{$person.Name}}</label>
+                      <br>
                     {{end}}
 
                   </div>
@@ -465,18 +453,6 @@
                           class="form-control btn btn-primary"
                           onclick="unclock_click()">
                             unclock
-                        </button>
-                      </div>
-
-                      <div class="col-sm-4">
-                        <h1></h1>
-                        <button 
-                          id="btnCurator"
-                          type="button" 
-                          class="form-control btn btn-primary" 
-                          style="display: block"
-                          onclick="curator_click()">
-                            add curator
                         </button>
                       </div>
 
@@ -615,44 +591,9 @@
                 'txtSolution',
                 'txtDesState',
                 'cbState',)
-        unclock_cb_curator()
 
         var btn = get("btnModify")
         btn.style.display="block"
-        set_txtNumCurators()
-      }
-
-      function unclock_cb_curator() {
-        var cbName = "cbCurator"
-        for (i = 0; i < numCurator; i++) {
-          get(cbName + i.toString())
-                                  .disabled = false
-        }
-      }
-
-      function curator_click() {
-        cbName = "cbCurator" + numCurator.toString()
-
-        var content = "<h4></h4> " +
-                    "<div class='col'> " +
-                      "<select name=" + cbName +
-                          " class='form-control'> " +
-                          "{{range $person := $allPersons}}" +
-                            "<option " +
-                              "id='txtCuratorId' " +
-                              "value={{$person.Id}}" + "txt" + "> " +
-                              "{{$person.Name}} " +    
-                            "</option> " +
-                          "{{end}} " +
-                      "</select> " +
-                    "</div>"
-          get("curatorArea").innerHTML += content;
-          numCurator = parseInt(numCurator) + 1
-          set_txtNumCurators()
-      }
-
-      function set_txtNumCurators() {
-        get("txtNumCurators").value = numCurator
       }
 
       forEach((ele) => ele.selected = true,
@@ -660,7 +601,7 @@
 
       function select_curators() {
         "{{ range $i, $curator := $curators }}"
-          get('{{$curator.IdPerson}}{{$i}}').selected = true
+          get('{{$curator.IdPerson}}').checked = true
         "{{ end }}"
       }
 

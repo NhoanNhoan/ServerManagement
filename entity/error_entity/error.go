@@ -10,6 +10,7 @@ import (
 
 type qcomp = database.QueryComponent
 type ucomp = database.UpdateComponent
+type icomp = database.InsertComponent
 
 type Error struct {
 	Id string

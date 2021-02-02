@@ -6,23 +6,24 @@ import (
 	"database/sql"
 )
 
-type icomp = database.InsertComponent
-
 type Curator struct {
-	Id string
+	//Id string
 	IdError string
 	IdPerson string
 }
 
 func (c *Curator) MakeByRows(row *sql.Rows) error {
-	err := row.Scan(&c.Id,
+	err := row.Scan(//&c.Id,
 					&c.IdError,
 					&c.IdPerson)
 	return err
 }
 
+// Execute performs update or insert
+// If id has been exists, it will be updated
+// otherwise this curator will be inserted
 func (c *Curator) Execute() (err error) {
-	if c.IsExists(c.IdPerson) {
+	if WasExistedCurator(*c) {
 		return c.update()
 	}
 
@@ -37,14 +38,13 @@ func (c *Curator) update() (err error) {
 func (c *Curator) makeUComp() ucomp {
 	return ucomp {
 		Table: "CURATOR",
-		SetClause: "ID_ERROR = ?, " +
-					"ID_PERSON = ?",
+		SetClause: "ID_PERSON = ?",
 		Values: []string {
-			c.IdError,
 			c.IdPerson,
 		},
-		Selection: "ID = ?",
-		SelectionArgs: []string {c.Id},
+		Selection: "ID_ERROR = ? AND ID_PERSON = ?",
+		SelectionArgs: []string {c.IdError, 
+								c.IdPerson},
 	}
 }
 
@@ -57,22 +57,21 @@ func (c *Curator) makeInsComp() icomp {
 	return icomp {
 		Table: "CURATOR",
 		Columns: []string {
-			"ID",
 			"ID_ERROR",
 			"ID_PERSON",
 		},
 		Values: [][]string {
 			[]string {
-				c.Id,
 				c.IdError,
 				c.IdPerson,
 			},
 		},
 	}
 }
+
 // CHECK EXITS AREA
 
-func (c *Curator) IsExists(IdPerson string) bool {
+func (c *Curator) IsExistsPerson(IdPerson string) bool {
 	comp := c.makeExistsQueryComp(IdPerson)
 	row, err := database.Query(comp)
 	return nil == err && row.Next()
@@ -81,21 +80,21 @@ func (c *Curator) IsExists(IdPerson string) bool {
 func (c *Curator) makeExistsQueryComp(IdPerson string) qcomp {
 	return qcomp {
 		Tables: []string {"CURATOR AS C",
-					"PERSON AS P",
 				},
 
 		Columns: []string {
-					"C.ID",
+					"C.ID_ERROR",
 				},
 
-		Selection: "C.ID = ? AND " +
-				"C.ID_ERROR = ? AND " +
-				"C.ID_PERSON = ?",
+		Selection: "C.ID_ERROR = ? AND " +
+					"C.ID_PERSON = ?",
 
-		SelectionArgs: []string {c.Id, c.IdError, IdPerson},
+		SelectionArgs: []string {c.IdError, IdPerson},
 	}
 }
 // END OF CHECK EXISTS AREA
+
+// ===========================
 
 // FETCH CURATOR ARRAY AREA
 
@@ -122,7 +121,6 @@ func makeCuratorsComp(IdError string) qcomp {
 		Tables: []string {"CURATOR"},
 
 		Columns: []string {
-					"ID",
 					"ID_ERROR", 
 					"ID_PERSON",
 				},
@@ -134,3 +132,30 @@ func makeCuratorsComp(IdError string) qcomp {
 }
 
 // END OF FETCH CURATOR AREA
+
+// MAKE NEW PRIMARY FOR A CURATOR
+
+func WasExistedCurator(curator Curator) bool {
+	comp := qcomp {
+		Tables: []string {"CURATOR"},
+		Columns: []string {"ID_ERROR"},
+		Selection: "ID_ERROR = ? AND ID_PERSON = ?",
+		SelectionArgs: []string {curator.IdError, 
+							curator.IdPerson},
+	}
+
+	row, err := database.Query(comp)
+	return (nil == err) && row.Next()
+}
+
+// 
+
+func DeleteCuratorsByErrorId(ErrorId string) error {
+	comp := database.DeleteComponent {
+		Table: "CURATOR",
+		Selection: "ID_ERROR = ?",
+		SelectionArgs: []string {ErrorId},
+	}
+
+	return database.Delete(comp)
+} 

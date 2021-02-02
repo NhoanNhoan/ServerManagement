@@ -4,10 +4,10 @@ import (
 	"CURD/entity"
 	"CURD/entity/error_entity"
 	"github.com/gin-gonic/gin"
-	"strconv"
 )
 
 type ExecuteUpdateError struct {
+	AllPersons []error_entity.Person
 	error_entity.Error
 	Curators []error_entity.Curator
 	Msg string
@@ -15,6 +15,7 @@ type ExecuteUpdateError struct {
 
 func (obj *ExecuteUpdateError) New(context *gin.Context) {
 	obj.makeErrorByContext(context)
+	obj.AllPersons = error_entity.FetchPersons()
 	obj.makeCuratorsByContext(context)
 }
 
@@ -38,17 +39,13 @@ func (obj *ExecuteUpdateError) makeErrorByContext(context *gin.Context) {
 }
 
 func (obj *ExecuteUpdateError) makeCuratorsByContext(context *gin.Context) {
-	numCurators, _ := strconv.Atoi(context.PostForm("txtNumCurators"))
-	obj.Curators = make([]error_entity.Curator, numCurators)
-
-	for i := 0; i < numCurators; i++ {
-		curatorId := context.PostForm("txtCuratorId" + strconv.Itoa(i))
-		errorId := obj.Error.Id
-		personId := context.PostForm("cbCuratorId" + strconv.Itoa(i))
-		obj.Curators[i] = error_entity.Curator {
-			Id: curatorId,
-			IdError: errorId,
-			IdPerson: personId,
+	for i := range obj.AllPersons {
+		checked := context.PostForm(obj.AllPersons[i].Id)
+		if "yes" == checked {
+			obj.Curators = append(obj.Curators, error_entity.Curator {
+				IdError: obj.Error.Id,
+				IdPerson: obj.AllPersons[i].Id,
+			})
 		}
 	}
 }
@@ -66,15 +63,25 @@ func (obj *ExecuteUpdateError) updateCurators() error {
 	return err
 }
 
-func (obj *ExecuteUpdateError) Execute() error {
-	err := obj.Error.Update()
+func (obj *ExecuteUpdateError) Execute() (err error) {
+	err = error_entity.DeleteCuratorsByErrorId(obj.Error.Id)
+	if nil != err {
+		panic (err)
+	}
+
+	err = obj.Error.Update()
 
 	if nil != err {
 		obj.Msg = "Can't update"
 		panic (err)
 	}
 
-	obj.updateCurators()
+	err = obj.updateCurators()
+
+	if nil != err {
+		obj.Msg = "Can't update"
+		panic (err)
+	}
 
 	obj.Msg = "Success"
 	return nil

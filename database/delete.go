@@ -1,13 +1,13 @@
 package database
 
 type DeleteComponent struct {
-	table string
-	selection string
-	selectionArgs []string
+	Table string
+	Selection string
+	SelectionArgs []string
 }
 
 func MakeDeleteStatement(component DeleteComponent) string {
 	return concat(" ", []string {"DELETE",
-		"FROM", component.table,
-		"WHERE", component.selection})
+		"FROM", component.Table,
+		"WHERE", component.Selection})
 }
