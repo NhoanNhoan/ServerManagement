@@ -9,11 +9,14 @@ import (
 
 type Home struct {
 	DCs []entity.DataCenter
+	Tags []entity.Tag
+	NumUnresolvedErrors int
 }
 
 func (h *Home) New() {
 	component := makeDCQueryComponent()
 	rows, err := database.Query(component)
+	defer rows.Close()
 
 	if nil != err {
 		panic (err)
@@ -24,11 +27,14 @@ func (h *Home) New() {
 	if nil != err {
 		panic (err)
 	}
+
+	h.Tags = entity.FetchAllTags()
+	h.initNumUnresolvedErrors()
 }
 
 func makeDCQueryComponent() database.QueryComponent {
 	return database.QueryComponent {
-		Tables: []string {model.DC_TB_NAME},
+		Tables: []string {"DC"},
 		Columns: []string {model.DC_ID, 
 						model.DC_DESCRIPTION,
 					},
@@ -49,4 +55,27 @@ func (h *Home)fetch(rows *sql.Rows) (err error) {
 	}
 
 	return
+}
+
+func (h *Home) initNumUnresolvedErrors() {
+	comp := h.makeCountNumUnresolvedErrors()
+	rows, err := database.Query(comp)
+	defer rows.Close()
+
+	if nil == err && rows.Next() {
+		rows.Scan(&h.NumUnresolvedErrors)
+	}
+}
+
+func (h *Home) makeCountNumUnresolvedErrors() database.QueryComponent {
+	return h.makeCountErrorsByStateQueryComponent("UNRESOLVED")
+}
+
+func (h *Home) makeCountErrorsByStateQueryComponent(state string) database.QueryComponent {
+	return database.QueryComponent {
+		Tables: []string {"ERROR", "ERROR_STATE"},
+		Columns: []string {"count(ERROR.ID)"},
+		Selection: "ERROR_STATE.DESCRIPTION = ? AND ERROR.ID_ERROR_STATE = ERROR_STATE.ID",
+		SelectionArgs: []string {state},
+	}
 }

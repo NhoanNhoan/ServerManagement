@@ -7,6 +7,7 @@ import (
 
 type qcomp = database.QueryComponent
 type ucomp = database.UpdateComponent
+type icomp = database.InsertComponent
 
 type Server struct {
 	Id string
@@ -21,13 +22,14 @@ type Server struct {
 	ServerStatus
 	IpAddrs []IpAddress
 	Services []string
-	Events []string
+	Events []ServerEvent
 }
 
 func (obj *Server) New(Id string) (err error) {
 	obj.SetId(Id)
 	component := obj.makeQueryComponent(Id)
 	rows, err := database.Query(component)
+	defer rows.Close()
 
 	if nil != err {
 		return err
@@ -96,7 +98,9 @@ func (obj *Server) makeQueryComponent(IdServer string) qcomp {
 					"S.ID_RACK = R.ID AND " + 
 					"S.ID_U_START = USTART.ID AND " + 
 					"S.ID_U_END = UEND.ID AND " + 
-					"SR.DESCRIPTION = ? AND S.ID_STATUS_ROW = SR.ID;",
+					"SR.DESCRIPTION = ? AND S.ID_STATUS_ROW = SR.ID AND " +
+					"S.ID_PORT_TYPE = PT.ID AND " +
+					"S.ID_SERVER_STATUS = SS.ID",
 						
 		SelectionArgs: []string {IdServer, "available"},
 		GroupBy: "",
@@ -106,15 +110,32 @@ func (obj *Server) makeQueryComponent(IdServer string) qcomp {
 	}
 }
 
+func (obj *Server) ParseRow(rows *sql.Rows) error {
+	return rows.Scan(
+					&obj.DC.Id,
+					&obj.DC.Description,
+					&obj.Rack.Id,
+					&obj.Rack.Description,
+					&obj.UStart.Id,
+					&obj.UStart.Description,
+					&obj.UEnd.Id,
+					&obj.UEnd.Description,
+					&obj.NumDisks,
+					&obj.Maker,
+					&obj.PortType.Id,
+					&obj.PortType.Description,
+					&obj.SerialNumber,
+					&obj.ServerStatus.Id,
+					&obj.ServerStatus.Description,
+				)
+}
+
 func (obj *Server) FetchIpAddrs() {
 	component := obj.makeIpQueryComponent()
-	rows, err := database.Query(component)
-
-	if nil != err {
-		panic (err)
+	if rows, err := database.Query(component); err == nil {
+		defer rows.Close()
+		obj.initIpAddrs(rows)
 	}
-
-	obj.initIpAddrs(rows)
 }
 
 func (obj Server) makeIpQueryComponent() qcomp {
@@ -123,10 +144,6 @@ func (obj Server) makeIpQueryComponent() qcomp {
 		Columns: []string {"IP_NET.VALUE", "IP_SERVER.IP_HOST"},
 		Selection: "IP_SERVER.ID_SERVER = ? AND IP_SERVER.ID_IP_NET = IP_NET.ID",
 		SelectionArgs: []string {obj.Id},
-		GroupBy: "",
-		Having: "",
-		OrderBy: "",
-		Limit: "",
 	}
 }
 
@@ -142,18 +159,14 @@ func (obj *Server) initIpAddrs(rows *sql.Rows) {
 
 func (obj *Server) FetchServices() {
 	comp := obj.makeServicesQueryComponent()
-	rows, err := database.Query(comp)
-
-	if nil != err {
-		panic (err)
+	if rows, err := database.Query(comp); nil == err {
+		defer rows.Close()
+		obj.initServerServices(rows)
 	}
-
-	obj.initServerServices(rows)
 }
 
 func (obj *Server) initServerServices(rows *sql.Rows) {
 	var service string
-
 	for rows.Next() && (nil == rows.Scan(&service)) {
 		obj.Services = append(obj.Services, service)
 	}
@@ -165,18 +178,56 @@ func (obj Server) makeServicesQueryComponent() database.QueryComponent {
 		Columns: []string {"SERVICE"},
 		Selection: "id_SERVER = ?",
 		SelectionArgs: []string {obj.Id},
-		GroupBy: "",
-		Having: "",
-		OrderBy: "",
-		Limit: "",
 	}
+}
+
+func (s *Server) Insert() error {
+	comp := s.makeInsertServerComponent()
+	return database.Insert(comp)
+}
+
+func (s *Server) makeInsertServerComponent() icomp {
+	return icomp {
+		Table: "SERVER",
+		Columns: []string {
+			"ID",
+			"ID_DC",
+			"ID_RACK",
+			"ID_U_START",
+			"ID_U_END",
+			"ID_PORT_TYPE",
+			"ID_SERVER_STATUS",
+			"NUM_DISKS",
+			"MAKER",
+			"SERIAL_NUMBER",
+			"id_STATUS_ROW",
+		},
+		Values: [][]string {
+				[]string {s.Id,
+				s.DC.Id,
+				s.Rack.Id,
+				s.UStart.Id,
+				s.UEnd.Id,
+				s.PortType.Id,
+				s.ServerStatus.Id,
+				s.NumDisks,
+				s.Maker,
+				s.SerialNumber,
+				"1",
+				},
+		},
+	}
+}
+func (s *Server) InsertIpAddresses() (err error) {
+	for i := 0; i < len(s.IpAddrs) && nil == err; i++{
+		err = s.IpAddrs[i].Insert(s.Id)
+	}
+	return err
 }
 
 func UpdateServer(server Server) (msg string) {
 	comp := makeUpdateServerComponent(server)
-	err := database.Update(comp)
-	
-	if nil != err {
+	if err := database.Update(comp); nil != err {
 		msg = "Can't update the server information"
 		panic (err)
 	} else {
@@ -194,7 +245,6 @@ func makeUpdateServerComponent(server Server) ucomp {
 			"id_U_start = ?, " +
 			"id_U_end  = ?, " +
 			"num_disks = ?, " +
-			"maker = ?, " +
 			"id_PORT_TYPE = ?, " +
 			"serial_number = ?, " +
 			"id_SERVER_STATUS = ?",
@@ -203,8 +253,7 @@ func makeUpdateServerComponent(server Server) ucomp {
 				server.Rack.Id,
 				server.UStart.Id,
 				server.UEnd.Id,
-				"12",
-				server.Maker,
+				server.NumDisks,
 				server.PortType.Id,
 				server.SerialNumber,
 				server.ServerStatus.Id,
@@ -213,5 +262,201 @@ func makeUpdateServerComponent(server Server) ucomp {
 		SelectionArgs: []string {
 				server.Id,
 			},
+	}
+}
+
+// Fetch Event Array Area
+
+
+func (server *Server) FetchEvents() (err error) {
+	comp := server.makeFetchEventsComponent()
+	if rows, err := database.Query(comp); nil == err {
+		defer rows.Close()
+		return server.makeEventsByRows(rows)
+	}
+	return err
+}
+
+func (server *Server) makeFetchEventsComponent() qcomp {
+	return qcomp {
+		Tables: []string {"SERVER_EVENT"},
+		Columns: []string {"ID", "ID_SERVER", "DESCRIPTION", "OCCUR_AT"},
+		Selection: "ID_SERVER = ?",
+		SelectionArgs: []string {server.Id},
+	}
+}
+
+func (server *Server) makeEventsByRows(rows *sql.Rows) (err error) {
+	event := &ServerEvent{}
+
+	for rows.Next() && nil == err {
+		if err, event = MakeEventByRow(rows); nil != event {
+			server.Events = append(server.Events, *event)
+		}
+	}
+	
+	return err
+}
+
+func scanEvent(row *sql.Rows) (event ServerEvent) {
+	err := row.Scan(&event.Id, &event.IdServer, &event.Description, &event.OccurAt)
+	if nil != err {
+		panic (err)
+	}
+	return event
+}
+
+func FetchServers(comp qcomp) (error, []Server) {
+	rows, err := database.Query(comp)
+	defer rows.Close()
+
+	var server Server
+	serverArr := make([]Server, 0)
+	for rows.Next() && nil == err {
+		err = server.ParseRow(rows)
+		serverArr = append(serverArr, server)
+	}
+
+	return err, serverArr
+}
+
+func FetchServer(comp qcomp) (Server, error) {
+	rows, err := database.Query(comp)
+	defer rows.Close()
+	
+	var server Server
+	if rows.Next() {
+		err = rows.Scan(
+					&server.Id,
+					&server.DC.Id,
+					&server.DC.Description,
+					&server.Rack.Id,
+					&server.Rack.Description,
+					&server.UStart.Id,
+					&server.UStart.Description,
+					&server.UEnd.Id,
+					&server.UEnd.Description,
+					&server.NumDisks,
+					&server.Maker,
+					&server.PortType.Id,
+					&server.PortType.Description,
+					&server.SerialNumber,
+					&server.ServerStatus.Id,
+					&server.ServerStatus.Description,
+				)
+		return server, err
+	}
+
+	return server, err
+}
+
+func (obj *Server) DeleteAllIp() {
+	comp := obj.makeDeleteAllIpComponent()
+	err := database.Delete(comp)
+	if nil != err {
+		panic (err)
+	}
+}
+
+func (obj *Server) makeDeleteAllIpComponent() database.DeleteComponent {
+	return database.DeleteComponent {
+		Table: "IP_SERVER",
+		Selection: "ID_SERVER = ?",
+		SelectionArgs: []string {obj.Id},
+	}
+}
+
+// End of fetch event array area
+
+func FetchServicesByServerId(ServerId string) ([]string) {
+	comp := makeQueryServicesByServerIdComp(ServerId)
+	rows, err := database.Query(comp)
+	defer rows.Close()
+
+	var service string
+	serviceArr := make([]string, 0)
+	for rows.Next() {
+		err = rows.Scan(&service)
+		if nil != err {
+			panic(err)
+		}
+
+		serviceArr = append(serviceArr, service)
+	}
+
+	return serviceArr
+}
+
+func makeQueryServicesByServerIdComp(ServerId string) qcomp {
+	return qcomp {
+		Tables: []string {"SERVICES"},
+		Columns: []string {"SERVICE"},
+		Selection: "ID_SERVER = ?",
+		SelectionArgs: []string {ServerId},
+	}
+}
+
+func InsertServices(ServerId string, Services []string) error {
+	var err error
+	var id string
+	var comp icomp
+
+	for _, service := range Services {
+		id = generateServiceId()
+		comp = makeInsertServiceComponent(service, ServerId, id)
+		err = database.Insert(comp)
+		if nil != err {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func generateServiceId() string {
+	id := database.GeneratePrimaryKey(true,
+									true, true, false, "SE", 6)
+	for IsExistsServiceId(id) {
+		id = database.GeneratePrimaryKey(true,
+									true, true, false, "SE", 6)
+	}
+
+	return id
+}
+
+func IsExistsServiceId(Id string) bool {
+	comp := makeCheckExistsServiceIdComp(Id)
+	rows, err := database.Query(comp)
+	defer rows.Close()
+	return (nil == err) && rows.Next()
+}
+
+func makeCheckExistsServiceIdComp(Id string) qcomp {
+	return qcomp {
+		Tables: []string {"SERVICES"},
+		Columns: []string {"ID"},
+		Selection: "ID = ?",
+		SelectionArgs: []string {Id},
+	}
+}
+
+func makeInsertServiceComponent(Service string, ServerId string, Id string) icomp {
+	return icomp {
+		Table: "SERVICES",
+		Columns: []string {"ID", "ID_SERVER", "SERVICE"},
+		Values: [][]string {[]string {Id, ServerId, Service}},
+	}
+}
+
+func DeleteServicesByServerId(ServerId string) error {
+	comp := makeDeleteServicesByServerIdComp(ServerId)
+	return database.Delete(comp)
+}
+
+func makeDeleteServicesByServerIdComp(ServerId string) database.DeleteComponent {
+	return database.DeleteComponent {
+		Table: "SERVICES",
+		Selection: "ID_SERVER = ?",
+		SelectionArgs: []string {ServerId},
 	}
 }

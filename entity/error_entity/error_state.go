@@ -20,6 +20,7 @@ func (obj *ErrorState) New(IdErrorState string) error {
 func (obj *ErrorState) query() *sql.Rows {
 	comp := obj.queryComp()
 	row, err := database.Query(comp)
+	row.Close()
 
 	if nil != err {
 		panic (err)
@@ -73,6 +74,7 @@ func FetchErrorStates() []ErrorState {
 func queryErrorStates() *sql.Rows {
 	comp := errorStatesComp()
 	rows, err := database.Query(comp)
+	defer rows.Close()
 
 	if nil != err {
 		panic (err)

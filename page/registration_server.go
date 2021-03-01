@@ -1,8 +1,10 @@
 package page
 
+
 import (
 	"CURD/entity"
 )
+
 
 type RegistrationServer struct {
 	AllDataCenters []entity.DataCenter
@@ -11,6 +13,7 @@ type RegistrationServer struct {
 	AllPortTypes []entity.PortType
 	AllServerStates []entity.ServerStatus
 	AllIpNets []entity.IpNet
+	Tags []entity.Tag
 }
 
 func (r *RegistrationServer) New() {
@@ -20,7 +23,9 @@ func (r *RegistrationServer) New() {
 	r.initAllPortType()
 	r.initAllServerStates()
 	r.initAllIpNets()
+	r.initTags()
 }
+
 
 func (r *RegistrationServer) initAllDataCenters() {
 	r.AllDataCenters = entity.GetDCs()
@@ -44,4 +49,8 @@ func (r *RegistrationServer) initAllServerStates() {
 
 func (r *RegistrationServer) initAllIpNets() {
 	r.AllIpNets = entity.GetIpNets()
+}
+
+func (r *RegistrationServer) initTags() {
+	r.Tags = entity.FetchAllTags()
 }

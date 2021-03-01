@@ -53,6 +53,31 @@
     <!-- Main stylesheet and color file-->
     <link href="../templates/assets/css/style.css" rel="stylesheet">
     <link id="color-scheme" href="../templates/assets/css/colors/default.css" rel="stylesheet">
+    <style type="text/css">
+      .input-select-tag{
+          background-color: #FFFFFF;
+          boder: 1px solid #F1F1F1;
+          height: 36px;
+          width: 450px;
+      }
+      .selected-tags{
+          padding: 2px;
+      }
+      .button{
+          float: left;
+          padding: 5px;
+          margin-left: 2px;
+      }
+      .input{
+          float: left;
+          border: #FFFFFF;
+          margin-left: 2px;
+          padding: 5px;
+      }
+      .clear{
+          clear: both;
+      }
+    </style>
   </head>
   <body data-spy="scroll" data-target=".onpage-navigation" data-offset="60">
     <main>
@@ -62,7 +87,7 @@
       <nav class="navbar navbar-custom navbar-fixed-top" role="navigation">
         <div class="container">
           <div class="navbar-header">
-            <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#custom-collapse"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a class="navbar-brand" href="/home">SYS</a>
+            <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#custom-collapse"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a class="navbar-brand" href="/">SYS</a>
           </div>
           <div class="collapse navbar-collapse" id="custom-collapse">
             <ul class="nav navbar-nav navbar-right">
@@ -372,12 +397,13 @@
               <div class="col-sm-8 col-sm-offset-2">
                 <h4 class="font-alt mb-0">registration form</h4>
                 <hr class="divider-w mt-10 mb-20">
-                <form class="form" role="form" method="post" action="execute_modify">
+                <form 
+                      id="frm_modify"
+                      class="form" 
+                      role="form" 
+                      method="post" 
+                      action="execute_modify">
                   <input type="hidden" name="txtIdServer" value="{{.Server.Id}}">
-                  <div class="form-group">
-                    <label for="exampleFormControlSelect1">Server Name</label>
-                    <input class="form-control input-lg" type="text" value="{{.Server.Services}}" />
-                  </div>
 
                   <div class="form-group">
                       <label for="exampleFormControlSelect1">Data Center</label>
@@ -428,7 +454,7 @@
 
                   <div class="form-group">
                       <label for="exampleFormControlSelect1">Status</label>
-                      <select class="form-control" id="exampleFormControlSelect1" name="cbStatusId">
+                      <select class="form-control" id="exampleFormControlSelect1" name="cbServerStatusId">
                         {{ range $state := .ServerStates }}
                           <option id="{{$state.Id}}" value="{{$state.Id}}">{{$state.Description}}</option>
                         {{ end }}
@@ -436,35 +462,118 @@
                   </div>
 
                   <div class="form-group">
+                    <label for="txtNumDisks">Num disks</label>
+                    <input class="form-control input-lg" 
+                        type="text" 
+                        placeholder="number of disks"
+                        name="txtNumDisks"
+                        value="{{.Server.NumDisks}}"/>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="txtNumDisks">Maker</label>
+                    <input class="form-control input-lg" 
+                        type="text" 
+                        placeholder="Maker"
+                        name="txtMaker"
+                        value="{{.Server.Maker}}"/>
+                  </div>
+
+                  <div class="form-group">
                     <label for="exampleFormControlSelect1">Serial Number</label>
                     <input class="form-control input-lg" type="text" name="txtSerialNumber" value="{{.Server.SerialNumber}}"/>
                   </div>
 
-                  <div class="form-group row">
+                  <div class="form-group">
+                    <label for="exampleFormControlSelect1">Tagged</label>
+                        <div class='control-group'>
+                          <div class='input-select-tag'>
+                            <div class='selected-tags' 
+                                  id='taggedarea'>
+                            {{ range .Tagged }}
+                                <span class='alert button alert-info'
+                                      onclick='move_tag(this, "taggedarea", "untaggedarea")'>
+                                  {{ .Title }}
+                                </span> 
+                            {{ end }}
+                            </div> 
+                            <div class='clear'></div>
+                          </div>
+                        </div>
+                    <div></div>
+                  </div>
+                  <h1></h1>
+
+                  <div class="form-group">
+                    <label for="exampleFormControlSelect1">Untagged</label>
+                      <div class='form-horizontal well'>
+                        <div class='control-group'>
+                          <div class='input-select-tag'>
+                            <div class='selected-tags' 
+                                id='untaggedarea'>
+                              {{ range .Untagged }}
+                                <span 
+                                    class='alert button alert-info'
+                                    onclick='move_tag(this, "untaggedarea", "taggedarea")'>
+                                    {{ .Title }}
+                                </span> 
+                                {{ end }}
+                            </div> 
+                            <div class='clear'></div>
+                          </div>
+                        </div>
+                      </div>
+                    <div></div>
+                  </div>
+                  <h1></h1><h1></h1><h1></h1>
+
+                  <div class="form-group row" id="ipArea">
+                    {{ $allIpNets := .IpNets }}
+                    {{ range $i, $serverIp := .Server.IpAddrs }}
                       <div class="col-sm-10">
                           <label for="exampleFormControlSelect1">Ip Net</label>
-                          <select class="form-control" id="exampleFormControlSelect1" name="cbIpRangeId">
-                             {{ range $ipNet := .IpNets }}
-                              <option id="{{$ipNet.Id}}" value="{{$ipNet.Id}}">{{$ipNet.Value}}</option>
+                          <select class="form-control" id="cbIpNet{{ $i }}" name="cbIpNet">
+                             {{ range $ipNet := $allIpNets }}
+                              <option id="{{$ipNet.Id}}" value="{{$ipNet.Id}}" {{ if eq $serverIp.IpNet.Id $ipNet.Id}} selected {{ end }}>{{$ipNet.Value}}</option>
                               {{ end }}
                           </select>
                       </div>
 
                       <div class="col-sm-2">
                         <label for="exampleFormControlSelect1">Ip Host</label>
-                        <input id="txtIpHost" class="form-control input-sm" type="text" name="txtIpHost"
-                        onkeypress="return is_num(event)" />
+                        <input 
+                          id="txtIpHost{{ $i }}" 
+                          class="form-control input-sm" 
+                          type="text" 
+                          name="txtIpHost"
+                          onkeypress="return is_num(event)"
+                          value="{{ $serverIp.IpHost }}"
+                          >
                         <script type="text/javascript">
                           document.getElementById("txtIpHost").maxLength = "3"
                         </script>
                       </div>
-                    </div>
+                    {{ end }}
+                  </div>
 
-                    <div class="form-group">
-                      <div class="col">
-                        <button type="submit" class="btn btn-primary">Modify</button>
+                  <input type="hidden" id="txtAllIp" name="txtAllIp">
+                  <input type="hidden" id="txtAllTag" name="txtAllTag">               
+
+                  <div class="form-group">
+                      <div class="col-sm-4">
+                        <button class="btn btn-primary" onclick="submit_frm()">Modify</button>
                       </div>
-                    </div>
+
+                      <div class="col-sm-4">
+                        <button 
+                              type="button" 
+                              class="form-control btn btn-primary"
+                              onclick="add_ip_address()">
+                              Add Ip
+                        </button>
+                      </div>
+                  </div>
+
                 </div>
                 </form>
               </div>
@@ -566,7 +675,9 @@
     <script src="../templates/assets/js/plugins.js"></script>
     <script src="../templates/assets/js/main.js"></script>
 
-    <script>
+    <script type="text/javascript">
+      var get = (id) => document.getElementById(id)
+
       function is_num(evt) {
         evt = (evt) ? evt : window.event;
         var char_code = (evt.which) ? evt.which : evt.keyCode;
@@ -580,6 +691,91 @@
         for (var idx = 0; idx < arguments.length; idx++) {
           var element = document.getElementById(arguments[idx])
           element.selected = true
+        }
+      }
+
+      var num_ipaddrs = {{ len .Server.IpAddrs }}
+      var list_ip = []
+
+      function add_ip_address() {
+        var cbName = "cbIpNet" + num_ipaddrs.toString()
+        var txtIpHostName = "txtIpHost" + String(num_ipaddrs)
+        var content = "<div class='col-sm-10'> " +  
+                          "<label for="  + cbName + ">Ip Net</label> "+
+                          "<select class='form-control' " +
+                              "id=" + cbName + "  " +
+                              "name=" + cbName + "> " +
+                            "{{ range .IpNets}}" +
+                              "<option value={{.Id}}>{{.Value}}</option> " +
+                            "{{ end }} " +
+                          "</select> " +
+                      "</div> " +
+
+                      "<div class='col-sm-2'> " +
+                        "<label for='txtIpHost'>Ip Host</label> " +
+                        "<input id='" + txtIpHostName + "' " +
+                            "class='form-control input-sm' " + 
+                            "type='text' " +
+                            "placeholder='Ex: 254' " +
+                            "name='txtIpHost' " +
+                            "onkeypress='return is_num(event)'/> " +
+                      "</div>"
+
+        document.getElementById("ipArea").innerHTML += content
+        increase_num_ips()
+      }
+
+      function increase_num_ips() {
+         num_ipaddrs = parseInt(num_ipaddrs) + 1
+      }
+
+      function submit_frm() {
+        collect_ip()
+        set_value("txtAllIp", list_ip)
+        collect_tags()
+        set_value("txtAllTag", tags)
+        get("frm_modify").submit()
+      }
+
+      function collect_ip() {
+        for (i = 0; i < num_ipaddrs; i++) {
+          ip_net_id = get("cbIpNet" + String(i)).value
+          ip_host = get("txtIpHost" + String(i)).value
+          if (ip_host != null) {
+            list_ip.push(ip_net_id + "-" + ip_host)
+          }
+        }
+      }
+
+      function set_value(id, value) {
+        get(id).value = value
+      }
+
+      tags = []
+
+      function move_tag(tag, src, des) {
+        des_area = document.getElementById(des)
+        title = tag.innerText
+        des_area.innerHTML.trim()
+        des_area.innerHTML +=
+          "<span " +
+            "class='alert button alert-info' " +
+            "onclick='move_tag(" + "this, " + "\"" + des + "\"" + ", " + "\"" + src + "\"" + ")'>" +
+            title +
+          "</span>"
+
+        remove_tag(tag)
+      }
+
+      function remove_tag(tag) {
+        tag.parentNode.removeChild(tag)
+      }
+
+      function collect_tags() {
+        childs = get("taggedarea").childNodes
+        for (i = 1; i < childs.length; i++) {
+          if (childs[i].innerText != null && childs[i].innerText != "")
+          tags.push(childs[i].innerText)
         }
       }
 

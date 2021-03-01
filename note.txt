@@ -19,3 +19,5 @@
 // Bind: When client send a request that contains some info
 // info will be unmarshall to json(xml, yml)
 // must set json:"fieldname" in custom struct.
+
+query server, need: server.id, id_dc, id_rack, id_u_start, id_u_end, sr_id, id_port_type, id_server_status

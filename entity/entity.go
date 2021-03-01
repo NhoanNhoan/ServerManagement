@@ -12,6 +12,7 @@ type Entity interface {
 func getEntities(comp database.QueryComponent, 
 			makeEntity func (*sql.Rows) Entity) ([]Entity) {
 	rows, err := database.Query(comp)
+	defer rows.Close()
 
 	if nil != err {
 		panic (err)

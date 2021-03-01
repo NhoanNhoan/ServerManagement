@@ -4,16 +4,18 @@ import (
 	"database/sql"
 	_ "fmt"
 
-	_ "github.com/go-sql-driver/mysql"
+	//_ "github.com/go-sql-driver/mysql"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func DBConn() (db *sql.DB) {
-	dbDriver := "mysql"
+	dbDriver := "sqlite3"
 	//dbUser := "root"
-	//dbPass := "kali"
+	//dbPass := "kali"@
 	//dbName := "ServerManagement"
 	//dbUser + "@/" + dbName)
-	db, err := sql.Open(dbDriver, "root:root@tcp(127.0.0.1:3306)/ServerManagement")
+	// mysqlConString := "root:root@tcp(127.0.0.1:3306)/ServerManagement"
+	db, err := sql.Open(dbDriver, "database/ServerManagement.db")
 	if nil != err {
 		panic(err.Error())
 	}

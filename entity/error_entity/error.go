@@ -26,6 +26,7 @@ func (obj *Error) New(IdError string) (err error) {
 	obj.Id = IdError
 	comp := obj.makeQueryComponent(IdError)
 	row, err := database.Query(comp)
+	defer row.Close()
 	row.Next()
 	return obj.Fetch(row)
 }
@@ -98,6 +99,7 @@ func (obj *Error) Update() error {
 func (obj *Error) isExists() bool {
 	comp := obj.isExistsComp()
 	rows, err := database.Query(comp)
+	defer rows.Close()
 	return (nil == err) && rows.Next()
 }
 

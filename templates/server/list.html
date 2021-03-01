@@ -1,5 +1,4 @@
 {{ define "templates/server/list.html" }}
-
 <!DOCTYPE html>
 <html lang="en-US" dir="ltr">
   <head>
@@ -54,6 +53,32 @@
     <!-- Main stylesheet and color file-->
     <link href="../templates/assets/css/style.css" rel="stylesheet">
     <link id="color-scheme" href="../templates/assets/css/colors/default.css" rel="stylesheet">
+
+      <style type="text/css">
+    .input-select-tag{
+    background-color: #FFFFFF;
+    boder: 1px solid #F1F1F1;
+    height: 36px;
+    width: 450px;
+}
+.selected-tags{
+    padding: 2px;
+}
+.button{
+    float: left;
+    padding: 5px;
+    margin-left: 2px;
+}
+.input{
+    float: left;
+    border: #FFFFFF;
+    margin-left: 2px;
+    padding: 5px;
+}
+.clear{
+    clear: both;
+}
+  </style>
   </head>
   <body data-spy="scroll" data-target=".onpage-navigation" data-offset="60">
     <main>
@@ -63,7 +88,7 @@
       <nav class="navbar navbar-custom navbar-fixed-top" role="navigation">
         <div class="container">
           <div class="navbar-header">
-            <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#custom-collapse"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a class="navbar-brand" href="/home">SYS</a>
+            <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#custom-collapse"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a class="navbar-brand" href="/">SYS</a>
           </div>
           <div class="collapse navbar-collapse" id="custom-collapse">
             <ul class="nav navbar-nav navbar-right">
@@ -376,8 +401,41 @@
         </section>
         <section class="module">
           <div class="container">
+            <h3>Tags:</h3>
+            <div class='control-group' style="cursor: pointer;">
+              <div class='input-select-tag'>
+                  <div class='selected-tags'>                     
+                      <div>
+                          {{ $dc := .DataCenter }}
+                          {{ range .Tags }}
+                            <form method="post"
+                                  action="/server/list">
+                              <input type="hidden" 
+                                    name="txtTagId"
+                                    value="{{.TagId}}">
+
+                              <input type="hidden" 
+                                    name="txtId"
+                                    value="{{$dc.Id}}">
+
+                              <span 
+                                class='alert button alert-info'
+                                onclick="this.parentNode.submit()"> 
+                                    {{.Title}}
+                              </span>       
+                              </form>
+                          {{ end }}
+                    </div>
+
+                      <input type='text' name='selectTags' class='input' size="40"/>   
+                  </div> 
+                   
+                  <div class='clear'></div>
+              </div>
+            </div>      
+
+            <!-- <h3>Servers:</h3>
             <div class="row multi-columns-row">
-              
                 {{range .Items}}
                   <form method="post" action="information">
                     <input type="hidden" name="txtIdServer" value="{{.Id}}">
@@ -392,7 +450,7 @@
                             <div class="col-sm-8">
 
                               <h4 class="menu-title font-alt">
-                                {{.SerialNumber}}
+                                Serial Number: {{.SerialNumber}}
                               </h4>
                               <div class="menu-detail font-serif">
                                 {{.DC.Description}} + {{.Rack.Description}} + [{{.UStart.Description}} - {{.UEnd.Description}}]
@@ -408,8 +466,67 @@
                         </div>
                   </div>
                   </a>
-                  </form>
-                {{ end }}
+                </form>
+              {{ end }} -->
+
+          <div class="col-xl-9 col-lg-12 col-md-6 col-sm-12 col-12">
+          <div class="card">
+              <h3 class="card-header">Servers:</h3>
+              <div class="card-body p-0">
+                  <div class="table-responsive">
+                      <table class="table">
+                          <thead class="bg-light">
+                              <tr class="border-0">
+                                <th class="border-0">DC</th>
+                                <th class="border-0">Rack</th>
+                                <th class="border-0">UStart</th>
+                                <th class="border-0">UEnd</th>
+                                <th class="border-0">SSD</th>
+                                <th class="border-0">HDD</th>
+                                <th class="border-0">IP</th>
+                                <th class="border-0">Maker</th>
+                                <th class="border-0">Status</th>
+                                <th></th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              {{ range .Items }}
+                              <tr>
+                                  <td>{{.DC.Description}}</td>
+                                  <td>{{.Rack.Description}}</td>
+                                  <td>{{.UStart.Description}}</td>
+                                  <td>{{.UEnd.Description}}</td>
+                                  <td>{{.NumDisks}}</td>
+                                  <td>{{.NumDisks}}</td>
+
+                                  {{ $len := len .IpAddrs}}
+                                  {{ if eq $len 0}}
+                                  <td>UNKNOWN</td>
+                                  {{ else }}
+                                  {{ $ip := index .IpAddrs 0}}
+                                  <td>{{ $ip.IpNet.Value }} {{ $ip.IpHost }}</td>
+                                  {{ end }}
+
+                                  <td>{{.Maker}}</td>
+                                  <td><span class="badge-dot badge-brand mr-1"></span>{{.ServerStatus.Description}}</td>
+                                  <td>
+                                    <form method="post"
+                                          action="information">
+                                      <input type="hidden" name="txtIdServer" value="{{.Id}}">
+                                      <a onclick="this.parentNode.submit()"
+                                          style="cursor: pointer; color: blue;">More</a>
+                                    </form>
+                                  </td>
+                              </tr>
+                              {{ end }}
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
+      </div>
+    </div>
+                
 
                 
     <script src="../templates/assets/lib/jquery/dist/jquery.js"></script>

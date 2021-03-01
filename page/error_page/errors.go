@@ -14,6 +14,8 @@ type Errors struct {
 func (errors *Errors) New() error {
 	comp := errors.makeQueryComp()
 	rows, err := database.Query(comp)
+	defer rows.Close()
+	
 	if nil == err {
 		errors.fetch(rows)
 	}

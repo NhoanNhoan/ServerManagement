@@ -74,6 +74,7 @@ func (c *Curator) makeInsComp() icomp {
 func (c *Curator) IsExistsPerson(IdPerson string) bool {
 	comp := c.makeExistsQueryComp(IdPerson)
 	row, err := database.Query(comp)
+	defer row.Close()
 	return nil == err && row.Next()
 }
 
@@ -101,6 +102,7 @@ func (c *Curator) makeExistsQueryComp(IdPerson string) qcomp {
 func FetchCurators(IdError string) ([]Curator, error) {
 	comp := makeCuratorsComp(IdError)
 	rows, err := database.Query(comp)
+	defer rows.Close()
 	curators := make([]Curator, 0)
 	var curator Curator
 
@@ -145,6 +147,7 @@ func WasExistedCurator(curator Curator) bool {
 	}
 
 	row, err := database.Query(comp)
+	defer row.Close()
 	return (nil == err) && row.Next()
 }
 

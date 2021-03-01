@@ -37,6 +37,7 @@ func (p *Person) queryPerson() *sql.Rows {
 	}
 	
 	row, err := database.Query(comp)
+	defer row.Close()
 	
 	if nil == err {
 		return row
@@ -78,6 +79,7 @@ func FetchPersons() []Person {
 func queryPersons() *sql.Rows {
 	comp := personsComp()
 	rows, err := database.Query(comp)
+	defer rows.Close()
 
 	if nil != err {
 		panic (err)

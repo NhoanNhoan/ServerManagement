@@ -19,6 +19,7 @@ type Switch struct {
 func (obj *Switch) New(Id string) (err error) {
 	component := obj.makeQueryComponent(Id)
 	rows, err := database.Query(component)
+	defer rows.Close()
 
 	if nil != err {
 		return err
@@ -89,6 +90,7 @@ func (obj *Switch) makeQueryComponent(IdSwitch string) database.QueryComponent {
 func (obj *Switch) FetchIpAddrs() {
 	component := obj.makeIpQueryComponent()
 	rows, err := database.Query(component)
+	defer rows.Close()
 
 	if nil != err {
 		panic (err)

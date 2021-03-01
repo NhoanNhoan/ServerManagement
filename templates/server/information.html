@@ -53,6 +53,32 @@
     <!-- Main stylesheet and color file-->
     <link href="../templates/assets/css/style.css" rel="stylesheet">
     <link id="color-scheme" href="../templates/assets/css/colors/default.css" rel="stylesheet">
+
+    <style type="text/css">
+      .input-select-tag{
+          background-color: #FFFFFF;
+          boder: 1px solid #F1F1F1;
+          height: 36px;
+          width: 450px;
+      }
+      .selected-tags{
+          padding: 2px;
+      }
+      .button{
+          float: left;
+          padding: 5px;
+          margin-left: 2px;
+      }
+      .input{
+          float: left;
+          border: #FFFFFF;
+          margin-left: 2px;
+          padding: 5px;
+      }
+      .clear{
+          clear: both;
+      }
+    </style>
   </head>
   <body data-spy="scroll" data-target=".onpage-navigation" data-offset="60">
     <main>
@@ -62,7 +88,7 @@
       <nav class="navbar navbar-custom navbar-fixed-top" role="navigation">
         <div class="container">
           <div class="navbar-header">
-            <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#custom-collapse"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a class="navbar-brand" href="/home">SYS</a>
+            <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#custom-collapse"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a class="navbar-brand" href="/">SYS</a>
           </div>
           <div class="collapse navbar-collapse" id="custom-collapse">
             <ul class="nav navbar-nav navbar-right">
@@ -321,7 +347,7 @@
           </div>
         </section>
 
-        <form method="post" action="modify">
+        <form method="post" action="modify" id="frm-public">
           <div class="container" style="text-align: center">
             <input type="hidden" name="txtIdServer" value="{{.Server.Id}}">
             <h1>SERVER</h1>
@@ -334,14 +360,14 @@
                       DC:
                     </h4> 
                     <input type="hidden" name="txtDCId" value="{{.Server.DC.Id}}">
-                    <p>{{.Server.DC.Description}}</p>
+                    <p style="display: inline">{{.Server.DC.Description}}</p>
                   </li>
                   <li>
                     <h4  style="display: inline; text-decoration: underline;">
                       Rack:
                     </h4>
                     <input type="hidden" name="txtRackId" value="{{.Server.Rack.Id}}">
-                    <p>{{.Server.Rack.Description}}</p>
+                    <p style="display: inline">{{.Server.Rack.Description}}</p>
                   </li>
                   <li>
                     <h4 style="display: inline; text-decoration: underline;">
@@ -349,75 +375,161 @@
                     </h4> 
                     <input type="hidden" name="txtUStartId" value="{{.Server.UStart.Id}}">
                     <input type="hidden" name="txtUEndId" value="{{.Server.UEnd.Id}}">
-                    <p>[{{.Server.UStart.Description}} - {{.Server.UEnd.Description}}]</p>
+                    <p style="display: inline">[{{.Server.UStart.Description}} - {{.Server.UEnd.Description}}]</p>
                   </li>
                   <li>
                     <h4 style="display: inline; text-decoration: underline;">
                       Num Disks:
                     </h4>
                     <input type="hidden" name="txtNumDisks" value="{{.Server.NumDisks}}">
-                    <p>{{.Server.NumDisks}}</p>
+                    <p style="display: inline">{{.Server.NumDisks}}</p>
                   </li>
                   <li>
                     <h4 style="display: inline; text-decoration: underline;">
                       Maker:
                     </h4> 
                     <input type="hidden" name="txtMaker" value="{{.Server.Maker}}">
-                    <p>{{.Server.Maker}}</p>
+                    <p style="display: inline">{{.Server.Maker}}</p>
                   </li>
                   <li>
                     <h4 style="display: inline; text-decoration: underline;">
                       Serial Number:
                     </h4>
                     <input type="hidden" name="txtSerialNumber" value="{{.Server.SerialNumber}}">
-                    <p>{{.Server.SerialNumber}}</p>
+                    <p style="display: inline">{{.Server.SerialNumber}}</p>
+                  </li>
+                  <li>
+                    <h4 style="display: inline; text-decoration: underline;">
+                      Status:
+                    </h4>
+                    <input type="hidden" name="txtServerStatusId" value="{{.Server.ServerStatus.Id}}">
+                    <p style="display: inline">{{.Server.ServerStatus.Description}}</p>
                   </li>
 
-                  IP Address:
-                   {{range $ipAddr := .Server.IpAddrs}}
+                  <li>
+                    <h4 style="display: inline; text-decoration: underline;">IP Address:</h4>
+                    <ul>
+                    {{range $ipAddr := .Server.IpAddrs}}
                       <li>{{$ipAddr.String}}</li>
-                  {{end}}
+                    {{end}}
+                    </ul>
+                  </li>
 
                 </ul>
 
-                <input type="submit" value="Update">
+                <button 
+                      type="button" 
+                      class="form-control btn btn-primary"
+                      onclick="submit_frm_public()">
+                      UPDATE PUBLIC
+                </button>
 
-                </form>
-              </div>
+            </form>
+          </div>
 
               <div class="col-sm-6">
                 <h2>Internal</h2>
                 <ul style="list-style-type: none; text-align: left; font-size: 19px;">
+                  <input type="hidden" name="txtPortTypeId" value="{{.Server.PortType.Id}}">
                   <li><h4 style="display: inline; text-decoration: underline;">Port type:</h4> {{.Server.PortType.Description}}</li>
                 </ul>
               </div>
-            </div>
 
-            <h1>SERVICES</h1>
-            <div class="row">
-              <ul style="list-style-type: none">
-                {{range $service := .Server.Services}}
-                  <li>{{$service}}</li>
-                {{end}}
-              </ul>
-            </div>
-
-            <h1>SWITCH</h1>
-            <div class="row">
-               <ul style="list-style-type: none; text-align: left">
-                  <li>DC: {{.Switch.DC.Description}}</li>
-                  <li>Rack: {{.Switch.Rack.Description}}</li>
-                  <li>U start: {{.Switch.UStart.Description}}</li>
-                  <li>U end: {{.Switch.UEnd.Description}}</li>
-                  <li>Maximum Port: {{.Switch.MaximumPort}}</li>
-                   Ip Address:
-                   {{range $ipAddr := .Switch.IpAddrs}}
-                      <li>{{$ipAddr.String}}</li>
-                    {{end}}
+               <div class="col-sm-6">
+                <h2>Events</h2>
+                {{ range $event := .Events }}
+                <ul style="list-style-type: none; text-align: left; font-size: 19px;">
+                  <li>{{$event.Description}}</li>
+                  <li>{{$event.OccurAt}}</li>
                 </ul>
+                {{ end }}
+
+                 <button 
+                              type="submit" 
+                              class="form-control btn btn-primary">
+                              UPDATE EVENT
+                </button>
+              </div>
             </div>
 
+            <form
+                  method="post"
+                  action="execute_edit_services"
+                  id="frm-services">
+
+              <input type="hidden" name="txtServerId" value="{{ .Server.Id }}">
+              <input type="hidden" id="txtServices" name="txtServices">
+
+              <div class="col-sm-6">
+                <h2>Services</h2>
+                <div class="row">
+                  <ul style="list-style-type: none" id="servicesArea">
+                    {{range $i, $service := .Server.Services}}
+                      <li>
+                        <input class="form-control input-lg" id="txtService{{ $i }}" type="text" value="{{ $service }}"/>
+                        <button class="form-control btn btn-primary" onclick="remove_service(this)">Remove</button>
+                      </li>
+                    {{end}}
+                  </ul>
+                </div>
+
+                <button 
+                        type="button" 
+                        class="form-control btn btn-primary"
+                        onclick="add_service()">
+                        add service
+                </button>
+
+                 <button 
+                        type="button" 
+                        class="form-control btn btn-primary"
+                        onclick="submit_frm_services()">
+                        UPDATE SERVICES
+                </button>
+              </div>
+            </form>
+
+            </div>
+
+          <div class="container">
+             <div class="col-sm-6">
+              <h1>Switch</h1>
+              <div class="row">
+                 <ul style="list-style-type: none; text-align: left">
+                    <li>DC: {{.Switch.DC.Description}}</li>
+                    <li>Rack: {{.Switch.Rack.Description}}</li>
+                    <li>U start: {{.Switch.UStart.Description}}</li>
+                    <li>U end: {{.Switch.UEnd.Description}}</li>
+                    <li>Maximum Port: {{.Switch.MaximumPort}}</li>
+                     Ip Address:
+                     {{range $ipAddr := .Switch.IpAddrs}}
+                        <li>{{$ipAddr.String}}</li>
+                      {{end}}
+                  </ul>
+              </div>
+              </div>
           </div>
+        </div>
+
+        <div>
+          <h4>Tagged:</h4>
+            <form class='form-horizontal well'>
+              <div class='control-group'>
+                <div class='input-select-tag'>
+                  <div class='selected-tags' 
+                        id='taggedarea'>
+                  {{ range .Tagged }}
+                      <span class='alert button alert-info'>
+                        {{ .Title }}
+                      </span> 
+                  {{ end }}
+                  </div> 
+                  <div class='clear'></div>
+                </div>
+              </div>
+            </form>
+          <div></div>
+        </div>
 
        <!--  <section class="module" id="alt-features">
           <div class="container-fluid">
@@ -502,7 +614,7 @@
               </div>
             </div>
           </div>
-        </section> --> --><!-- 
+        </section> --><!-- 
         <section class="module">
           <div class="container">
             <div class="row multi-columns-row">
@@ -670,5 +782,105 @@
     <script src="../templates/assets/js/main.js"></script>
   </body>
 </html>
+
+<script type="text/javascript">
+  function move_tag(tag, src, des) {
+    des_area = document.getElementById(des)
+    title = tag.innerText
+    des_area.innerHTML +=
+      "<span " +
+        "class='alert button alert-info' " +
+        "onclick='move_tag(" + "this, " + "\"" + des + "\"" + ", " + "\"" + src + "\"" + ")'>" +
+        title +
+      "</span>"
+
+    remove_tag(tag)
+  }
+
+  function remove_tag(tag) {
+    tag.parentNode.removeChild(tag)
+  }
+
+  var get = (id) => document.getElementById(id)
+      var num_services = {{ len .Server.Services }}
+      var services = []
+
+      function add_service() {
+        var tag_name = "txtService" + String(num_services)
+        // get("servicesArea").innerHTML += 
+        //                 "<li style=\"margin-bottom: 12px;\">" +
+        //                   "<input " +
+        //                           "class=\"form-control input-lg \" " + 
+        //                           "type=\"text\" " +
+        //                           "id=\"" + tag_name + "\"/>" +
+        //                   "<button " +
+        //                   "class=\"form-control btn btn-primary\" " +
+        //                   "onclick=\"remove_service(this)\">" +
+        //                               "Remove" +
+        //                   "</button>" +
+        //                 "</li>"
+
+        get("servicesArea").appendChild(create_item_service())
+      }
+
+      function create_item_service() {
+        li = document.createElement("li")
+        li.appendChild(make_input_service())
+        li.appendChild(create_add_service_btn())
+
+        return li
+      }
+
+      function make_input_service() {
+        input = document.createElement("input")
+        input.setAttribute("class", "form-control input-lg")
+        input.setAttribute("type", "text")
+        input.setAttribute("id", "txtService" + String(num_services))
+
+        increase_num_services()
+
+        return input
+      }
+
+      function create_add_service_btn() {
+        btn = document.createElement("button")
+        btn.setAttribute("class", "form-control btn btn-primary")
+        btn.setAttribute("onclick", "remove_service()")
+        btn.innerText = "remove"
+
+        return btn
+      }
+
+      function remove_service(e) {
+        e.parentNode.parentNode.removeChild(e.parentNode)
+      }
+
+      function increase_num_services() {
+         num_services = parseInt(num_services) + 1
+      }
+
+      function submit_frm_public() {
+        get("frm-public").submit()
+      }
+
+      function submit_frm_services() {
+        collect_services()
+        set_value("txtServices", services)
+        get("frm-services").submit()
+      }
+
+      function collect_services() {
+        for (i = 0; i < num_services; i++) {
+          tag = document.getElementById("txtService" + String(i))
+          if (null != tag && null != tag.value && "" != tag.value) {
+            services.push(tag.value)
+          }
+        }
+      }
+
+      function set_value(id, value) {
+        document.getElementById(id).value = value
+      }
+</script>
 
 {{ end }}
