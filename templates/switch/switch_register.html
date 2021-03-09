@@ -1,0 +1,309 @@
+{{ define "templates/switch/switch_register.html" }}
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--  
+    Document Title
+    =============================================
+    -->
+    <title>SYS | Register Server</title>
+    <!--  
+    Favicons
+    =============================================
+    -->
+    <link rel="apple-touch-icon" sizes="57x57" href="../templates/assets/images/favicons/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="../templates/assets/images/favicons/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="../templates/assets/images/favicons/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="../templates/assets/images/favicons/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="../templates/assets/images/favicons/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="../templates/assets/images/favicons/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="../templates/assets/images/favicons/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="../templates/assets/images/favicons/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../templates/assets/images/favicons/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="../templates/assets/images/favicons/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../templates/assets/images/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="../templates/assets/images/favicons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../templates/assets/images/favicons/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="../templates/assets/images/favicons/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+    <!--  
+    Stylesheets
+    =============================================
+    
+    -->
+    <!-- Default stylesheets-->
+    <link href="../templates/assets/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Template specific stylesheets-->
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Volkhov:400i" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" rel="stylesheet">
+    <link href="../templates/assets/lib/animate.css/animate.css" rel="stylesheet">
+    <link href="../templates/assets/lib/components-font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="../templates/assets/lib/et-line-font/et-line-font.css" rel="stylesheet">
+    <link href="../templates/assets/lib/flexslider/flexslider.css" rel="stylesheet">
+    <link href="../templates/assets/lib/owl.carousel/dist/../templates/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="../templates/assets/lib/owl.carousel/dist/../templates/assets/owl.theme.default.min.css" rel="stylesheet">
+    <link href="../templates/assets/lib/magnific-popup/dist/magnific-popup.css" rel="stylesheet">
+    <link href="../templates/assets/lib/simple-text-rotator/simpletextrotator.css" rel="stylesheet">
+    <!-- Main stylesheet and color file-->
+    <link href="../templates/assets/css/style.css" rel="stylesheet">
+    <link id="color-scheme" href="../templates/assets/css/colors/default.css" rel="stylesheet">
+    <style type="text/css">
+      .input-select-tag{
+          background-color: #FFFFFF;
+          boder: 1px solid #F1F1F1;
+          height: 36px;
+          width: 450px;
+      }
+      .selected-tags{
+          padding: 2px;
+      }
+      .button{
+          float: left;
+          padding: 5px;
+          margin-left: 2px;
+      }
+      .input{
+          float: left;
+          border: #FFFFFF;
+          margin-left: 2px;
+          padding: 5px;
+      }
+      .clear{
+          clear: both;
+      }
+    </style>
+  </head>
+  <body data-spy="scroll" data-target=".onpage-navigation" data-offset="60">
+    <main>
+      <div class="page-loader">
+        <div class="loader">Loading...</div>
+      </div>
+      <nav class="navbar navbar-custom navbar-fixed-top" role="navigation">
+        <div class="container">
+          <div class="navbar-header">
+            <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#custom-collapse"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a class="navbar-brand" href="/">SYS</a>
+          </div>
+      </nav>
+      <div class="main">
+        <section class="module bg-dark-30 about-page-header" data-background="../templates/assets/images/registration-bg.jpg">
+          <div class="container">
+            <div class="row">
+              <div class="col-sm-6 col-sm-offset-3">
+                <h1 class="module-title font-alt mb-0">registration server</h1>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="module">
+          <div class="container">
+            <div class="row">
+              <div class="col-sm-8 col-sm-offset-2">
+                <h4 class="font-alt mb-0">registration form</h4>
+                <hr class="divider-w mt-10 mb-20">
+                <form method="post" action="execute_register_switch" class="form" role="form" id="frm_register">
+
+                  <div class="form-group">
+                      <label for="cbDC">Data Center</label>
+                      <select class="form-control" 
+                          id="cbDC"
+                          name="cbDC">
+                          {{ range .AllDataCenters}}
+                            <option value="{{.Id}}">{{.Description}}</option>
+                          {{ end }}
+                      </select>
+                  </div>
+
+                  <div class="form-group">
+                      <label for="cbRack">Rack</label>
+                      <select class="form-control" 
+                            id="cbRack"
+                            name="cbRack">
+                            {{ range .AllRacks}}
+                              <option value="{{.Id}}">{{.Description}}</option>
+                            {{ end }}
+                      </select>
+                  </div>
+
+                  <div class="form-group row">
+                    <div class="col-sm-6">
+                        <label for="cbUStart">Rack Unit Start</label>
+                        <select class="form-control" 
+                            id="cbUStart"
+                            name="cbUStart">
+                            {{ range .AllRackUnits}}
+                              <option value="{{.Id}}">{{.Description}}</option>
+                            {{ end }}
+                        </select>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label for="cbUEnd">Rack Unit End</label>
+                        <select class="form-control" 
+                              id="cbUEnd"
+                              name="cbUEnd">
+                            {{ range .AllRackUnits}}
+                              <option value="{{.Id}}">{{.Description}}</option>
+                            {{ end }}
+                        </select>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                      <label for="txtMaxPorts">Maximum Port</label>
+                      <input class="form-control input-lg" 
+                          type="text" 
+                          placeholder="number of disks"
+                          name="txtMaxPorts"/>
+                  </div>
+
+                  <div class="form-group row"
+                              id="ipArea">
+                      <div class="col-sm-10">
+                          <label for="cbIpNet">Ip Net</label>
+                          <select class="form-control" 
+                              id="cbIpNet0"
+                              name="cbIpNet0">
+                            {{ range .AllIpNets}}
+                              <option value="{{.Id}}">{{.Value}}</option>
+                            {{ end }}
+                          </select>
+                      </div>
+
+                      <div class="col-sm-2">
+                        <label for="txtIpHost">Ip Host</label>
+                        <input id="txtIpHost0" 
+                            class="form-control input-sm" 
+                            type="text" 
+                            placeholder="Ex: 254"
+                            name="txtIpHost"
+                            onkeypress="return is_num(event)" />
+                        <script type="text/javascript">
+                          document.getElementById("txtIpHost").maxLength = "3"
+                        </script>
+                      </div>
+                  </div>
+
+                    <div class="form-group row">
+                      <div class="col-sm-4">
+                        <button class="form-control btn btn-primary" onclick="submit_frm()">Registry</button>
+                      </div>
+                      <div class="col-sm-4">
+                        <button 
+                              type="button" 
+                              class="form-control btn btn-primary"
+                              onclick="add_ip_address()">
+                              Add Ip
+                          </button>
+                      </div>
+                    </div>
+                    </div>
+
+                </div>
+                <input type="hidden" id="txtAllIp" name="txtAllIp">
+                </form>
+              </div>
+            </div>
+          </div>
+        </section>
+        <div class="module-small bg-dark">
+        </div>
+    </main>
+    <!--  
+    JavaScripts
+    =============================================
+    -->
+    <script src="../templates/assets/lib/jquery/dist/jquery.js"></script>
+    <script src="../templates/assets/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="../templates/assets/lib/wow/dist/wow.js"></script>
+    <script src="../templates/assets/lib/jquery.mb.ytplayer/dist/jquery.mb.YTPlayer.js"></script>
+    <script src="../templates/assets/lib/isotope/dist/isotope.pkgd.js"></script>
+    <script src="../templates/assets/lib/imagesloaded/imagesloaded.pkgd.js"></script>
+    <script src="../templates/assets/lib/flexslider/jquery.flexslider.js"></script>
+    <script src="../templates/assets/lib/owl.carousel/dist/owl.carousel.min.js"></script>
+    <script src="../templates/assets/lib/smoothscroll.js"></script>
+    <script src="../templates/assets/lib/magnific-popup/dist/jquery.magnific-popup.js"></script>
+    <script src="../templates/assets/lib/simple-text-rotator/jquery.simple-text-rotator.min.js"></script>
+    <script src="../templates/assets/js/plugins.js"></script>
+    <script src="../templates/assets/js/main.js"></script>
+
+    <script>
+      function is_num(evt) {
+        evt = (evt) ? evt : window.event;
+        var char_code = (evt.which) ? evt.which : evt.keyCode;
+        if (char_code > 31 && (char_code < 48 || char_code > 57)) {
+          return false;
+        }
+        return true
+      }
+    </script>
+  </body>
+
+  <script type="text/javascript">
+      var num_ipaddrs = 1
+      var list_ip = []
+      var get = (id) => document.getElementById(id)
+
+      function add_ip_address() {
+        var cbName = "cbIpNet" + num_ipaddrs.toString()
+        var txtIpHostName = "txtIpHost" + String(num_ipaddrs)
+        var content = "<div class='col-sm-10'> " +  
+                          "<label for="  + cbName + ">Ip Net</label> "+
+                          "<select class='form-control' " +
+                              "id=" + cbName + "  " +
+                              "name=" + cbName + "> " +
+                            "{{ range .AllIpNets}}" +
+                              "<option value={{.Id}}>{{.Value}}</option> " +
+                            "{{ end }} " +
+                          "</select> " +
+                      "</div> " +
+
+                      "<div class='col-sm-2'> " +
+                        "<label for='txtIpHost'>Ip Host</label> " +
+                        "<input id='" + txtIpHostName + "' " +
+                            "class='form-control input-sm' " + 
+                            "type='text' " +
+                            "placeholder='Ex: 254' " +
+                            "name='txtIpHost' " +
+                            "onkeypress='return is_num(event)'/> " +
+                      "</div>"
+
+        document.getElementById("ipArea").innerHTML += content
+        increase_num_ips()
+      }
+
+      function increase_num_ips() {
+         num_ipaddrs = parseInt(num_ipaddrs) + 1
+      }
+
+      function submit_frm() {
+        collect_ip()
+        set_value("txtAllIp", list_ip)
+
+        collect_tags()
+        set_value("txtAllTag", tags)
+        get("frm_register").submit()
+      }
+
+      function collect_ip() {
+        for (i = 0; i < num_ipaddrs; i++) {
+          ip_net_id = get("cbIpNet" + String(i)).value
+          ip_host = get("txtIpHost" + String(i)).value
+          list_ip.push(ip_net_id + "-" + ip_host)
+        }
+      }
+
+      function set_value(id, value) {
+        get(id).value = value
+      }
+
+      tags = []
+  </script>
+</html>
+
+{{ end }}

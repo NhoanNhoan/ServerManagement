@@ -1,21 +1,50 @@
 package main
 
 import (
-	"fmt"
-	"strings"
+    "fmt"
+    "log"
+    "net"
 )
 
+func Hosts(cidr string) ([]string, int, error) {
+    ip, ipnet, err := net.ParseCIDR(cidr)
+    if err != nil {
+        return nil, 0, err
+    }
+
+    var ips []string
+    for ip := ip.Mask(ipnet.Mask); ipnet.Contains(ip); inc(ip) {
+        ips = append(ips, ip.String())
+    }
+
+    // remove network address and broadcast address
+    lenIPs := len(ips)
+    switch {
+    case lenIPs < 2:
+        return ips, lenIPs, nil
+
+    default:
+    return ips[1 : len(ips)-1], lenIPs - 2, nil
+    }
+}
+
+func inc(ip net.IP) {
+    for j := len(ip) - 1; j >= 0; j-- {
+        ip[j]++
+        if ip[j] > 0 {
+            break
+        }
+    }
+}
+
 func main() {
-	fmt.Println(foo([]string{"a", "b"}))
+    ips, count, err := Hosts("42.118.242.0/22")
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    for n := 0; n < count; n += 1 {
+        fmt.Println(ips[n])
+    }
 }
 
-func foo(tags []string) string {
-selections := make([]string, len(tags))
-
-	for i := range selections {
-		clause := "SERVER.ID = SERVER_TAG.SERVERID AND SELECT SERVER.ID FROM SERVER, SERVER_TAG WHERE SERVER_TAG.TAGID = ? SERVER.ID = SERVER_TAG.SERVERID"
-		selections[i] = clause
-	}
-
-	return strings.Join(selections, " intersect ")
-}

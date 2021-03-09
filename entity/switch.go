@@ -27,7 +27,6 @@ func (obj *Switch) New(Id string) (err error) {
 
 	if rows.Next() {
 		err = rows.Scan(&obj.Id,
-					&obj.Name,
 					&obj.DC.Description,
 					&obj.Rack.Description,
 					&obj.UStart.Description,
@@ -48,7 +47,6 @@ func (obj *Switch) makeQueryComponent(IdSwitch string) database.QueryComponent {
 						"RACK_UNIT AS UEND", 
 						"STATUS_ROW"},
 		Columns: []string {"SW.ID",
-							"SW.NAME",
 							"DC.DESCRIPTION",
 							"RACK.DESCRIPTION",
 							"USTART.DESCRIPTION",
@@ -59,9 +57,8 @@ func (obj *Switch) makeQueryComponent(IdSwitch string) database.QueryComponent {
 					"SW.ID_DC = DC.ID AND " +
 					"SW.ID_RACK = RACK.ID AND " + 
 					"SW.ID_U_START = USTART.ID AND " + 
-					"SW.ID_U_END = UEND.ID AND " + 
-					"STATUS_ROW.DESCRIPTION = ? AND SW.ID_STATUS_ROW = STATUS_ROW.ID;",
-		SelectionArgs: []string {IdSwitch, "available"},
+					"SW.ID_U_END = UEND.ID",
+		SelectionArgs: []string {IdSwitch},
 		GroupBy: "",
 		Having: "",
 		OrderBy: "",
@@ -105,10 +102,6 @@ func (obj Switch) makeIpQueryComponent() database.QueryComponent {
 		Columns: []string {"IP_NET.VALUE", "IP_SWITCH.IP_HOST"},
 		Selection: "IP_SWITCH.ID_SWITCH = ? AND IP_SWITCH.ID_IP_NET = IP_NET.ID",
 		SelectionArgs: []string {obj.Id},
-		GroupBy: "",
-		Having: "",
-		OrderBy: "",
-		Limit: "",
 	}
 }
 
@@ -119,5 +112,87 @@ func (obj *Switch) initIpAddrs(rows *sql.Rows) {
 	for rows.Next() && (nil == rows.Scan(&ipNet, &ipHost)) {
 		ipAddr.New(ipNet, ipHost)
 		obj.IpAddrs = append(obj.IpAddrs, ipAddr)
+	}
+}
+
+func (obj *Switch) Insert() error {
+	obj.GenerateSwitchId()
+	comp := obj.InsertComponent()
+	return database.Insert(comp)
+}
+
+func (obj *Switch) GenerateSwitchId() {
+	obj.Id = database.GeneratePrimaryKey(true,
+						true, true, false, "SW", 10)
+	for obj.Exists() {
+		obj.Id = database.GeneratePrimaryKey(true,
+						true, true, false, "SW", 10)
+	}
+}
+
+func (obj *Switch) Exists() bool {
+	comp := obj.ExistsQueryComp()
+	rows, err := database.Query(comp)
+	defer rows.Close()
+	return (nil == err) && (rows.Next())
+}
+
+func (obj *Switch) ExistsQueryComp() qcomp {
+	return qcomp {
+		Tables: []string {"SWITCH"},
+		Columns: []string {"ID"},
+		Selection: "ID = ?",
+		SelectionArgs: []string {obj.Id},
+	}
+}
+
+func (obj *Switch) InsertComponent() icomp {
+	return icomp {
+		Table: "SWITCH",
+		Columns: []string {"ID", 
+						"ID_DC", 
+						"ID_RACK", 
+						"ID_U_START", 
+						"ID_U_END", 
+						"MAXIMUM_PORT",
+					},
+		Values: [][]string {
+			[]string {
+				obj.Id,
+				obj.DC.Id,
+				obj.Rack.Id,
+				obj.UStart.Id,
+				obj.UEnd.Id,
+				obj.MaximumPort,
+			},
+		},
+	}
+}
+
+func (obj *Switch) InsertIps() error {
+	var comp icomp
+	var err error
+
+	for i := range obj.IpAddrs {
+		comp = obj.InsertIpComp(obj.IpAddrs[i])
+		err = database.Insert(comp)
+		if nil != err {
+			break
+		}
+	}
+
+	return err
+}
+
+func (obj *Switch) InsertIpComp(ip IpAddress) icomp {
+	return icomp {
+		Table: "IP_SWITCH",
+		Columns: []string {"ID_SWITCH", 
+						"ID_IP_NET", 
+						"IP_HOST",
+					},
+		Values: [][]string {
+			[]string {obj.Id, ip.IpNet.Id, ip.IpHost},
+		},
 	}
 }

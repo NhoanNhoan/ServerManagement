@@ -1,4 +1,4 @@
-{{ define "templates/error/view.html" }}
+{{ define "templates/server/list_ip.html"}}
 <!DOCTYPE html>
 <html lang="en-US" dir="ltr">
   <head>
@@ -9,7 +9,7 @@
     Document Title
     =============================================
     -->
-    <title>SYS | EM</title>
+    <title>SYS | Ip Addresses</title>
     <!--  
     Favicons
     =============================================
@@ -53,6 +53,32 @@
     <!-- Main stylesheet and color file-->
     <link href="../templates/assets/css/style.css" rel="stylesheet">
     <link id="color-scheme" href="../templates/assets/css/colors/default.css" rel="stylesheet">
+
+    <style type="text/css">
+      .input-select-tag{
+          background-color: #FFFFFF;
+          boder: 1px solid #F1F1F1;
+          height: 36px;
+          width: 450px;
+      }
+      .selected-tags{
+          padding: 2px;
+      }
+      .button{
+          float: left;
+          padding: 5px;
+          margin-left: 2px;
+      }
+      .input{
+          float: left;
+          border: #FFFFFF;
+          margin-left: 2px;
+          padding: 5px;
+      }
+      .clear{
+          clear: both;
+      }
+    </style>
   </head>
   <body data-spy="scroll" data-target=".onpage-navigation" data-offset="60">
     <main>
@@ -65,124 +91,30 @@
             <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#custom-collapse"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a class="navbar-brand" href="/">SYS</a>
           </div>
       </nav>
-      <div class="main">
-        <section class="module bg-dark-30 about-page-header" data-background="../templates/assets/images/registration-bg.jpg">
-          <div class="container">
-            <div class="row">
-              <div class="col-sm-6 col-sm-offset-3">
-                <h1 class="module-title font-alt mb-0">Error</h1>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section class="module">
-          <div class="container">
-            <div class="row">
-              <div class="col-sm-8 col-sm-offset-2">
-                <h4 class="font-alt mb-0">error</h4>
-                <hr class="divider-w mt-10 mb-20">
-                <form id="form-info" class="form" role="form" method="post" action="update_error">
 
-                  <input type="hidden" name="txtErrorId" value="{{.Error.Id}}">
+      <div class="container">
+        <form id="frm" method="post" action="/server/update_state_ip">
+      
+          <ul style="text-align: center; list-style-type: none; margin-top: 120px;">
+            {{ range .IpArr }}
+            <input  type="hidden" id="txtNetId" name="txtNetId" value="{{ .IpNet.Id }}">
+              <li>
+                <h2 style="display: inline-block; text-align: left">{{ .Host }}</h2>
+                <select size="1" onchange="change_state(this)">
+                  <option {{ if eq .State "Available" }} selected {{ end }} value="available">Available</option>
+                  <option  {{ if eq .State "Used" }} selected {{ end }} value="used">Used</option>
+                </select>
+              </li>
+            {{ end }}
+          </ul>
+          <input type="hidden" id="txtIpStates" name="txtIpStates">
 
-                  <input type="hidden" name="txtServerId" value="{{.Error.Server.Id}}">
+          <button type="button" onclick="submit_frm()">Save change</button>
 
-                  <div class="form-group">
-                    <label for="exampleFormControlSelect1">Summary</label>
-                    <input 
-                        id="txtSummary"
-                        name="txtSummary"
-                        class="form-control input-lg" 
-                        type="text"
-                        value="{{.Summary}}"
-                    disabled />
-                  </div>
+        </form>
 
-                  <div class="form-group">
-                    <label for="exampleFormControlSelect1">Description</label>
-                    <textarea style="height: 120px;"
-                      id="txtDescription"
-                      name="txtDescription"
-                      class="form-control" 
-                      aria-label="With textarea" disabled>{{.Description}}
-                    </textarea>
-                  </div>
+      </div>
 
-                   <div class="form-group">
-                    <label for="exampleFormControlSelect1">Solution</label>
-                    <textarea style="height: 120px;"
-                      id="txtSolution"
-                      name="txtSolution"
-                      class="form-control" 
-                      aria-label="With textarea" disabled>{{.Solution}}
-                      </textarea>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="exampleFormControlSelect1">Status</label>
-                      <select id="cbState" 
-                          name="cbStateId" 
-                          class="form-control" disabled>
-                        {{range $state := .AllErrorStates}}
-                          <option id="{{$state.Id}}"
-                            value="{{$state.Id}}">
-                            {{$state.Description}}
-                          </option>
-                        {{end}}
-                      </select>
-                  </div>
-
-                  <div id="curatorArea">
-                    <label for="cbPersonId">Curator</label><br>
-
-                    {{ $curators := .Curators }}
-                    {{ $allPersons := .AllPersons }}
-
-
-                    {{range $person := $allPersons}}
-                      <input type="checkbox" 
-                          id="{{$person.Id}}"
-                          name="{{$person.Id}}" 
-                          value="yes">
-                      <label for="{{$person.Id}}">{{$person.Name}}</label>
-                      <br>
-                    {{end}}
-
-                  </div>
-
-                  <input type="hidden" id="txtNumCurators"
-                    name="txtNumCurators">
-
-                    <div class="form-group row">
-                      <div class="col-sm-4">
-                        <h1></h1>
-                        <button 
-                          id="btnUnclock"
-                          type="button"
-                          class="form-control btn btn-primary"
-                          onclick="unclock_click()">
-                            unclock
-                        </button>
-                      </div>
-
-                      <div class="col-sm-4">
-                        <h1></h1>
-                        <button 
-                          id="btnModify"
-                          type="submit" 
-                          class="form-control btn btn-primary"
-                          style="display: none">
-                            modify
-                        </button>
-                      </div>
-                    </div>
-
-                </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </section>
         <div class="module-small bg-dark"></div>
     </main>
     <!--  
@@ -203,46 +135,27 @@
     <script src="../templates/assets/js/plugins.js"></script>
     <script src="../templates/assets/js/main.js"></script>
   </body>
-
-    <script type="text/javascript">
-      var numCurator = {{ len .Curators }}
-      var get = (id) => document.getElementById(id)
-
-      function forEach() {
-        perform = arguments[0]
-        for (var i = 1; i < arguments.length; i++) {
-          ele = get(arguments[i])
-
-          if (ele != null) {
-            perform(ele)
-          }
-        }
-      }
-
-      function unclock_click() {
-        forEach((ele) => ele.disabled = false, 
-                'txtSummary',
-                'txtDescription',
-                'txtSolution',
-                'txtDesState',
-                'cbState',)
-
-        var btn = get("btnModify")
-        btn.style.display="block"
-      }
-
-      forEach((ele) => ele.selected = true,
-            '{{.Error.ErrorState.Id}}')
-
-      function select_curators() {
-        "{{ range $i, $curator := $curators }}"
-          get('{{$curator.IdPerson}}').checked = true
-        "{{ end }}"
-      }
-
-      select_curators()
-    </script>
-
 </html>
+
+<script type="text/javascript">
+  var dict = []
+
+  function change_state(e) {
+    const ip = e.parentNode.firstElementChild.innerHTML
+    const state = e.options[e.selectedIndex].text
+    dict[ip] = state
+  }
+
+  function submit_frm() {
+    const res = document.getElementById("txtIpStates");
+
+    for (const key in dict) {
+      res.value += key + "-"  + dict[key] + ";"
+    }
+
+    const frm = document.getElementById("frm")
+    frm.submit()
+  }
+</script>
 
 {{ end }}

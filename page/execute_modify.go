@@ -4,12 +4,14 @@ import (
 	"strings"
 
 	"CURD/entity"
+	"CURD/database"
 
 	"github.com/gin-gonic/gin"
 )
 
 type ExecuteModify struct {
 	entity.Server
+	SwitchConnArr []entity.SwitchConnection
 	Msg string
 	Tags	[]entity.Tag
 }
@@ -17,10 +19,15 @@ type ExecuteModify struct {
 func (obj *ExecuteModify) New(c *gin.Context) {
 	obj.initServerByPostForm(c)
 	obj.initServerIpsByPostForm(c)
+	obj.SwitchConnArr = parseSwitchConnection(c)
 	obj.Msg = entity.UpdateServer(obj.Server)
 	obj.ExecuteIpServer()
 	obj.Tags = parseTagsByPostForm(c)
 	obj.InsertTags()
+
+	if nil != obj.SwitchConnArr {
+		obj.InsertSwitchConnArr()
+	}
 }
 
 func (obj *ExecuteModify) initServerByPostForm(c *gin.Context) {
@@ -29,7 +36,8 @@ func (obj *ExecuteModify) initServerByPostForm(c *gin.Context) {
 	obj.Server.Rack.Id = c.PostForm("cbRackId")
 	obj.Server.UStart.Id = c.PostForm("cbUStartId")
 	obj.Server.UEnd.Id = c.PostForm("cbUEndId")
-	obj.Server.NumDisks = c.PostForm("txtNumDisks")
+	obj.Server.SSD = c.PostForm("txtSSD")
+	obj.Server.HDD = c.PostForm("txtHDD")
 	obj.Server.PortType.Id = c.PostForm("cbPortTypeId")
 	obj.Server.ServerStatus.Id = c.PostForm("cbServerStatusId")
 	obj.Server.SerialNumber = c.PostForm("txtSerialNumber")
@@ -87,4 +95,58 @@ func parseTagsByPostForm(c *gin.Context) []entity.Tag {
 	}
 
 	return tags
+}
+
+func (obj *ExecuteModify) InsertSwitchConnArr() {
+	obj.DeleteSwitchConnectionByServerId()
+	var err error
+
+	for i := range obj.SwitchConnArr {
+		err = obj.SwitchConnArr[i].Insert()
+		if nil != err {
+			panic (err)
+		}
+	}
+}
+
+func parseSwitchConnection(c *gin.Context) []entity.SwitchConnection {
+	switchContent := c.PostForm("txtSwitch")
+	if "" == switchContent {
+		return nil
+	}
+
+	switchIdArr := strings.Split(switchContent, ",")
+
+	switchConnArr := make([]entity.SwitchConnection, len(switchIdArr))
+	serverId := c.PostForm("txtIdServer")
+
+	for i := range switchConnArr {
+		values := strings.Split(switchIdArr[i], "-")
+
+		switchConnArr[i] = entity.SwitchConnection {
+			ServerId: serverId,
+			SwitchId: values[0],
+			CableTypeId: values[1],
+			Port: values[2],
+		}
+	}
+
+	return switchConnArr
+}
+
+func (obj *ExecuteModify) DeleteSwitchConnectionByServerId() {
+	comp := obj.DeleteSwitchConnectionByServerIdComponent()
+	err := database.Delete(comp)
+
+	if nil != err {
+		panic (err)
+	}
+}
+
+func (obj *ExecuteModify) DeleteSwitchConnectionByServerIdComponent() database.DeleteComponent {
+	return database.DeleteComponent {
+		Table: "SWITCH_CONNECTION",
+		Selection: "ID_SERVER = ?",
+		SelectionArgs: []string {obj.Server.Id},
+	}
 }

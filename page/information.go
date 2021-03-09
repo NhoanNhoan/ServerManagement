@@ -1,15 +1,34 @@
 package page
 
 import (
+	"database/sql"
 	"CURD/database"
 	"CURD/entity"
 )
 
+type SwitchInfo struct {
+	entity.Switch
+	entity.SwitchConnection
+	entity.CableType
+}
+
 type Information struct {
 	entity.Server
-	entity.Switch
+	ConnectedSwitches []SwitchInfo
 	Tagged []entity.Tag
 	Untagged []entity.Tag
+}
+
+func (info *SwitchInfo) ParseFromRow(row *sql.Rows) error {
+	return row.Scan(&info.Switch.Id,
+				&info.Switch.DC.Description,
+				&info.Switch.Rack.Description,
+				&info.Switch.UStart.Description,
+				&info.Switch.UEnd.Description,
+				&info.Switch.MaximumPort,
+				&info.SwitchConnection.Port,
+				&info.CableType.Name,
+				&info.CableType.SignPort)
 }
 
 func (s *Information) FetchServerByIp(IpAddr string) {
@@ -45,7 +64,8 @@ func (s *Information) makeQueryServerByIpComp(IpAddr string) database.QueryCompo
 			"USTART.DESCRIPTION",
 			"UEND.ID",
 			"UEND.DESCRIPTION",
-			"S.NUM_DISKS",
+			"S.SSD",
+			"S.HDD",
 			"S.MAKER",
 			"PT.ID",
 			"PT.DESCRIPTION",
@@ -69,29 +89,26 @@ func (s *Information) makeQueryServerByIpComp(IpAddr string) database.QueryCompo
 
 func (obj *Information) Prepare(IpAddr string) {
 	obj.FetchServerByIp(IpAddr)
-	IdSwitch := obj.findSwitchId(obj.Server.Id)
-
-	if "" != IdSwitch {
-		obj.initSwitch(IdSwitch)
-	}
-
 	obj.FetchTagged()
 	obj.FetchUntagged()
 	obj.Server.FetchIpAddrs()
 	obj.Server.FetchEvents()
 	obj.Server.FetchServices()
+	err := obj.initConnectedSwitches(obj.Server.Id)
+
+	if nil != err {
+		panic (err)
+	}
 }
 
 func (obj *Information) New(IdServer string) {
 	obj.initServer(IdServer)
-	IdSwitch := obj.findSwitchId(IdServer)
-
-	if "" != IdSwitch {
-		obj.initSwitch(IdSwitch)
-	}
-
 	obj.FetchTagged()
 	obj.FetchUntagged()
+	err := obj.initConnectedSwitches(IdServer)
+	if nil != err {
+		panic (err)
+	}
 }
 
 func (obj *Information) initServer(IdServer string) {
@@ -105,39 +122,55 @@ func (obj *Information) initServer(IdServer string) {
 	}
 }
 
-func (obj *Information) initSwitch(IdSwitch string) {
-	obj.Switch.New(IdSwitch)
-	obj.Switch.FetchIpAddrs()
-}
-
-func (obj *Information) findSwitchId(IdServer string) string {
-	component := obj.makeFindSwitchIdQueryComponent(IdServer)
-	rows, err := database.Query(component)
+func (obj *Information) initConnectedSwitches(ServerId string) error {
+	comp := obj.queryConnectedSwitchesComp(ServerId)
+	rows, err := database.Query(comp)
 	defer rows.Close()
 
-	var IdSwitch string
-
-	if nil != err {
-		return IdSwitch
+	var switchInfo SwitchInfo
+	for rows.Next() && nil == err {
+		err = switchInfo.ParseFromRow(rows)
+		switchInfo.Switch.FetchIpAddrs()
+		obj.ConnectedSwitches = append(obj.ConnectedSwitches, 
+									switchInfo)
 	}
 
-	if rows.Next() && nil == rows.Scan(&IdSwitch) {
-		return IdSwitch
-	}
-
-	return IdSwitch
+	return err
 }
 
-func (obj *Information) makeFindSwitchIdQueryComponent(IdServer string) database.QueryComponent {
+func (obj *Information) queryConnectedSwitchesComp(ServerId string) database.QueryComponent {
 	return database.QueryComponent {
-		Tables: []string {"SWITCH_CONNECTION"},
-		Columns: []string {"ID_SWITCH"},
-		Selection: "ID_SERVER = ?",
-		SelectionArgs: []string {IdServer},
-		GroupBy: "",
-		Having: "",
-		OrderBy: "",
-		Limit: "",
+		Tables: []string {
+			"SWITCH AS SW",
+			"SWITCH_CONNECTION AS SC",
+			"DC AS D",
+			"RACK AS R",
+			"RACK_UNIT AS USTART",
+			"RACK_UNIT AS UEND",
+			"CABLE_TYPE AS CT",
+		},
+
+		Columns: []string {
+			"SW.ID",
+			"D.DESCRIPTION",
+			"R.DESCRIPTION",
+			"USTART.DESCRIPTION",
+			"UEND.DESCRIPTION",
+			"SW.MAXIMUM_PORT",
+			"SC.PORT",
+			"CT.NAME",
+			"CT.SIGN_PORT",
+		},
+
+		Selection: "SC.ID_SERVER = ? AND " +
+				"SC.ID_SWITCH = SW.ID AND " +
+				"SW.ID_DC = D.ID AND " +
+				"SW.ID_RACK = R.ID AND " +
+				"SW.ID_U_START = USTART.ID AND " +
+				"SW.ID_U_END = UEND.ID AND " +
+				"SC.ID_CABLE_TYPE = CT.ID",
+
+		SelectionArgs: []string {ServerId},
 	}
 }
 

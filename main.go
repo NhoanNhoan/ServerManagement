@@ -87,9 +87,20 @@ func setupRouter() *gin.Engine {
 	HandleExecuteModify(r)
 	HandleRegisterServer(r)
 	HandleExecuteRegister(r)
+	HandleErrorRegister(r)
 	HandleListError(r)
 	HandleViewError(r)
 	HandleErrorExecuteUpdate(r)
+
+	HandleRegisterSwitch(r)
+	HandleExecuteRegisterSwitch(r)
+
+	HandleRegistrationIp(r)
+	HandleExecuteRegisterIp(r)
+	HandleViewIp(r)
+	HandleUpdateStateIp(r)
+	HandleSearchIp(r)
+	HandleListIpNet(r)
 
 	// HandleLogin(r)
 	// HandleRegisterServer(r, nil)
@@ -316,6 +327,28 @@ func HandleRegisterServer(r *gin.Engine) {
 	})
 }
 
+func HandleRegisterSwitch(r *gin.Engine) {
+	r.GET("/switch/register", func (c *gin.Context) {
+		var registration page.RegistrationSwitch
+		registration.New()
+		r.LoadHTMLFiles("templates/switch/switch_register.html")
+		c.HTML(http.StatusOK, "templates/switch/switch_register.html", registration)
+	})
+}
+
+func HandleExecuteRegisterSwitch(r *gin.Engine) {
+	r.POST("/switch/execute_register_switch", func (c *gin.Context) {
+		var execution page.ExecuteRegisterSwitch
+		err := execution.Execute(c)
+		if nil != err {
+			panic (err)
+		}
+
+		r.LoadHTMLFiles("templates/switch/execute_register_switch.html")
+		c.HTML(http.StatusOK, "templates/switch/execute_register_switch.html", execution)
+	})
+}
+
 func HandleListError(r *gin.Engine) {
 	r.GET("/error/list", func (c *gin.Context) {
 		CheckAuthen(c)
@@ -376,6 +409,13 @@ func HandleErrorExecuteUpdate(r *gin.Engine) {
 	})
 }
 
+func HandleErrorRegister(r *gin.Engine) {
+	r.GET("/error/register", func (c *gin.Context) {
+		r.LoadHTMLFiles("templates/error/register.html")
+		c.HTML(http.StatusOK, "templates/error/register.html", nil)
+	})
+}
+
 func HandleExecuteRegister(r *gin.Engine) {
 	r.POST("/server/execute_register", func (c *gin.Context) {
 		CheckAuthen(c)
@@ -383,6 +423,72 @@ func HandleExecuteRegister(r *gin.Engine) {
 		registrationPage.New(c)
 		r.LoadHTMLFiles("templates/server/execute_register.html")
 		c.HTML(http.StatusOK, "templates/server/execute_register.html", registrationPage)
+	})
+}
+
+func HandleRegistrationIp(r *gin.Engine) {
+	r.GET("/server/register_ip", func (c *gin.Context) {
+		CheckAuthen(c)
+
+		r.LoadHTMLFiles("templates/server/register_ip.html")
+		c.HTML(http.StatusOK, "templates/server/register_ip.html", nil)
+	})
+}
+
+func HandleExecuteRegisterIp(r *gin.Engine) {
+	r.POST("/server/execute_register_ip", func (c *gin.Context) {
+		CheckAuthen(c)
+
+		ex := page.ExecuteRegisterIp{}
+		ex.New(c)
+
+		r.LoadHTMLFiles("templates/server/execute_modify.html")
+		c.HTML(http.StatusOK, "templates/server/execute_modify.html", ex)
+	})
+}
+
+func HandleViewIp(r *gin.Engine) {
+	r.GET("/server/list_ip", func (c *gin.Context) {
+		CheckAuthen(c)
+
+		listIp := page.ListIp{}
+		listIp.New(c)
+
+		r.LoadHTMLFiles("templates/server/list_ip.html")
+		c.HTML(http.StatusOK, "templates/server/list_ip.html", listIp)
+	})
+}
+
+func HandleUpdateStateIp(r *gin.Engine) {
+	r.POST("/server/update_state_ip", func (c *gin.Context) {
+		CheckAuthen(c)
+
+		updIp := page.UpdateStateIp {}
+		updIp.New(c)
+
+		r.LoadHTMLFiles("templates/server/execute_modify.html")
+		c.HTML(http.StatusOK, "templates/server/execute_modify.html", updIp)
+	})
+}
+
+func HandleSearchIp(r *gin.Engine) {
+	r.GET("/server/search_ip", func (c *gin.Context) {
+		CheckAuthen(c)
+
+		ip := page.SearchIp{}
+		ip.New(c)
+	})
+}
+
+func HandleListIpNet(r *gin.Engine) {
+	r.GET("/server/ip", func (c *gin.Context) {
+		CheckAuthen(c)
+
+		netView := page.ListIpNet{}
+		netView.New()
+
+		r.LoadHTMLFiles("templates/server/list_ip_net.html")
+		c.HTML(http.StatusOK, "templates/server/list_ip_net.html", netView)
 	})
 }
 
@@ -397,13 +503,6 @@ func HandleSummary(r *gin.Engine) {
 	r.GET("/server/summary", func (c *gin.Context) {
 		r.LoadHTMLFiles("templates/server/summary.html")
 		c.HTML(http.StatusOK, "templates/server/summary.html", nil)
-	})
-}
-
-func HandleErrorRegister(r *gin.Engine) {
-	r.GET("/error/register", func (c *gin.Context) {
-		r.LoadHTMLFiles("templates/error/register.html")
-		c.HTML(http.StatusOK, "templates/error/register.html", nil)
 	})
 }
 

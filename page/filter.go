@@ -39,6 +39,12 @@ func (f *Filter) initializeTags() {
 	f.Tags = entity.FetchAllTags()
 }
 
+func (f *Filter) fetchServersIpAddr() {
+	for i := range f.Servers {
+		f.Servers[i].FetchIpAddrs()
+	}
+}
+
 func (f *Filter) makeQueryServersByTagComponent(TagId string) database.QueryComponent {
 	return database.QueryComponent {
 		Tables: []string {
@@ -62,7 +68,6 @@ func (f *Filter) makeQueryServersByTagComponent(TagId string) database.QueryComp
 				"USTART.DESCRIPTION",
 				"UEND.ID",
 				"UEND.DESCRIPTION",
-				"S.NUM_DISKS",
 				"S.MAKER",
 				"PT.ID",
 				"PT.DESCRIPTION",
@@ -93,6 +98,7 @@ func (f *Filter) SearchServersByMultiTags(tags []string) error {
 	for rows.Next() {
 		var server entity.Server
 		err = rows.Scan(&server.Id)
+		server.FetchIpAddrs()
 		f.Servers = append(f.Servers, server)
 	}
 

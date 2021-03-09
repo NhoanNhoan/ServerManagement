@@ -1,4 +1,4 @@
-{{ define "templates/error/view.html" }}
+{{ define "templates/server/register_ip.html" }}
 <!DOCTYPE html>
 <html lang="en-US" dir="ltr">
   <head>
@@ -9,7 +9,7 @@
     Document Title
     =============================================
     -->
-    <title>SYS | EM</title>
+    <title>SYS | Register Ip</title>
     <!--  
     Favicons
     =============================================
@@ -53,6 +53,31 @@
     <!-- Main stylesheet and color file-->
     <link href="../templates/assets/css/style.css" rel="stylesheet">
     <link id="color-scheme" href="../templates/assets/css/colors/default.css" rel="stylesheet">
+    <style type="text/css">
+      .input-select-tag{
+          background-color: #FFFFFF;
+          boder: 1px solid #F1F1F1;
+          height: 36px;
+          width: 450px;
+      }
+      .selected-tags{
+          padding: 2px;
+      }
+      .button{
+          float: left;
+          padding: 5px;
+          margin-left: 2px;
+      }
+      .input{
+          float: left;
+          border: #FFFFFF;
+          margin-left: 2px;
+          padding: 5px;
+      }
+      .clear{
+          clear: both;
+      }
+    </style>
   </head>
   <body data-spy="scroll" data-target=".onpage-navigation" data-offset="60">
     <main>
@@ -64,13 +89,14 @@
           <div class="navbar-header">
             <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#custom-collapse"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a class="navbar-brand" href="/">SYS</a>
           </div>
+          
       </nav>
       <div class="main">
         <section class="module bg-dark-30 about-page-header" data-background="../templates/assets/images/registration-bg.jpg">
           <div class="container">
             <div class="row">
               <div class="col-sm-6 col-sm-offset-3">
-                <h1 class="module-title font-alt mb-0">Error</h1>
+                <h1 class="module-title font-alt mb-0">Registration Ip</h1>
               </div>
             </div>
           </div>
@@ -79,111 +105,47 @@
           <div class="container">
             <div class="row">
               <div class="col-sm-8 col-sm-offset-2">
-                <h4 class="font-alt mb-0">error</h4>
+                <h4 class="font-alt mb-0">registration form</h4>
                 <hr class="divider-w mt-10 mb-20">
-                <form id="form-info" class="form" role="form" method="post" action="update_error">
-
-                  <input type="hidden" name="txtErrorId" value="{{.Error.Id}}">
-
-                  <input type="hidden" name="txtServerId" value="{{.Error.Server.Id}}">
+                <form 
+                      id="frm_register"
+                      class="form" 
+                      role="form" 
+                      method="post" 
+                      action="execute_register_ip">
 
                   <div class="form-group">
-                    <label for="exampleFormControlSelect1">Summary</label>
-                    <input 
-                        id="txtSummary"
-                        name="txtSummary"
-                        class="form-control input-lg" 
-                        type="text"
-                        value="{{.Summary}}"
-                    disabled />
+                    <label for="txtSSD">Ip Net</label>
+                    <input class="form-control input-lg" 
+                        type="text" 
+                        placeholder="Ex: 42.118.242."
+                        name="txtIpNet"/>
                   </div>
 
                   <div class="form-group">
-                    <label for="exampleFormControlSelect1">Description</label>
-                    <textarea style="height: 120px;"
-                      id="txtDescription"
-                      name="txtDescription"
-                      class="form-control" 
-                      aria-label="With textarea" disabled>{{.Description}}
-                    </textarea>
-                  </div>
-
-                   <div class="form-group">
-                    <label for="exampleFormControlSelect1">Solution</label>
-                    <textarea style="height: 120px;"
-                      id="txtSolution"
-                      name="txtSolution"
-                      class="form-control" 
-                      aria-label="With textarea" disabled>{{.Solution}}
-                      </textarea>
-                  </div>
+                    <label for="txtHDD">Netmask</label>
+                    <input class="form-control input-lg" 
+                        type="text" 
+                        placeholder="Ex: 26"
+                        name="txtNetmask"/>
+                  </div>             
 
                   <div class="form-group">
-                    <label for="exampleFormControlSelect1">Status</label>
-                      <select id="cbState" 
-                          name="cbStateId" 
-                          class="form-control" disabled>
-                        {{range $state := .AllErrorStates}}
-                          <option id="{{$state.Id}}"
-                            value="{{$state.Id}}">
-                            {{$state.Description}}
-                          </option>
-                        {{end}}
-                      </select>
-                  </div>
-
-                  <div id="curatorArea">
-                    <label for="cbPersonId">Curator</label><br>
-
-                    {{ $curators := .Curators }}
-                    {{ $allPersons := .AllPersons }}
-
-
-                    {{range $person := $allPersons}}
-                      <input type="checkbox" 
-                          id="{{$person.Id}}"
-                          name="{{$person.Id}}" 
-                          value="yes">
-                      <label for="{{$person.Id}}">{{$person.Name}}</label>
-                      <br>
-                    {{end}}
-
-                  </div>
-
-                  <input type="hidden" id="txtNumCurators"
-                    name="txtNumCurators">
-
-                    <div class="form-group row">
                       <div class="col-sm-4">
-                        <h1></h1>
-                        <button 
-                          id="btnUnclock"
-                          type="button"
-                          class="form-control btn btn-primary"
-                          onclick="unclock_click()">
-                            unclock
-                        </button>
+                        <button class="btn btn-primary" type="submit">Modify</button>
                       </div>
-
-                      <div class="col-sm-4">
-                        <h1></h1>
-                        <button 
-                          id="btnModify"
-                          type="submit" 
-                          class="form-control btn btn-primary"
-                          style="display: none">
-                            modify
-                        </button>
-                      </div>
-                    </div>
+                  </div>
 
                 </div>
                 </form>
               </div>
             </div>
           </div>
+
         </section>
-        <div class="module-small bg-dark"></div>
+        <div class="module-small bg-dark">
+          
+        </div>
     </main>
     <!--  
     JavaScripts
@@ -202,47 +164,11 @@
     <script src="../templates/assets/lib/simple-text-rotator/jquery.simple-text-rotator.min.js"></script>
     <script src="../templates/assets/js/plugins.js"></script>
     <script src="../templates/assets/js/main.js"></script>
-  </body>
 
     <script type="text/javascript">
-      var numCurator = {{ len .Curators }}
-      var get = (id) => document.getElementById(id)
-
-      function forEach() {
-        perform = arguments[0]
-        for (var i = 1; i < arguments.length; i++) {
-          ele = get(arguments[i])
-
-          if (ele != null) {
-            perform(ele)
-          }
-        }
-      }
-
-      function unclock_click() {
-        forEach((ele) => ele.disabled = false, 
-                'txtSummary',
-                'txtDescription',
-                'txtSolution',
-                'txtDesState',
-                'cbState',)
-
-        var btn = get("btnModify")
-        btn.style.display="block"
-      }
-
-      forEach((ele) => ele.selected = true,
-            '{{.Error.ErrorState.Id}}')
-
-      function select_curators() {
-        "{{ range $i, $curator := $curators }}"
-          get('{{$curator.IdPerson}}').checked = true
-        "{{ end }}"
-      }
-
-      select_curators()
     </script>
 
+  </body>
 </html>
 
 {{ end }}

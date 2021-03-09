@@ -48,7 +48,8 @@ func (obj *ExecuteRegister) InsertServer(c *gin.Context) error {
 
 func ParseServerByPostForm(c *gin.Context) entity.Server {
 	serialNumber := c.PostForm("txtSerialNumber")
-	numDisks := c.PostForm("txtNumDisks")
+	ssd := c.PostForm("txtSSD")
+	hdd := c.PostForm("txtHDD")
 	maker := c.PostForm("txtMaker")
 	dc := ParseDCByPostForm(c)
 	rack := ParseRackByPostForm(c)
@@ -63,7 +64,8 @@ func ParseServerByPostForm(c *gin.Context) entity.Server {
 		Rack: rack,
 		UStart: uStart,
 		UEnd: uEnd,
-		NumDisks: numDisks,
+		SSD: ssd,
+		HDD: hdd,
 		PortType: portType,
 		ServerStatus: serverState,
 		Maker: maker,

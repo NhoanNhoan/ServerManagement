@@ -1,7 +1,6 @@
 package page
 
 import (
-	"fmt"
 	"CURD/database"
 	"CURD/entity"
 )
@@ -26,7 +25,8 @@ func (s *Servers) New(IdDC string) {
 			rackName, 
 			ustartName, 
 			uendName, 
-			numDisk, 
+			ssd,
+			hdd,
 			portType, 
 			serverStatus, 
 			maker string
@@ -35,7 +35,8 @@ func (s *Servers) New(IdDC string) {
 			&rackName, 
 			&ustartName, 
 			&uendName, 
-			&numDisk, 
+			&ssd, 
+			&hdd,
 			&portType, 
 			&serverStatus, 
 			&maker)
@@ -79,7 +80,8 @@ func makeQueryComponent(IdDC string) database.QueryComponent {
 						"RACK.Description",
 						"USTART.Description",
 						"UEND.Description",
-						"NUM_DISKS",
+						"SSD",
+						"HDD",
 						"PORT_TYPE.Description",
 						"SERVER_STATUS.Description",
 						"SERVER.MAKER"},
@@ -95,25 +97,21 @@ func makeQueryComponent(IdDC string) database.QueryComponent {
 }
 
 func (s *Servers) GetServersByTagId(tagId string) {
-	fmt.Println (s.DataCenter)
 	comp := makeQueryCompByTagId(tagId, s.DataCenter.Id)
-	fmt.Println("Query content: ", database.GetQueryStatement(comp))
 	rows, err := database.Query(comp)
 	defer rows.Close()
 
 	if nil != err {
 		panic(err)
 	}
-	
-	fmt.Println("Out side")
 
 	for rows.Next() {
-		fmt.Println("Inside")
 		var id,
 			rackName, 
 			ustartName, 
 			uendName, 
-			numDisk, 
+			ssd, 
+			hdd,
 			portType, 
 			serialNumber, 
 			serverStatus, 
@@ -123,7 +121,8 @@ func (s *Servers) GetServersByTagId(tagId string) {
 			&rackName, 
 			&ustartName, 
 			&uendName, 
-			&numDisk, 
+			&ssd, 
+			&hdd,
 			&portType, 
 			&serialNumber, 
 			&serverStatus, 
@@ -154,7 +153,8 @@ func makeQueryCompByTagId(tagId string, dcId string) database.QueryComponent {
 							"RACK.Description",
 							"USTART.Description",
 							"UEND.Description",
-							"NUM_DISKS",
+							"SERVER.SSD",
+							"SERVER.HDD",
 							"PORT_TYPE.Description",
 							"SERVER.SERIAL_NUMBER",
 							"SERVER_STATUS.Description",

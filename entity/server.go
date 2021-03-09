@@ -15,7 +15,8 @@ type Server struct {
 	Rack
 	UStart RackUnit
 	UEnd RackUnit
-	NumDisks string
+	SSD	string
+	HDD	string
 	Maker string
 	PortType
 	SerialNumber string
@@ -45,7 +46,8 @@ func (obj *Server) New(Id string) (err error) {
 					&obj.UStart.Description,
 					&obj.UEnd.Id,
 					&obj.UEnd.Description,
-					&obj.NumDisks,
+					&obj.SSD,
+					&obj.HDD,
 					&obj.Maker,
 					&obj.PortType.Id,
 					&obj.PortType.Description,
@@ -84,7 +86,8 @@ func (obj *Server) makeQueryComponent(IdServer string) qcomp {
 				"USTART.DESCRIPTION",
 				"UEND.ID",
 				"UEND.DESCRIPTION",
-				"S.NUM_DISKS",
+				"S.SSD",
+				"S.HDD",
 				"S.MAKER",
 				"PT.ID",
 				"PT.DESCRIPTION",
@@ -120,7 +123,8 @@ func (obj *Server) ParseRow(rows *sql.Rows) error {
 					&obj.UStart.Description,
 					&obj.UEnd.Id,
 					&obj.UEnd.Description,
-					&obj.NumDisks,
+					&obj.SSD,
+					&obj.HDD,
 					&obj.Maker,
 					&obj.PortType.Id,
 					&obj.PortType.Description,
@@ -197,7 +201,8 @@ func (s *Server) makeInsertServerComponent() icomp {
 			"ID_U_END",
 			"ID_PORT_TYPE",
 			"ID_SERVER_STATUS",
-			"NUM_DISKS",
+			"SSD",
+			"HDD",
 			"MAKER",
 			"SERIAL_NUMBER",
 			"id_STATUS_ROW",
@@ -210,7 +215,8 @@ func (s *Server) makeInsertServerComponent() icomp {
 				s.UEnd.Id,
 				s.PortType.Id,
 				s.ServerStatus.Id,
-				s.NumDisks,
+				s.SSD,
+				s.HDD,
 				s.Maker,
 				s.SerialNumber,
 				"1",
@@ -244,7 +250,8 @@ func makeUpdateServerComponent(server Server) ucomp {
 			"id_RACK = ?, " +
 			"id_U_start = ?, " +
 			"id_U_end  = ?, " +
-			"num_disks = ?, " +
+			"SSD = ?, " +
+			"HDD = ?, " +
 			"id_PORT_TYPE = ?, " +
 			"serial_number = ?, " +
 			"id_SERVER_STATUS = ?",
@@ -253,7 +260,8 @@ func makeUpdateServerComponent(server Server) ucomp {
 				server.Rack.Id,
 				server.UStart.Id,
 				server.UEnd.Id,
-				server.NumDisks,
+				server.SSD,
+				server.HDD,
 				server.PortType.Id,
 				server.SerialNumber,
 				server.ServerStatus.Id,
@@ -336,7 +344,8 @@ func FetchServer(comp qcomp) (Server, error) {
 					&server.UStart.Description,
 					&server.UEnd.Id,
 					&server.UEnd.Description,
-					&server.NumDisks,
+					&server.SSD,
+					&server.HDD,
 					&server.Maker,
 					&server.PortType.Id,
 					&server.PortType.Description,
