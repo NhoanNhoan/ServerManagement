@@ -48,8 +48,8 @@ func (item *IpNetItem) fetchAvailableAndUsedIpNetsRow() *sql.Rows {
 func (item *IpNetItem) fetchAvailableAndUsedIpNetsComp() database.QueryComponent {
 	return database.QueryComponent{
 		Tables: []string {"IP_HOST"},
-		Columns: []string {"COUNT(CASE WHEN STATE='AVAILABLE' THEN 1 ELSE NULL END)",
-			"COUNT(CASE WHEN STATE='USED' THEN 1 ELSE NULL END)"},
+		Columns: []string {"COUNT(CASE WHEN STATE='available' THEN 1 ELSE NULL END)",
+			"COUNT(CASE WHEN STATE='used' THEN 1 ELSE NULL END)"},
 		Selection: "ID_NET = ?",
 		SelectionArgs: []string {item.IpNet.Id},
 	}
@@ -60,7 +60,10 @@ type ListIpNet struct {
 }
 
 func (obj *ListIpNet) New() {
-	obj.FetchAllIpNetItems()
+	err := obj.FetchAllIpNetItems()
+	if nil != err {
+		panic (err)
+	}
 }
 
 func (obj *ListIpNet) FetchAllIpNetItems() error {
@@ -94,8 +97,8 @@ func (obj *ListIpNet) makeFetchAllIpNetItemComp() database.QueryComponent {
 	return database.QueryComponent{
 		Tables: []string {"IP_NET", "IP_HOST"},
 		Columns: []string {"ID", "VALUE", "NETMASK",
-							"COUNT(CASE WHEN STATE='AVAILABLE' THEN 1 ELSE NULL END)",
-							"COUNT(CASE WHEN STATE='USED' THEN 1 ELSE NULL END)"},
+							"COUNT(CASE WHEN STATE='available' THEN 1 ELSE NULL END)",
+							"COUNT(CASE WHEN STATE='used' THEN 1 ELSE NULL END)"},
 		Selection: "ID = ID_NET",
 	}
 }

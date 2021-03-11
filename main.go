@@ -453,9 +453,10 @@ func HandleViewIp(r *gin.Engine) {
 
 		listIp := page.ListIp{}
 		listIp.New(c)
-
-		r.LoadHTMLFiles("templates/server/list_ip.html")
-		c.HTML(http.StatusOK, "templates/server/list_ip.html", listIp)
+		//
+		//r.LoadHTMLFiles("templates/server/list_ip.html")
+		//c.HTML(http.StatusOK, "templates/server/list_ip.html", listIp)
+		c.JSON(http.StatusOK, listIp.IpArr)
 	})
 }
 

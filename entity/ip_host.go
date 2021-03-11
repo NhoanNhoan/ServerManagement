@@ -2,7 +2,7 @@ package entity
 
 import (
 	"CURD/database"
-
+	"database/sql"
 )
 
 const (
@@ -71,4 +71,31 @@ func QueryIpHost(comp qcomp) IpHost {
 	}
 
 	return ipHost
+}
+
+func FetchIpHostArr(comp qcomp) []IpHost {
+	rows, err := database.Query(comp)
+	if nil != err {
+		panic (err)
+	}
+	defer rows.Close()
+
+	hosts := make([]IpHost, 0)
+	var host IpHost
+	for rows.Next() {
+		host = ParseIpHostByRow(rows)
+		hosts = append(hosts, host)
+	}
+
+	return hosts
+}
+
+func ParseIpHostByRow(row *sql.Rows) IpHost {
+	host := IpHost{}
+	err := row.Scan(&host.IpNet.Id, &host.Host, &host.State)
+	if nil != err {
+		panic (err)
+	}
+
+	return host
 }

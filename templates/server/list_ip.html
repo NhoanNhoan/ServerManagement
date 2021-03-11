@@ -1,161 +1,181 @@
 {{ define "templates/server/list_ip.html"}}
-<!DOCTYPE html>
-<html lang="en-US" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!--  
-    Document Title
-    =============================================
-    -->
-    <title>SYS | Ip Addresses</title>
-    <!--  
-    Favicons
-    =============================================
-    -->
-    <link rel="apple-touch-icon" sizes="57x57" href="../templates/assets/images/favicons/apple-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="../templates/assets/images/favicons/apple-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="../templates/assets/images/favicons/apple-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="../templates/assets/images/favicons/apple-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="../templates/assets/images/favicons/apple-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="../templates/assets/images/favicons/apple-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="../templates/assets/images/favicons/apple-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="../templates/assets/images/favicons/apple-icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="../templates/assets/images/favicons/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="../templates/assets/images/favicons/android-icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="../templates/assets/images/favicons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="../templates/assets/images/favicons/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="../templates/assets/images/favicons/favicon-16x16.png">
-    <link rel="manifest" href="/manifest.json">
-    <meta name="msapplication-TileColor" content="#ffffff">
-    <meta name="msapplication-TileImage" content="../templates/assets/images/favicons/ms-icon-144x144.png">
-    <meta name="theme-color" content="#ffffff">
-    <!--  
-    Stylesheets
-    =============================================
-    
-    -->
-    <!-- Default stylesheets-->
-    <link href="../templates/assets/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Template specific stylesheets-->
-    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Volkhov:400i" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" rel="stylesheet">
-    <link href="../templates/assets/lib/animate.css/animate.css" rel="stylesheet">
-    <link href="../templates/assets/lib/components-font-awesome/css/font-awesome.min.css" rel="stylesheet">
-    <link href="../templates/assets/lib/et-line-font/et-line-font.css" rel="stylesheet">
-    <link href="../templates/assets/lib/flexslider/flexslider.css" rel="stylesheet">
-    <link href="../templates/assets/lib/owl.carousel/dist/../templates/assets/owl.carousel.min.css" rel="stylesheet">
-    <link href="../templates/assets/lib/owl.carousel/dist/../templates/assets/owl.theme.default.min.css" rel="stylesheet">
-    <link href="../templates/assets/lib/magnific-popup/dist/magnific-popup.css" rel="stylesheet">
-    <link href="../templates/assets/lib/simple-text-rotator/simpletextrotator.css" rel="stylesheet">
-    <!-- Main stylesheet and color file-->
-    <link href="../templates/assets/css/style.css" rel="stylesheet">
-    <link id="color-scheme" href="../templates/assets/css/colors/default.css" rel="stylesheet">
+<form method="post" id=""frm>
+    <table class="table">
+        <thead class="bg-light">
+        <tr class="border-0">
+            <th class="border-0">Ip Address</th>
+            <th class="border-0">State</th>
+        </tr>
+        </thead>
+        <tbody id="tbody">
 
-    <style type="text/css">
-      .input-select-tag{
-          background-color: #FFFFFF;
-          boder: 1px solid #F1F1F1;
-          height: 36px;
-          width: 450px;
-      }
-      .selected-tags{
-          padding: 2px;
-      }
-      .button{
-          float: left;
-          padding: 5px;
-          margin-left: 2px;
-      }
-      .input{
-          float: left;
-          border: #FFFFFF;
-          margin-left: 2px;
-          padding: 5px;
-      }
-      .clear{
-          clear: both;
-      }
-    </style>
-  </head>
-  <body data-spy="scroll" data-target=".onpage-navigation" data-offset="60">
-    <main>
-      <div class="page-loader">
-        <div class="loader">Loading...</div>
-      </div>
-      <nav class="navbar navbar-custom navbar-fixed-top" role="navigation">
-        <div class="container">
-          <div class="navbar-header">
-            <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#custom-collapse"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a class="navbar-brand" href="/">SYS</a>
-          </div>
-      </nav>
+        </tbody>
+    </table>
+    <div style="text-align:center;">
+        <input type="button" id="first" onclick="firstPage()" value="first" />
+        <input type="button" id="next" onclick="nextPage()" value="next" />
+        <input type="button" id="previous" onclick="prevPage()" value="previous" />
+        <input type="button" id="last" onclick="lastPage()" value="last" />
+    </div>
 
-      <div class="container">
-        <form id="frm" method="post" action="/server/update_state_ip">
-      
-          <ul style="text-align: center; list-style-type: none; margin-top: 120px;">
-            {{ range .IpArr }}
-            <input  type="hidden" id="txtNetId" name="txtNetId" value="{{ .IpNet.Id }}">
-              <li>
-                <h2 style="display: inline-block; text-align: left">{{ .Host }}</h2>
-                <select size="1" onchange="change_state(this)">
-                  <option {{ if eq .State "Available" }} selected {{ end }} value="available">Available</option>
-                  <option  {{ if eq .State "Used" }} selected {{ end }} value="used">Used</option>
-                </select>
-              </li>
-            {{ end }}
-          </ul>
-          <input type="hidden" id="txtIpStates" name="txtIpStates">
+</form>
 
-          <button type="button" onclick="submit_frm()">Save change</button>
-
-        </form>
-
-      </div>
-
-        <div class="module-small bg-dark"></div>
-    </main>
-    <!--  
-    JavaScripts
-    =============================================
-    -->
-    <script src="../templates/assets/lib/jquery/dist/jquery.js"></script>
-    <script src="../templates/assets/lib/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="../templates/assets/lib/wow/dist/wow.js"></script>
-    <script src="../templates/assets/lib/jquery.mb.ytplayer/dist/jquery.mb.YTPlayer.js"></script>
-    <script src="../templates/assets/lib/isotope/dist/isotope.pkgd.js"></script>
-    <script src="../templates/assets/lib/imagesloaded/imagesloaded.pkgd.js"></script>
-    <script src="../templates/assets/lib/flexslider/jquery.flexslider.js"></script>
-    <script src="../templates/assets/lib/owl.carousel/dist/owl.carousel.min.js"></script>
-    <script src="../templates/assets/lib/smoothscroll.js"></script>
-    <script src="../templates/assets/lib/magnific-popup/dist/jquery.magnific-popup.js"></script>
-    <script src="../templates/assets/lib/simple-text-rotator/jquery.simple-text-rotator.min.js"></script>
-    <script src="../templates/assets/js/plugins.js"></script>
-    <script src="../templates/assets/js/main.js"></script>
-  </body>
-</html>
+<input type="hidden" id="txtIpStates" name="txtIpStates">
+<button type="button" onclick="submit_frm()">Save change</button>
 
 <script type="text/javascript">
-  var dict = []
+    let listIp = []
+    const numberPerPage = 20
+    let curStart = 0
+    let curEnd = numberPerPage
+    let curPage = 1
 
-  function change_state(e) {
-    const ip = e.parentNode.firstElementChild.innerHTML
-    const state = e.options[e.selectedIndex].text
-    dict[ip] = state
-  }
-
-  function submit_frm() {
-    const res = document.getElementById("txtIpStates");
-
-    for (const key in dict) {
-      res.value += key + "-"  + dict[key] + ";"
+    function getNumberOfPages() {
+        return Math.ceil(listIp.length / numberPerPage)
     }
 
-    const frm = document.getElementById("frm")
-    frm.submit()
-  }
+    function nextPage() {
+        curPage += 1
+        curStart += numberPerPage
+        curEnd += numberPerPage
+        loadList()
+    }
+
+    function prevPage() {
+        curPage -= 1
+        curStart -= numberPerPage
+        curEnd -= numberPerPage
+        loadList()
+    }
+
+    function firstPage() {
+        curPage = 1
+        curStart = 0
+        curEnd = numberPerPage - 1
+        loadList()
+    }
+
+    function lastPage() {
+        curPage = getNumberOfPages()
+        curStart = listIp.length - numberPerPage
+        curEnd = numberPerPage - 1
+        loadList()
+    }
+
+    function loadList() {
+        drawList()
+        check()
+    }
+
+    function drawList() {
+        const tbody = document.getElementById("tbody");
+        tbody.innerHTML = ""
+
+        for (let i = curStart; i <= curEnd; i++) {
+            const tr = makeTrItem(listIp[i])
+            tbody.appendChild(tr)
+        }
+    }
+
+    function makeTrItem(host) {
+        const tr = document.createElement("tr")
+        const input = makeInputNetId(host.netId)
+        const tdHost = makeTdHost(host.host)
+        const select = makeSelectState(host.state)
+
+        tr.appendChild(input)
+        tr.appendChild(tdHost)
+        tr.appendChild(select)
+
+        return tr
+    }
+
+    function makeInputNetId(netId) {
+        const input = document.createElement("input");
+
+        input.setAttribute("type", "hidden")
+        input.setAttribute("name", "txtNetId")
+        input.setAttribute("value", netId)
+
+        return input
+    }
+
+    function makeTdHost(hostValue) {
+        const td = document.createElement("td")
+        td.innerText = hostValue
+        return td
+    }
+
+    function makeSelectState(state) {
+        const select = document.createElement("select")
+        const availOpt = document.createElement("option")
+        const usedOpt = document.createElement("option")
+
+        availOpt.innerText = "Available"
+        usedOpt.innerText = "Used"
+        let tempOpt = state === "available" ? availOpt : usedOpt
+        tempOpt.setAttribute("selected", true)
+
+        select.appendChild(availOpt)
+        select.appendChild(usedOpt)
+
+        return select
+    }
+
+    function check() {
+        document.getElementById("next").disabled = curPage === getNumberOfPages()
+        document.getElementById("previous").disabled = curPage === 1
+        document.getElementById("first").disabled = curPage === 1
+        document.getElementById("last").disabled = curPage === getNumberOfPages()
+    }
+
+    function load() {
+        makeListIp()
+        loadList()
+    }
+
+    class IpHost {
+        constructor(netId, host, state) {
+            this.netId = netId
+            this.host = host
+            this.state = state
+        }
+    }
+
+    function makeListIp() {
+        {{ range .IpArr }}
+        listIp.push(new IpHost("{{ .IpNet.Id }}", "{{ .Host }}", "{{ .State }}"))
+        {{ end }}
+    }
+
+    function load() {
+        makeListIp()
+        loadList()
+    }
+
+    makeListIp()
+    window.onload = load
 </script>
+
+<!--<script type="text/javascript">-->
+<!--  var dict = []-->
+
+<!--  function change_state(e) {-->
+<!--    const ip = e.parentNode.firstElementChild.innerHTML-->
+<!--    const state = e.options[e.selectedIndex].text-->
+<!--    dict[ip] = state-->
+<!--  }-->
+
+<!--  function submit_frm() {-->
+<!--    const res = document.getElementById("txtIpStates");-->
+
+<!--    for (const key in dict) {-->
+<!--      res.value += key + "-"  + dict[key] + ";"-->
+<!--    }-->
+
+<!--    const frm = document.getElementById("frm")-->
+<!--    frm.submit()-->
+<!--  }-->
+<!--</script>-->
 
 {{ end }}

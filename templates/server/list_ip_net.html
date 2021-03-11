@@ -64,52 +64,113 @@
             <div class="navbar-header">
                 <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#custom-collapse"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a class="navbar-brand" href="/">SYS</a>
             </div>
+        </div>
     </nav>
     <div class="main">
-        <section class="module bg-dark-30 parallax-bg restaurant-menu-bg" data-background="">
-            <div class="container">
+        <section class="module">
+            <div  class="container-fluid">
                 <div class="row">
-                    <div class="col-sm-2 col-sm-offset-5">
-                        <div class="alt-module-subtitle"><span class="holder-w"></span>
-                            <h5 class="font-serif"></h5><span class="holder-w"></span>
+                        <form id="frm_register"
+                              class="form col-lg-2"
+                              role="form"
+                              method="post"
+                              action="execute_register_ip">
+
+                            <div class="form-group">
+                                <label for="txtSSD">Ip Net</label>
+                                <input class="form-control input-lg"
+                                       type="text"
+                                       placeholder="Ex: 42.118.242."
+                                       id="txtSubnet"
+                                       name="txtIpNet"/>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="txtHDD">Netmask</label>
+                                <input class="form-control input-lg"
+                                       type="text"
+                                       placeholder="Ex: 26"
+                                       id="txtNetmask"
+                                       name="txtNetmask"/>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-4">
+                                    <button class="btn btn-warning" type="button" onclick="add_subnet()">Add subnet</button>
+                                </div>
+                            </div>
+                        </form>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-6 col-lg-5 col-md-7 col-sm-12 col-7">
+                        <div class="card">
+                            <h3 class="card-header" style="display: inline-block">SUBNET</h3>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead class="bg-light">
+                                        <tr class="border-0 " >
+                                            <th class="border-0">Subnet</th>
+                                            <th class="border-0">Available</th>
+                                            <th class="border-0">Used</th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                            {{ range .Items }}
+                                            <tr>
+                                                <input type="hidden" value="{{ .IpNet.Id }}">
+                                                <td>{{ .IpNet.Value }}/{{ .IpNet.Netmask }}</td>
+                                                <td>
+                                                    <button type="button" onclick="filter_state_ips(this, 'available')">
+                                                        {{ .AvailableIpNets }}
+                                                    </button>
+                                                </td>
+                                                <td>
+                                                    <button type="button" onclick="filter_state_ips(this, 'used')">
+                                                        {{ .UsedIpNets }}
+                                                    </button>
+                                                </td>
+                                                <td><button type="button" onclick="get_ips(this)" class="btn btn-primary">View</button></td>
+                                                <td><button type="button" onclick="remove_ip(this)" class="btn btn-danger">Delete</button></td>
+                                            </tr>
+                                            {{ end }}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-8 col-sm-offset-2">
-                        <h2 class="module-title font-alt mb-0">IP Management</h2>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section class="module">
-            <div class="container">
-                <div class="col-xl-9 col-lg-12 col-md-6 col-sm-12 col-12">
-                    <div class="card">
-                        <h3 class="card-header">IP :</h3>
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table">
+
+                    <div class="col-lg-7">
+                        <h3 class="card-header">DETAIL:</h3>
+                        <div id="ipContent" style="text-align: center">
+                            <form method="post" id="frm" action="/server/update_state_ip">
+                                <input type="hidden" name="txtIpStates" id="txtIpStates">
+                                <table class="table table-bordered">
                                     <thead class="bg-light">
-                                    <tr class="border-0">
-                                        <th class="border-0">Subnet</th>
-                                        <th class="border-0">Available</th>
-                                        <th class="border-0">Used</th>
-                                        <th></th>
+                                    <tr class="">
+                                        <th class=" " style="text-align: center">Ip Address</th>
+                                        <th class=" " style="text-align: center">State</th>
                                     </tr>
                                     </thead>
-                                    <tbody>
-                                    {{ range .Items }}
-                                    <tr>
-                                        <td>{{ .IpNet.Value }}/{{ .IpNet.Netmask }}</td>
-                                        <td>{{ .AvailableIpNets }}</td>
-                                        <td>{{ .UsedIpNets }}</td>
-                                        <td><a href="list_ip?txtNetId={{ .IpNet.Id }}">More</a></td>
-                                    </tr>
-                                    {{ end }}
+                                    <tbody id="tbody">
+
                                     </tbody>
                                 </table>
-                            </div>
+
+                                <div style="text-align:center;" class="row">
+                                    <input type="button" id="first" onclick="firstPage()" value="first" class="btn btn-dark"/>
+                                    <input type="button" id="next" onclick="nextPage()" value="next" class="btn btn-light"/>
+                                    <input type="button" id="previous" onclick="prevPage()" value="previous" class="btn btn-light"/>
+                                    <input type="button" id="last" onclick="lastPage()" value="last" class="btn btn-dark"/>
+                                </div>
+                                <div type="form-control" style="margin-top: 30px">
+                                    <button type="button" onclick="submit_frm()" class="btn btn-success">Save change</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -129,5 +190,227 @@
             <script src="../templates/assets/js/main.js"></script>
 </body>
 </html>
+
+<script type="text/javascript">
+    // Ajax Area
+    const get_ips = function (e) {
+        const ip_value = e.parentNode
+            .parentNode
+            .firstElementChild
+            .getAttribute("value")
+        const path = '/server/list_ip?txtNetId=' + ip_value
+        send_request(path)
+    }
+
+    const filter_state_ips = function (e, state) {
+        const net_id = e.parentNode
+            .parentNode
+            .firstElementChild
+            .getAttribute("value")
+        const path = "/server/list_ip?txtFilter=" + state + "&txtNetId=" + net_id
+        send_request(path)
+    }
+
+    const remove_ip = function (e) {
+        e.parentNode.parentNode.parentNode.removeChild(e.parentNode.parentNode)
+    }
+
+    const send_request = function(path) {
+        const xhttp = new XMLHttpRequest() || ActiveXObject();
+
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                addData(this.responseText)
+            }
+        }
+
+        xhttp.open('GET', path, true);
+        xhttp.send();
+    }
+
+    const addData = function (data) {
+        // document.getElementById('ipContent').innerHTML = JSON.parse(data)[0].Id
+        load(data)
+    }
+
+    const add_subnet = function() {
+        subnet = document.getElementById("txtSubnet").value
+        netmask = document.getElementById("txtNetmask").value
+
+        document.getElementById("txtSubnet").value = ""
+        document.getElementById("txtNetmask").value = ""
+
+        const xhttp = new XMLHttpRequest() || ActiveXObject();
+
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                alert_add_subnet(this.responseText)
+            }
+        }
+
+        xhttp.open("POST", "execute_register_ip", true)
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+        xhttp.send("txtIpNet=" + subnet + "&txtNetmask=" + netmask)
+    }
+
+    const alert_add_subnet = function(msg) {
+        alert (msg)
+    }
+
+    // End of Ajax Area
+
+    // =================================================
+
+    // Onchange Event Select Area
+
+    let dict = []
+
+    function change_state(e) {
+        const ip = e.parentNode.childNodes[1].textContent
+        const state = e.options[e.selectedIndex].text
+        dict[ip] = state
+    }
+
+    function submit_frm() {
+        const res = document.getElementById("txtIpStates");
+
+        for (const key in dict) {
+            res.value += key + "-" + dict[key] + ";"
+        }
+
+        const frm = document.getElementById("frm")
+        frm.submit()
+    }
+
+    // End of Onchange Event
+
+    // ====================================================
+
+    // Pagination Area
+    let listIp = []
+    const numberPerPage = 15
+    let curStart = 0
+    let curEnd = numberPerPage
+    let curPage = 1
+
+    function initListIp(data) {
+        listIp = JSON.parse(data)
+    }
+
+    function getNumberOfPages() {
+        return Math.ceil(listIp.length / numberPerPage)
+    }
+
+    function nextPage() {
+        curPage += 1
+        curStart += numberPerPage
+        curEnd += numberPerPage
+        loadList()
+    }
+
+    function prevPage() {
+        curPage -= 1
+        curStart -= numberPerPage
+        curEnd -= numberPerPage
+        loadList()
+    }
+
+    function firstPage() {
+        curPage = 1
+        curStart = 0
+        curEnd = numberPerPage - 1
+        loadList()
+    }
+
+    function lastPage() {
+        curPage = getNumberOfPages()
+        while (curEnd < listIp.length) {
+            curEnd += numberPerPage
+            curStart += numberPerPage
+        }
+        loadList()
+    }
+
+    function loadList() {
+        check()
+        drawList()
+        check()
+    }
+
+    function drawList() {
+        const tbody = document.getElementById("tbody");
+        tbody.innerHTML = ""
+
+        for (let i = curStart; i <= curEnd; i++) {
+            const tr = makeTrItem(listIp[i])
+            tbody.appendChild(tr)
+        }
+    }
+
+    function makeTrItem(host) {
+        const tr = document.createElement("tr")
+        const input = makeInputNetId(host.Id)
+        const tdHost = makeTdHost(host.Host)
+        const select = makeSelectState(host)
+
+        tr.appendChild(input)
+        tr.appendChild(tdHost)
+        tr.appendChild(select)
+
+        return tr
+    }
+
+    function makeInputNetId(netId) {
+        const input = document.createElement("input");
+
+        input.setAttribute("type", "hidden")
+        input.setAttribute("name", "txtNetId")
+        input.setAttribute("value", netId)
+
+        return input
+    }
+
+    function makeTdHost(hostValue) {
+        const td = document.createElement("td")
+        td.innerText = hostValue
+        return td
+    }
+
+    function makeSelectState(host) {
+        const select = document.createElement("select")
+        select.setAttribute("class", "form-control" )
+        select.setAttribute("onchange", "change_state(this)")
+
+        const availOpt = document.createElement("option")
+        const usedOpt = document.createElement("option")
+
+        availOpt.innerText = "available"
+        usedOpt.innerText = "used"
+        let tempOpt = host.State === "available" ? availOpt : usedOpt
+        tempOpt.setAttribute("selected", true)
+
+        select.appendChild(availOpt)
+        select.appendChild(usedOpt)
+
+        return select
+    }
+
+    function check() {
+        document.getElementById("next").disabled = curPage === getNumberOfPages()
+        document.getElementById("previous").disabled = curPage === 1
+        document.getElementById("first").disabled = curPage === 1
+        document.getElementById("last").disabled = curPage === getNumberOfPages()
+    }
+
+    function load(data) {
+        curPage = 1
+        curStart = 0
+        curEnd = numberPerPage - 1
+        initListIp(data)
+        loadList()
+    }
+
+    // End of Pagination Area
+</script>
 
 {{ end }}
