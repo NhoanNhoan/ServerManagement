@@ -1,15 +1,15 @@
 package page
 
 import (
-	"strconv"
-
 	"CURD/entity"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 type ExecuteRegisterIp struct {
 	Msg string
+	AvailableHosts int
 	entity.IpNet
 }
 
@@ -23,5 +23,7 @@ func (ex *ExecuteRegisterIp) New(c *gin.Context) {
 		panic (err)
 	}
 
+	ex.AvailableHosts = ex.IpNet.CalculateHosts()
 	ex.Msg = "Success"
 }
+

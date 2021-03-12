@@ -1,9 +1,8 @@
 package page
 
 import (
-	"CURD/entity"
 	"CURD/database"
-
+	"CURD/entity"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,6 +24,7 @@ type UpdateServer struct {
 func (obj *UpdateServer) New(c *gin.Context) {
 	obj.initServerByPostForm(c)
 	obj.Server.FetchIpAddrs()
+
 
 	obj.DCs = entity.GetDCs()
 	obj.Racks = entity.GetRacks()

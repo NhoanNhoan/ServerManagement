@@ -80,7 +80,7 @@
                                 <label for="txtSSD">Ip Net</label>
                                 <input class="form-control input-lg"
                                        type="text"
-                                       placeholder="Ex: 42.118.242."
+                                       placeholder="Ex: 42.118.242"
                                        id="txtSubnet"
                                        name="txtIpNet"/>
                             </div>
@@ -118,7 +118,7 @@
                                             <th></th>
                                         </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody id="subnetContent">
                                             {{ range .Items }}
                                             <tr>
                                                 <input type="hidden" value="{{ .IpNet.Id }}">
@@ -193,27 +193,6 @@
 
 <script type="text/javascript">
     // Ajax Area
-    const get_ips = function (e) {
-        const ip_value = e.parentNode
-            .parentNode
-            .firstElementChild
-            .getAttribute("value")
-        const path = '/server/list_ip?txtNetId=' + ip_value
-        send_request(path)
-    }
-
-    const filter_state_ips = function (e, state) {
-        const net_id = e.parentNode
-            .parentNode
-            .firstElementChild
-            .getAttribute("value")
-        const path = "/server/list_ip?txtFilter=" + state + "&txtNetId=" + net_id
-        send_request(path)
-    }
-
-    const remove_ip = function (e) {
-        e.parentNode.parentNode.parentNode.removeChild(e.parentNode.parentNode)
-    }
 
     const send_request = function(path) {
         const xhttp = new XMLHttpRequest() || ActiveXObject();
@@ -233,9 +212,62 @@
         load(data)
     }
 
+    // End of Ajax Area
+
+    // =================================================
+
+    // Subnet Operation Area
+
+    const get_ips = function (e) {
+        const ip_value = e.parentNode
+            .parentNode
+            .firstElementChild
+            .getAttribute("value")
+        const path = '/server/list_ip?txtNetId=' + ip_value
+        send_request(path)
+    }
+
+    const filter_state_ips = function (e, state) {
+        const net_id = e.parentNode
+            .parentNode
+            .firstElementChild
+            .getAttribute("value")
+        const path = "/server/list_ip?txtFilter=" + state + "&txtNetId=" + net_id
+        send_request(path)
+    }
+
+    const remove_ip = function (e) {
+        sendRemoveIpReq(e)
+        e.parentNode.parentNode.parentNode.removeChild(e.parentNode.parentNode)
+    }
+
+    const sendRemoveIpReq = function(e) {
+        netId = e.parentNode
+            .parentNode
+            .firstElementChild.getAttribute("value")
+
+        const xhttp = new XMLHttpRequest() || ActiveXObject();
+
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                alert(this.responseText)
+            }
+        }
+
+        xhttp.open("POST", "delete_ip", true)
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+        xhttp.send("txtNetId=" + netId)
+    }
+
+    // End of Subnet Operation Area
+
+    // ===================================================
+
+    // Add Subnet Area
+
     const add_subnet = function() {
-        subnet = document.getElementById("txtSubnet").value
-        netmask = document.getElementById("txtNetmask").value
+        let subnet = document.getElementById("txtSubnet").value
+        let netmask = document.getElementById("txtNetmask").value
 
         document.getElementById("txtSubnet").value = ""
         document.getElementById("txtNetmask").value = ""
@@ -244,7 +276,7 @@
 
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
-                alert_add_subnet(this.responseText)
+                subnetResponse(this.responseText)
             }
         }
 
@@ -253,13 +285,84 @@
         xhttp.send("txtIpNet=" + subnet + "&txtNetmask=" + netmask)
     }
 
-    const alert_add_subnet = function(msg) {
+    const subnetResponse = function(data) {
+        let item = JSON.parse(data)
+        alertResult(item.Msg)
+        addSubnetItem(item)
+    }
+
+    const alertResult = function(msg) {
         alert (msg)
     }
 
-    // End of Ajax Area
+    const addSubnetItem = function(item) {
+        let content = document.getElementById("subnetContent")
+        content.appendChild(trSubnet(item))
+    }
 
-    // =================================================
+    const trSubnet = function(item) {
+        let tr = document.createElement("tr")
+        tr.appendChild(inputIdSubnet(item.Id))
+        tr.appendChild(tdSubnet(item.Value, item.Netmask))
+        tr.appendChild(tdStateNums('available', item.AvailableHosts))
+        tr.appendChild(tdStateNums('used', 0))
+        tr.appendChild(tdBtn("view", "get_ips(this)", "btn btn-primary"))
+        tr.appendChild(tdBtn("delete", "remove_ip(this)", "btn btn-danger"))
+        return tr
+    }
+
+    const inputIdSubnet = function(id) {
+        let input = document.createElement("input")
+        input.setAttribute("type", "hidden")
+        input.setAttribute("value", id)
+        return input
+    }
+
+    const tdSubnet = function(subnet, netmask) {
+        let td = document.createElement("td")
+        let text = subnet + "/" + netmask
+        td.innerText = text
+        return td
+    }
+
+    const tdStateNums = function(state, num) {
+        let td = document.createElement("td")
+        let btn = btnStateNums(state, num)
+        td.appendChild(btn)
+        return td
+    }
+
+    const btnStateNums = function(state, num) {
+        let btn = document.createElement("button")
+
+        btn.setAttribute("type", "button")
+        btn.setAttribute("onClick", "filter_state_ips(this, '" + state + "')")
+        btn.innerText = num
+
+        return btn
+    }
+
+    const tdBtn = function(name, operation, className) {
+        let td = document.createElement("td")
+
+        td.appendChild(btnOperate(name, operation, className))
+        return td
+    }
+
+    const btnOperate = function(name, operation, className) {
+        let btn = document.createElement("button")
+
+        btn.innerText = name
+        btn.setAttribute("type", "button")
+        btn.setAttribute("onClick", operation)
+        btn.setAttribute("class", className)
+
+        return btn
+    }
+
+    // End of Add Subnet Area
+
+    // ===================================================
 
     // Onchange Event Select Area
 
@@ -267,8 +370,7 @@
 
     function change_state(e) {
         const ip = e.parentNode.childNodes[1].textContent
-        const state = e.options[e.selectedIndex].text
-        dict[ip] = state
+        dict[ip] = e.options[e.selectedIndex].text
     }
 
     function submit_frm() {

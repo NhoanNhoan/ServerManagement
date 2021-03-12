@@ -101,6 +101,7 @@ func setupRouter() *gin.Engine {
 	HandleUpdateStateIp(r)
 	HandleSearchIp(r)
 	HandleListIpNet(r)
+	HandleDeleteIpNet(r)
 
 	// HandleLogin(r)
 	// HandleRegisterServer(r, nil)
@@ -442,8 +443,7 @@ func HandleExecuteRegisterIp(r *gin.Engine) {
 		ex := page.ExecuteRegisterIp{}
 		ex.New(c)
 
-		r.LoadHTMLFiles("templates/server/execute_modify.html")
-		c.HTML(http.StatusOK, "templates/server/execute_modify.html", ex)
+		c.JSON(http.StatusOK, ex)
 	})
 }
 
@@ -453,9 +453,7 @@ func HandleViewIp(r *gin.Engine) {
 
 		listIp := page.ListIp{}
 		listIp.New(c)
-		//
-		//r.LoadHTMLFiles("templates/server/list_ip.html")
-		//c.HTML(http.StatusOK, "templates/server/list_ip.html", listIp)
+
 		c.JSON(http.StatusOK, listIp.IpArr)
 	})
 }
@@ -490,6 +488,30 @@ func HandleListIpNet(r *gin.Engine) {
 
 		r.LoadHTMLFiles("templates/server/list_ip_net.html")
 		c.HTML(http.StatusOK, "templates/server/list_ip_net.html", netView)
+	})
+}
+
+func HandleDeleteIpNet(r *gin.Engine) {
+	r.POST("/server/delete_ip", func (c *gin.Context) {
+		CheckAuthen(c)
+
+		netId := c.PostForm("txtNetId")
+		ipNet := entity.IpNet{Id: netId}
+		err := ipNet.Delete()
+		var msg string
+
+		if nil != err {
+			msg = "Error"
+		} else {
+			err = ipNet.DeleteAllHost()
+			if nil != err {
+				msg = "ERROR"
+			} else {
+				msg = "SUCCESS"
+			}
+		}
+
+		c.String(http.StatusOK, msg)
 	})
 }
 

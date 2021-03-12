@@ -3,6 +3,8 @@ package entity
 import (
 	"CURD/database"
 	"database/sql"
+	"fmt"
+	"strings"
 )
 
 type qcomp = database.QueryComponent
@@ -145,18 +147,19 @@ func (obj *Server) FetchIpAddrs() {
 func (obj Server) makeIpQueryComponent() qcomp {
 	return qcomp {
 		Tables: []string {"IP_SERVER", "IP_NET"},
-		Columns: []string {"IP_NET.VALUE", "IP_SERVER.IP_HOST"},
+		Columns: []string {"IP_NET.ID", "IP_NET.VALUE", "IP_SERVER.IP_HOST"},
 		Selection: "IP_SERVER.ID_SERVER = ? AND IP_SERVER.ID_IP_NET = IP_NET.ID",
 		SelectionArgs: []string {obj.Id},
 	}
 }
 
 func (obj *Server) initIpAddrs(rows *sql.Rows) {
-	var ipNet, ipHost string
+	var ipNetId, ipNetHost, ipHost string
 	var ipAddr IpAddress
 
-	for rows.Next() && (nil == rows.Scan(&ipNet, &ipHost)) {
-		ipAddr.New(ipNet, ipHost)
+	for rows.Next() && (nil == rows.Scan(&ipNetId, &ipNetHost, &ipHost)) {
+		ipAddr.New(ipNetHost, ipHost)
+		ipAddr.IpNet.Id = ipNetId
 		obj.IpAddrs = append(obj.IpAddrs, ipAddr)
 	}
 }
@@ -227,8 +230,23 @@ func (s *Server) makeInsertServerComponent() icomp {
 func (s *Server) InsertIpAddresses() (err error) {
 	for i := 0; i < len(s.IpAddrs) && nil == err; i++{
 		err = s.IpAddrs[i].Insert(s.Id)
+		s.UpdateIpHostState(i)
 	}
 	return err
+}
+
+func (s *Server) UpdateIpHostState(index int) error {
+	ip := s.IpAddrs[index]
+	host := ip.GetValue() + ip.IpHost
+	fmt.Println ("Host of Ip: ", host)
+
+	ipHost := IpHost{
+		IpNet: ip.IpNet,
+		Host: host,
+		State: "used",
+	}
+
+	return ipHost.Update()
 }
 
 func UpdateServer(server Server) (msg string) {
@@ -468,4 +486,25 @@ func makeDeleteServicesByServerIdComp(ServerId string) database.DeleteComponent 
 		Selection: "ID_SERVER = ?",
 		SelectionArgs: []string {ServerId},
 	}
+}
+
+func (s Server) MakeIpAddressStr(net, host string) string {
+	hosts := strings.Split(host, ".")
+	nets := strings.Split(net, ".")
+
+	for i := range nets {
+		if "" == nets[i] {
+			nets[i] = "0"
+		}
+	}
+
+	for len(nets) < 4 {
+		nets = append(nets, "0")
+	}
+
+	for i := range hosts {
+		nets[len(nets) - i - 1] = hosts[i]
+	}
+
+	return strings.Join(nets, ".")
 }

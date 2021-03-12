@@ -172,8 +172,9 @@
                   <li>
                     <h4 style="display: inline; text-decoration: underline;">IP Address:</h4>
                     <ul>
-                    {{range $ipAddr := .Server.IpAddrs}}
-                      <li>{{$ipAddr.String}}</li>
+                    {{ $server :=  .Server }}
+                    {{ range $ipAddr := .Server.IpAddrs }}
+                      <li>{{ $server.MakeIpAddressStr $ipAddr.IpNet.Value $ipAddr.IpHost }}</li>
                     {{end}}
                     </ul>
                   </li>

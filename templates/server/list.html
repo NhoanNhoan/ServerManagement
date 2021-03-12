@@ -93,22 +93,6 @@
         </div>
       </nav>
       <div class="main">
-        <section class="module bg-dark-30 parallax-bg restaurant-menu-bg" data-background="">
-          <div class="container">
-            <div class="row">
-              <div class="col-sm-2 col-sm-offset-5">
-                <div class="alt-module-subtitle"><span class="holder-w"></span>
-                  <h5 class="font-serif"></h5><span class="holder-w"></span>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-sm-8 col-sm-offset-2">
-                <h2 class="module-title font-alt mb-0">{{.DataCenter.Description}}</h2>
-              </div>
-            </div>
-          </div>
-        </section>
         <section class="module">
           <div class="container">
             <h3>Tags:</h3>
@@ -168,14 +152,6 @@
 
                           </tbody>
                       </table>
-
-                      <ul class="pagination">
-                          <li><a href="#">1</a></li>
-                          <li><a href="#">2</a></li>
-                          <li><a href="#">3</a></li>
-                          <li><a href="#">4</a></li>
-                          <li><a href="#">5</a></li>
-                      </ul>
 
                       <div style="text-align:center;">
                           <input type="button" id="first" onclick="firstPage()" value="first" />
@@ -247,7 +223,7 @@
                     "UNKNOWN"
                 {{ else }}
                     {{ $ip := index .IpAddrs 0}}
-                    "{{ $ip.IpNet.Value }}{{ $ip.IpHost }}"
+                    "{{ .MakeIpAddressStr $ip.IpNet.Value $ip.IpHost }}"
                 {{ end }},
                 "{{ .Maker }}",
                 "{{ .ServerStatus.Description }}"))

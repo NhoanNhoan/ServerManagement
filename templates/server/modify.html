@@ -311,6 +311,7 @@
                     {{ $allIpNets := .IpNets }}
                     {{ range $i, $serverIp := .Server.IpAddrs }}
                       <div class="col-sm-10">
+                        <input type="hidden" value="{{ $serverIp.IpNet.Id }}">
                           <label for="exampleFormControlSelect1">Ip Net</label>
                           <select class="form-control" id="cbIpNet{{ $i }}" name="cbIpNet">
                              {{ range $ipNet := $allIpNets }}

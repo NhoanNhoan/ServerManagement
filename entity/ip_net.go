@@ -2,6 +2,7 @@ package entity
 
 import (
 	"database/sql"
+	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -16,7 +17,7 @@ type IpNet struct {
 	Netmask int
 }
 
-func (ipNet IpNet) ToInstance(args ...string) Entity {
+func (net IpNet) ToInstance(args ...string) Entity {
 	Id, Value := args[0], args[1]
 	return IpNet{Id: Id, Value: Value}
 }
@@ -36,6 +37,34 @@ func GetIpNets() []IpNet {
 	})
 
 	return toIpNetSplice(ipNets)
+}
+
+func (net *IpNet) GetValue() string {
+	if "" != net.Value {
+		return net.Value
+	}
+
+	comp := net.queryValueComp()
+	rows, err := database.Query(comp)
+	defer rows.Close()
+	if nil != err {
+		return ""
+	}
+
+	var value string
+	if rows.Next() {
+		rows.Scan(&value)
+	}
+	return value
+}
+
+func (net *IpNet) queryValueComp() qcomp {
+	return qcomp {
+		Tables: []string {"IP_NET"},
+		Columns: []string {"VALUE"},
+		Selection: "ID = ?",
+		SelectionArgs: []string {net.Id},
+	}
 }
 
 func toIpNetSplice(entities []Entity) []IpNet {
@@ -90,8 +119,8 @@ func (net *IpNet) makeInsertComp() icomp {
 		Table: "IP_NET",
 		Columns: []string {"ID", "VALUE", "NETMASK"},
 		Values: [][]string {
-					[]string {net.Id, 
-							net.Value, 
+					[]string {net.Id,
+						net.Value,
 							strconv.Itoa(net.Netmask),
 							},
 				},
@@ -118,8 +147,24 @@ func (net *IpNet) insertIpHosts() error {
 
 func (net *IpNet) CalculateHostRange() []string {
 	netmask := strconv.Itoa(net.Netmask)
-	ips, _, _ := Hosts(net.Value + "/" + netmask)
+	ips, _, _ := Hosts(net.fillIpNet() + "/" + netmask)
+	fmt.Println ("IP: ", net.fillIpNet())
 	return ips
+}
+
+func (net *IpNet) fillIpNet() string {
+	octets := strings.Split(net.Value, ".")
+	for i := 0; i < 4; i++ {
+		if octets[i] == "" {
+			octets[i] = "0"
+		}
+
+		if len(octets) <= i {
+			octets = append(octets, "0")
+		}
+	}
+
+	return strings.Join(octets, ".")
 }
 
 func (net *IpNet) CalculateHosts() int {
@@ -139,6 +184,32 @@ func (net *IpNet) GetOctets() []int {
 	}
 
 	return octetIntegers
+}
+
+func (net *IpNet) Delete() error {
+	comp := net.deleteIpNetComp()
+	return database.Delete(comp)
+}
+
+func (net *IpNet) deleteIpNetComp() database.DeleteComponent {
+	return database.DeleteComponent{
+		Table: "IP_NET",
+		Selection: "ID = ?",
+		SelectionArgs: []string {net.Id},
+	}
+}
+
+func (net *IpNet) DeleteAllHost() error {
+	comp := net.deleteAllHostComp()
+	return database.Delete(comp)
+}
+
+func (net *IpNet) deleteAllHostComp() database.DeleteComponent {
+	return database.DeleteComponent{
+		Table: "IP_HOST",
+		Selection: "ID_NET = ?",
+		SelectionArgs: []string {net.Id},
+	}
 }
 
 func FetchIpHostArray(net IpNet) []IpHost {

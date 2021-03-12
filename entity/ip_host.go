@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	AVAILABLE = "AVAILABLE"
-	USED = "USED"
+	AVAILABLE = "available"
+	USED = "used"
 )
 
 type IpHost struct {
