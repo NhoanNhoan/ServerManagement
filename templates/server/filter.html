@@ -6,12 +6,12 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta Description="viewport" content="width=device-width, initial-scale=1">
-    <!--  
+    <!--
     Document Title
     =============================================
     -->
     <title>SYS | SERVERS</title>
-    <!--  
+    <!--
     Favicons
     =============================================
     -->
@@ -32,10 +32,10 @@
     <meta Description="msapplication-TileColor" content="#ffffff">
     <meta Description="msapplication-TileImage" content="../templates/assets/images/favicons/ms-icon-144x144.png">
     <meta Description="theme-color" content="#ffffff">
-    <!--  
+    <!--
     Stylesheets
     =============================================
-    
+
     -->
     <!-- Default stylesheets-->
     <link href="../templates/assets/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -134,44 +134,26 @@
                                 <th></th>
                               </tr>
                           </thead>
-                          <tbody>
-                              {{ range .Servers }}
-                              <tr>
-                                  <td>{{.DC.Description}}</td>
-                                  <td>{{.Rack.Description}}</td>
-                                  <td>{{.UStart.Description}}</td>
-                                  <td>{{.UEnd.Description}}</td>
-                                  <td>{{.SSD}}</td>
-                                  <td>{{.HDD}}</td>
-
-                                  {{ $len := len .IpAddrs}}
-                                  {{ if eq $len 0}}
-                                  <td>UNKNOWN</td>
-                                  {{ else }}
-                                  {{ $ip := index .IpAddrs 0}}
-                                  <td>{{ $ip.IpNet.Value }}{{ $ip.IpHost }}</td>
-                                  {{ end }}
-
-                                  <td>{{.Maker}}</td>
-                                  <td><span class="badge-dot badge-brand mr-1"></span>{{.ServerStatus.Description}}</td>
-                                  <td>
-                                    <form method="post"
-                                          action="/server/information">
-                                      <input type="hidden" name="txtIdServer" value="{{.Id}}">
-                                      <a onclick="this.parentNode.submit()"
-                                          style="cursor: pointer; color: blue;">More</a>
-                                    </form>
-                                  </td>
-                              </tr>
-                              {{ end }}
+                          <tbody id="tbody">
                           </tbody>
                       </table>
+
+                    <div style="text-align:center;">
+                      <input type="button" id="first" onclick="firstPage()" value="first" />
+                      <input type="button" id="next" onclick="nextPage()" value="next" />
+                      <input type="button" id="previous" onclick="prevPage()" value="previous" />
+                      <input type="button" id="last" onclick="lastPage()" value="last" />
+                    </div>
+                    
                   </div>
               </div>
           </div>
       </div>
+            </div>
+          </div>
+        </section>
 
-                
+
     <script src="../templates/assets/lib/jquery/dist/jquery.js"></script>
     <script src="../templates/assets/lib/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="../templates/assets/lib/wow/dist/wow.js"></script>
@@ -185,6 +167,188 @@
     <script src="../templates/assets/lib/simple-text-rotator/jquery.simple-text-rotator.min.js"></script>
     <script src="../templates/assets/js/plugins.js"></script>
     <script src="../templates/assets/js/main.js"></script>
+    <script>
+        let listServer = []
+        const numberPerPage = 15
+        let curStart = 0
+        let curEnd = numberPerPage - 1
+        let curPage = 1
+
+        class Server {
+            constructor(id, dc, rack, ustart, uend, ssd, hdd, ip, maker, status) {
+                this.id = id
+                this.dc = dc
+                this.rack = rack
+                this.ustart = ustart
+                this.uend = uend
+                this.ssd = ssd
+                this.hdd = hdd
+                this.ip = ip
+                this.maker = maker
+                this.status = status
+            }
+        }
+
+        function makeListServer() {
+            {{ range $i, $server := .Servers }}
+            listServer.push(new Server(
+                "{{ $server.Id }}",
+                "{{ $server.DC.Description }}",
+                "{{ $server.Rack.Description }}",
+                "{{ $server.UStart.Description }}",
+                "{{ $server.UEnd.Description }}",
+                "{{ $server.SSD }}",
+                "{{ $server.HDD }}",
+                {{ $len := len .IpAddrs}}
+            {{ if eq $len 0}}
+            "UNKNOWN"
+            {{ else }}
+            {{ $ip := index .IpAddrs 0}}
+            "{{ .MakeIpAddressStr $ip.IpNet.Value $ip.IpHost }}"
+            {{ end }},
+            "{{ .Maker }}",
+                "{{ .ServerStatus.Description }}"))
+            {{ end }}
+        }
+
+        function getNumberOfPages() {
+            return Math.ceil(listServer.length / numberPerPage)
+        }
+
+        function nextPage() {
+            curPage += 1
+            curStart += numberPerPage
+            curEnd += numberPerPage
+            loadList()
+        }
+
+        function prevPage() {
+            curPage -= 1
+            curStart -= numberPerPage
+            curEnd -= numberPerPage
+            loadList()
+        }
+
+        function firstPage() {
+            curPage = 1
+            curStart = 0
+            curEnd = numberPerPage - 1
+            loadList()
+        }
+
+        function lastPage() {
+            curPage = getNumberOfPages()
+            while (curEnd < listServer.length) {
+                curEnd += numberPerPage
+                curStart += numberPerPage
+            }
+            loadList()
+        }
+
+        function loadList() {
+            check()
+            drawList()
+        }
+
+        function drawList() {
+            const tbody = document.getElementById("tbody");
+            tbody.innerHTML = ""
+
+            for (let i = curStart; i <= curEnd && i < listServer.length; i++) {
+                const tr = makeTrItem(listServer[i])
+                tbody.appendChild(tr)
+            }
+        }
+
+        function makeTrItem(server) {
+            let create = (e) => document.createElement(e)
+            let set = (e, n, v) => e.setAttribute(n, v)
+
+            let tr = create("tr")
+
+            let tdDc = create("td")
+            tdDc.innerText = server.dc
+
+            let tdRack = create("td")
+            tdRack.innerText = server.rack
+
+            let tdUStart = create("td")
+            tdUStart.innerText = server.ustart
+
+            let tdUEnd = create("td")
+            tdUEnd.innerText = server.uend
+
+            let tdSsd = create("td")
+            tdSsd.innerText = server.ssd
+
+            let tdHdd = create("td")
+            tdHdd.innerText = server.hdd
+
+            let tdIp = create("td")
+            tdIp.innerText = server.ip
+
+            let tdMaker = create("td")
+            tdMaker.innerText = server.maker
+
+            let tdStatus = create("td")
+            tdStatus.innerText = server.status
+
+            let tdMore = createTdMore(server)
+
+            tr.appendChild(tdDc)
+            tr.appendChild(tdRack)
+            tr.appendChild(tdUStart)
+            tr.appendChild(tdUEnd)
+            tr.appendChild(tdSsd)
+            tr.appendChild(tdHdd)
+            tr.appendChild(tdIp)
+            tr.appendChild(tdMaker)
+            tr.appendChild(tdStatus)
+            tr.appendChild(tdMore)
+
+            return tr
+        }
+
+        function createTdMore(server) {
+            let tdMore = document.createElement("td")
+
+            let frm = document.createElement("form")
+            frm.setAttribute("method", "post")
+            frm.setAttribute("action", "modify")
+
+            let input = document.createElement("input")
+            input.setAttribute("type", "hidden")
+            input.setAttribute("name", "txtIdServer")
+            input.setAttribute("value", server.id)
+
+            let a = document.createElement("a")
+            a.setAttribute("onclick", "this.parentNode.submit()")
+            a.innerText = "More"
+            a.style.cursor = "pointer"
+            a.style.color = "#0000ff"
+
+            frm.appendChild(input)
+            frm.appendChild(a)
+
+            tdMore.appendChild(frm)
+
+            return tdMore
+        }
+
+        function check() {
+            document.getElementById("next").disabled = curPage === getNumberOfPages()
+            document.getElementById("previous").disabled = curPage === 1
+            document.getElementById("first").disabled = curPage === 1
+            document.getElementById("last").disabled = curPage === getNumberOfPages()
+        }
+
+        function load() {
+            makeListServer()
+            loadList()
+        }
+
+        window.onload = load
+    </script>
   </body>
 </html>
 

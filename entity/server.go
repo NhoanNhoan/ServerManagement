@@ -3,7 +3,6 @@ package entity
 import (
 	"CURD/database"
 	"database/sql"
-	"fmt"
 	"strings"
 )
 
@@ -237,8 +236,11 @@ func (s *Server) InsertIpAddresses() (err error) {
 
 func (s *Server) UpdateIpHostState(index int) error {
 	ip := s.IpAddrs[index]
-	host := ip.GetValue() + ip.IpHost
-	fmt.Println ("Host of Ip: ", host)
+
+	octets := strings.Split(ip.GetValue(), ".")
+	changedOctetIdx := ip.GetNetmask() / 8
+	octets = octets[0:changedOctetIdx]
+	host := strings.Join(octets, ".") + "." + ip.IpHost
 
 	ipHost := IpHost{
 		IpNet: ip.IpNet,

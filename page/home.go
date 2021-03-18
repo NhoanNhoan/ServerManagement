@@ -10,6 +10,7 @@ import (
 type Home struct {
 	DCs []entity.DataCenter
 	Tags []entity.Tag
+	AllIpNet []entity.IpNet
 	NumUnresolvedErrors int
 }
 
@@ -30,6 +31,7 @@ func (h *Home) New() {
 
 	h.Tags = entity.FetchAllTags()
 	h.initNumUnresolvedErrors()
+	h.AllIpNet = entity.GetIpNets()
 }
 
 func makeDCQueryComponent() database.QueryComponent {

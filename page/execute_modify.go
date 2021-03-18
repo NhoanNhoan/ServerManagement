@@ -33,14 +33,53 @@ func (obj *ExecuteModify) New(c *gin.Context) {
 func (obj *ExecuteModify) initServerByPostForm(c *gin.Context) {
 	obj.Server.Id = c.PostForm("txtIdServer")
 	obj.Server.DC.Id = c.PostForm("cbDCId")
-	obj.Server.Rack.Id = c.PostForm("cbRackId")
-	obj.Server.UStart.Id = c.PostForm("cbUStartId")
-	obj.Server.UEnd.Id = c.PostForm("cbUEndId")
+	obj.Server.Rack = obj.ParseRackByPostForm(c)
+	obj.Server.UStart = obj.ParseRackUnitStartByPostForm(c)
+	obj.Server.UEnd= obj.ParseRackUnitEndByPostForm(c)
 	obj.Server.SSD = c.PostForm("txtSSD")
 	obj.Server.HDD = c.PostForm("txtHDD")
 	obj.Server.PortType.Id = c.PostForm("cbPortTypeId")
 	obj.Server.ServerStatus.Id = c.PostForm("cbServerStatusId")
 	obj.Server.SerialNumber = c.PostForm("txtSerialNumber")
+}
+
+func (obj *ExecuteModify) ParseRackByPostForm(c *gin.Context) entity.Rack {
+	rack := entity.Rack{Description: c.PostForm("txtRack")}
+
+	if !rack.IsExistsRackDescription() {
+		rack.GenerateId()
+		rack.Insert()
+	} else {
+		rack.Id = rack.GetIdRack()
+	}
+
+	return rack
+}
+
+func (obj *ExecuteModify) ParseRackUnitStartByPostForm(c *gin.Context) entity.RackUnit {
+	ustart := entity.RackUnit{Description: c.PostForm("txtUStart")}
+
+	if !ustart.IsExistsRackUnitDescription() {
+		ustart.GenerateId()
+		ustart.Insert()
+	} else {
+		ustart.Id = ustart.GetIdRackUnit()
+	}
+
+	return ustart
+}
+
+func (obj *ExecuteModify) ParseRackUnitEndByPostForm(c *gin.Context) entity.RackUnit {
+	uend := entity.RackUnit{Description: c.PostForm("txtUEnd")}
+
+	if !uend.IsExistsRackUnitDescription() {
+		uend.GenerateId()
+		uend.Insert()
+	} else {
+		uend.Id = uend.GetIdRackUnit()
+	}
+
+	return uend
 }
 
 func (obj *ExecuteModify) initServerIpsByPostForm(c *gin.Context) {

@@ -208,10 +208,11 @@ func HandleFilter(router *gin.Engine) {
 func HandleSearch(router *gin.Engine) {
 	router.POST("/search", func (c *gin.Context) {
 		CheckAuthen(c)
-		ip := c.PostForm("txtIpAddr")
+		net := c.PostForm("txtNet")
+		host := c.PostForm("txtHost")
 
 		infoPage := page.Information{}
-		infoPage.Prepare(ip)
+		infoPage.Prepare(net, host)
 
 		if "" != infoPage.Server.Id {
 			router.LoadHTMLFiles("templates/server/information.html")
@@ -275,8 +276,10 @@ func HandleInfo(r *gin.Engine) {
 func HandleUpdateServer(r *gin.Engine) {
 	r.POST("/server/modify", func(c *gin.Context) {
 		CheckAuthen(c)
+
+		serverId := c.PostForm("txtIdServer")
 		var updatePage page.UpdateServer
-		updatePage.New(c)
+		updatePage.New(serverId)
 
 		r.LoadHTMLFiles("templates/server/modify.html")
 		c.HTML(http.StatusOK, "templates/server/modify.html", updatePage)

@@ -24,16 +24,17 @@ func (net IpNet) ToInstance(args ...string) Entity {
 
 func GetIpNets() []IpNet {
 	comp := database.MakeQueryAll([]string {"IP_NET"},
-							[]string {"Id", "value"})
+							[]string {"Id", "value", "netmask"})
 	ipNets := getEntities(comp, func (rows *sql.Rows) Entity {
-		var id, des string
-		err := rows.Scan(&id, &des)
+		var id, des, netmask string
+		err := rows.Scan(&id, &des, &netmask)
+		netmaskInt, _ := strconv.Atoi(netmask)
 
 		if nil != err {
 			panic (err)
 		}
 
-		return IpNet {Id: id, Value: des}
+		return IpNet {Id: id, Value: des, Netmask: netmaskInt}
 	})
 
 	return toIpNetSplice(ipNets)
@@ -62,6 +63,37 @@ func (net *IpNet) queryValueComp() qcomp {
 	return qcomp {
 		Tables: []string {"IP_NET"},
 		Columns: []string {"VALUE"},
+		Selection: "ID = ?",
+		SelectionArgs: []string {net.Id},
+	}
+}
+
+func (net *IpNet) GetNetmask() int {
+	if 0 != net.Netmask {
+		return net.Netmask
+	}
+
+	comp := net.queryNetmaskComp()
+	rows, err := database.Query(comp)
+	defer rows.Close()
+
+	if nil != err {
+		panic (err)
+	}
+
+	var netmask string
+	if rows.Next() {
+		rows.Scan(&netmask)
+	}
+
+	netmaskInt, _ := strconv.Atoi(netmask)
+	return netmaskInt
+}
+
+func (net *IpNet) queryNetmaskComp() qcomp {
+	return qcomp{
+		Tables: []string {"IP_NET"},
+		Columns: []string {"NETMASK"},
 		Selection: "ID = ?",
 		SelectionArgs: []string {net.Id},
 	}

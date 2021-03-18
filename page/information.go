@@ -31,8 +31,8 @@ func (info *SwitchInfo) ParseFromRow(row *sql.Rows) error {
 				&info.CableType.SignPort)
 }
 
-func (s *Information) FetchServerByIp(IpAddr string) {
-	comp := s.makeQueryServerByIpComp(IpAddr)
+func (s *Information) FetchServerByIp(Net, Host string) {
+	comp := s.makeQueryServerByIpComp(Net, Host)
 	var err error
 	s.Server, err = entity.FetchServer(comp)
 	s.Server.FetchServices()
@@ -41,18 +41,18 @@ func (s *Information) FetchServerByIp(IpAddr string) {
 	}
 }
 
-func (s *Information) makeQueryServerByIpComp(IpAddr string) database.QueryComponent {
+func (s *Information) makeQueryServerByIpComp(Net string, Host string) database.QueryComponent {
 	return database.QueryComponent {
 		Tables: []string {"SERVER AS S",
-						"IP_NET",
-						"IP_SERVER",
-						"DC AS D",
-						"RACK AS R",
-						"RACK_UNIT AS USTART",
-						"RACK_UNIT AS UEND",
-						"PORT_TYPE AS PT",
-						"SERVER_STATUS AS SS",
-						"STATUS_ROW AS SR",
+			"IP_NET",
+			"IP_SERVER",
+			"DC AS D",
+			"RACK AS R",
+			"RACK_UNIT AS USTART",
+			"RACK_UNIT AS UEND",
+			"PORT_TYPE AS PT",
+			"SERVER_STATUS AS SS",
+			"STATUS_ROW AS SR",
 		},
 		Columns: []string {
 			"S.ID",
@@ -60,7 +60,7 @@ func (s *Information) makeQueryServerByIpComp(IpAddr string) database.QueryCompo
 			"D.DESCRIPTION",
 			"R.ID",
 			"R.DESCRIPTION",
-			"USTART.ID", 
+			"USTART.ID",
 			"USTART.DESCRIPTION",
 			"UEND.ID",
 			"UEND.DESCRIPTION",
@@ -74,21 +74,21 @@ func (s *Information) makeQueryServerByIpComp(IpAddr string) database.QueryCompo
 			"SS.DESCRIPTION",
 		},
 		Selection: "S.ID = IP_SERVER.ID_SERVER AND " +
-					"IP_SERVER.ID_IP_NET = IP_NET.ID AND " +
-					"? = IP_NET.VALUE || IP_SERVER.IP_HOST AND " +
-					"S.ID_DC = D.ID AND " +
-					"S.ID_RACK = R.ID AND " + 
-					"S.ID_U_START = USTART.ID AND " + 
-					"S.ID_U_END = UEND.ID AND " + 
-					"SR.DESCRIPTION = ? AND S.ID_STATUS_ROW = SR.ID AND " +
-					"S.ID_PORT_TYPE = PT.ID AND " +
-					"S.ID_SERVER_STATUS = SS.ID",
-		SelectionArgs: []string {IpAddr, "available"},
+			"IP_SERVER.ID_IP_NET = IP_NET.ID AND " +
+			"? = IP_NET.Id AND ? = IP_SERVER.IP_HOST AND " +
+			"S.ID_DC = D.ID AND " +
+			"S.ID_RACK = R.ID AND " +
+			"S.ID_U_START = USTART.ID AND " +
+			"S.ID_U_END = UEND.ID AND " +
+			"SR.DESCRIPTION = ? AND S.ID_STATUS_ROW = SR.ID AND " +
+			"S.ID_PORT_TYPE = PT.ID AND " +
+			"S.ID_SERVER_STATUS = SS.ID",
+		SelectionArgs: []string {Net, Host, "available"},
 	}
 }
 
-func (obj *Information) Prepare(IpAddr string) {
-	obj.FetchServerByIp(IpAddr)
+func (obj *Information) Prepare(Net, Host string) {
+	obj.FetchServerByIp(Net, Host)
 	obj.FetchTagged()
 	obj.FetchUntagged()
 	obj.Server.FetchIpAddrs()

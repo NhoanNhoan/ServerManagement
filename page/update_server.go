@@ -21,8 +21,8 @@ type UpdateServer struct {
 	ConnectedSwitches []SwitchInfo
 }
 
-func (obj *UpdateServer) New(c *gin.Context) {
-	obj.initServerByPostForm(c)
+func (obj *UpdateServer) New(serverId string) {
+	obj.Server.New(serverId)
 	obj.Server.FetchIpAddrs()
 
 

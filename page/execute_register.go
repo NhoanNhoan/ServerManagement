@@ -78,15 +78,42 @@ func ParseDCByPostForm(c *gin.Context) entity.DataCenter {
 }
 
 func ParseRackByPostForm(c *gin.Context) entity.Rack {
-	return entity.Rack {Id: c.PostForm("cbRack")}
+	rack := entity.Rack{Description: c.PostForm("txtRack")}
+
+	if !rack.IsExistsRackDescription() {
+		rack.GenerateId()
+		rack.Insert()
+	} else {
+		rack.Id = rack.GetIdRack()
+	}
+
+	return rack
 }
 
 func ParseRackUnitStartByPostForm(c *gin.Context) entity.RackUnit {
-	return entity.RackUnit {Id: c.PostForm("cbUStart")}
+	ustart := entity.RackUnit{Description: c.PostForm("txtUStart")}
+
+	if !ustart.IsExistsRackUnitDescription() {
+		ustart.GenerateId()
+		ustart.Insert()
+	} else {
+		ustart.Id = ustart.GetIdRackUnit()
+	}
+
+	return ustart
 }
 
 func ParseRackUnitEndByPostForm(c *gin.Context) entity.RackUnit {
-	return entity.RackUnit {Id: c.PostForm("cbUEnd")}
+	uend := entity.RackUnit{Description: c.PostForm("txtUEnd")}
+
+	if !uend.IsExistsRackUnitDescription() {
+		uend.GenerateId()
+		uend.Insert()
+	} else {
+		uend.Id = uend.GetIdRackUnit()
+	}
+
+	return uend
 }
 
 func ParsePortTypeByPostForm(c *gin.Context) entity.PortType {

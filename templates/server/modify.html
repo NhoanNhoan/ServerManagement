@@ -125,32 +125,33 @@
                   </div>
 
                   <div class="form-group">
-                      <label for="exampleFormControlSelect1">Rack</label>
-                      <select class="form-control" id="exampleFormControlSelect1" name="cbRackId">
-                         {{ range $rack := .Racks }}
-                        <option id="{{$rack.Id}}" value="{{$rack.Id}}">{{$rack.Description}}</option>
-                        {{ end }}
-                      </select>
+                    <label for="txtRack">Rack</label>
+                    <input class="form-control input-lg"
+                           type="text"
+                           placeholder="number of disks"
+                           id="txtRack"
+                           name="txtRack"
+                           value="{{.Server.Rack.Description}}"/>
                   </div>
 
-                  <div class="form-group row">
-                    <div class="col-sm-6">
-                        <label for="exampleFormControlSelect1">Rack Unit Start</label>
-                        <select class="form-control" id="exampleFormControlSelect1" name="cbUStartId">
-                          {{ range $unit := .RackUnits }}
-                            <option id="{{$unit.Id}}"  value="{{$unit.Id}}">{{$unit.Description}}</option>
-                          {{ end }}
-                        </select>
-                    </div>
+                  <div class="form-group">
+                    <label for="txtUStart">U Start</label>
+                    <input class="form-control input-lg"
+                           type="text"
+                           placeholder="number of disks"
+                           id="txtUStart"
+                           name="txtUStart"
+                           value="{{.Server.UStart.Description}}"/>
+                  </div>
 
-                    <div class="col-sm-6">
-                        <label for="exampleFormControlSelect1">Rack Unit End</label>
-                        <select class="form-control" id="exampleFormControlSelect1" name="cbUEndId">
-                          {{ range $unit := .RackUnits }}
-                            <option id="{{$unit.Id}}" value="{{$unit.Id}}">{{$unit.Description}}</option>
-                          {{ end }}
-                        </select>
-                    </div>
+                  <div class="form-group">
+                    <label for="txtUEnd">U End</label>
+                    <input class="form-control input-lg"
+                           type="text"
+                           placeholder="number of disks"
+                           id="txtUEnd"
+                           name="txtUEnd"
+                           value="{{.Server.UEnd.Description}}"/>
                   </div>
 
                   <div class="form-group">
@@ -430,8 +431,55 @@
                             "onkeypress='return is_num(event)'/> " +
                       "</div>"
 
-        document.getElementById("ipArea").innerHTML += content
+        document.getElementById("ipArea").appendChild(create_div_net(cbName))
+        document.getElementById("ipArea").appendChild(create_div_host(txtIpHostName))
         increase_num_ips()
+      }
+
+      function create_div_net(name) {
+        let divNet = document.createElement("div")
+        divNet.setAttribute("class", "col-sm-10")
+
+        let lblNet = document.createElement("label")
+        lblNet.innerText = "Ip Net"
+
+        let selectNet = document.createElement("select")
+        selectNet.setAttribute("class", "form-control")
+        selectNet.setAttribute("id", name)
+        selectNet.setAttribute("name", name)
+        var opt = null
+        {{ range.IpNets }}
+        opt = document.createElement("option")
+        opt.setAttribute("value", "{{ .Id }}")
+        opt.innerText = "{{ .Value }}"
+        selectNet.appendChild(opt)
+        {{ end }}
+
+        divNet.appendChild(lblNet)
+        divNet.appendChild(selectNet)
+
+        return divNet
+      }
+
+      function create_div_host(hostname) {
+
+        let divHost = document.createElement("div")
+        divHost.setAttribute("class", "col-sm-2")
+
+        let lblHost = document.createElement("label")
+        lblHost.innerText = "Ip Host"
+
+        let inputHost = document.createElement("input")
+        inputHost.setAttribute("id", hostname)
+        inputHost.setAttribute("class", "form-control input-sm")
+        inputHost.setAttribute("type", "text")
+        inputHost.setAttribute("placeholder", "Ex: 254")
+        inputHost.setAttribute("onkeypress", "'return is_num(event)'")
+
+        divHost.appendChild(lblHost)
+        divHost.appendChild(inputHost)
+
+        return divHost
       }
 
       function increase_num_ips() {
@@ -603,8 +651,8 @@
       select(
               "{{.Server.DC.Id}}",
               "{{.Server.Rack.Id}}",
-              "{{.Server.UStart.Id}}",
-              "{{.Server.UEnd.Id}}",
+              "{{.Server.UStart.Id}}S",
+              "{{.Server.UEnd.Id}}E",
               "{{.Server.ServerStatus.Id}}",
               "{{.Server.PortType.Id}}"
             );

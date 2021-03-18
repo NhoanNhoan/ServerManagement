@@ -12,9 +12,54 @@ type RackUnit struct {
 	Description string
 }
 
+func (unit *RackUnit) GenerateId() {
+	unit.Id = database.GeneratePrimaryKey(true,
+		true, true,
+		false, "U", 6)
+
+	for unit.IsExistsRackUnitDescription() {
+		unit.Id = database.GeneratePrimaryKey(true,
+			true, true,
+			false, "U", 6)
+	}
+}
+
+func (unit *RackUnit) IsExistsRackUnitDescription() bool {
+	comp := unit.getIdRackUnitComp()
+	rows, err := database.Query(comp)
+	defer rows.Close()
+	return (nil == err) && rows.Next()
+}
+
+func (unit *RackUnit) getIdRackUnitComp() qcomp {
+	return qcomp {
+		Tables: []string {"RACK_UNIT"},
+		Columns: []string {"ID"},
+		Selection: "DESCRIPTION = ?",
+		SelectionArgs: []string {unit.Description},
+	}
+}
+
 func (unit RackUnit) ToInstance(args ...string) Entity {
 	Id, Des := args[0], args[1]
 	return RackUnit{Id, Des}
+}
+
+func (unit *RackUnit) GetIdRackUnit() string {
+	comp := unit.getIdRackUnitComp()
+	rows, err := database.Query(comp)
+	defer rows.Close()
+
+	if nil != err {
+		panic (err)
+	}
+
+	var id string
+	if rows.Next() {
+		rows.Scan(&id)
+	}
+
+	return id
 }
 
 func GetRackUnits() []RackUnit {

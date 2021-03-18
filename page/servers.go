@@ -74,8 +74,7 @@ func makeQueryComponent(IdDC string) database.QueryComponent {
 						"RACK_UNIT AS USTART", 
 						"RACK_UNIT AS UEND", 
 						"PORT_TYPE",
-						"SERVER_STATUS",
-						"STATUS_ROW"},
+						"SERVER_STATUS"},
 		Columns: []string {"SERVER.ID",
 						"RACK.Description",
 						"USTART.Description",
@@ -90,9 +89,8 @@ func makeQueryComponent(IdDC string) database.QueryComponent {
 				"SERVER.ID_U_START = USTART.ID AND " + 
 				"SERVER.ID_U_END = UEND.ID AND " + 
 				"SERVER.ID_PORT_TYPE = PORT_TYPE.ID AND " + 
-				"SERVER.ID_SERVER_STATUS = SERVER_STATUS.ID AND " + 
-				"STATUS_ROW.DESCRIPTION = ? AND SERVER.ID_STATUS_ROW = STATUS_ROW.ID",
-		SelectionArgs: []string {IdDC, "available"},
+				"SERVER.ID_SERVER_STATUS = SERVER_STATUS.ID",
+		SelectionArgs: []string {IdDC},
 	}
 }
 
