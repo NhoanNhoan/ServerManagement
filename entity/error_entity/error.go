@@ -82,8 +82,9 @@ func (obj *Error) Fetch(row *sql.Rows) (err error) {
 }
 
 func (obj *Error) FetchServer() (err error) {
-	IdServer := obj.Server.Id
-	return obj.Server.New(IdServer)
+	//IdServer := obj.Server.Id
+	//return obj.Server.New(IdServer)
+	return nil
 }
 
 func (obj *Error) Update() error {

@@ -1,35 +1,10 @@
 package entity
 
 import (
-	"database/sql"
-	"CURD/database"
+	"github.com/gin-gonic/gin"
 )
 
 type Entity interface {
-	ToInstance(args ...string) Entity
+	MakeByContext(c *gin.Context)
 }
 
-func getEntities(comp database.QueryComponent, 
-			makeEntity func (*sql.Rows) Entity) ([]Entity) {
-	rows, err := database.Query(comp)
-	defer rows.Close()
-
-	if nil != err {
-		panic (err)
-	}
-
-	return entitiesByRows(rows, makeEntity)
-}
-
-func entitiesByRows(rows *sql.Rows, 
-				makeEntity func (*sql.Rows) Entity, 
-				args ...*string) []Entity {
-	entities := make([]Entity, 0)
-
-	for rows.Next() {
-		newEntity := makeEntity(rows)
-		entities = append(entities, newEntity)
-	}
-
-	return entities
-}

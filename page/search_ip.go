@@ -1,32 +1,24 @@
 package page
 
 import (
-	"CURD/database"
 	"CURD/entity"
+	"CURD/repo/server"
+	"errors"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type SearchIp struct {
-	entity.IpHost
+	IpState string
 }
 
-func (obj *SearchIp) New(c *gin.Context) {
-	obj.IpHost.Host = c.Query("txtIp")
-	obj.IpHost = entity.QueryIpHost(obj.queryIpHostComp())
+func (obj *SearchIp) New(c *gin.Context) (err error) {
+	ipStr := c.Query("txtIpSearchState")
+	var ip entity.IpAddress
 
-	if "" != obj.IpHost.State {
-		c.String(http.StatusOK, obj.IpHost.State)
-	} else {
-		c.String(http.StatusNotFound, "No Ip Found")
+	if !ip.Parse(ipStr) {
+		return errors.New(ipStr + " is not like format ip address")
 	}
-}
 
-func (obj *SearchIp) queryIpHostComp() database.QueryComponent {
-	return database.QueryComponent{
-		Tables: []string {"IP_HOST"},
-		Columns: []string {"ID_NET", "HOST", "STATE"},
-		Selection: "HOST = ?",
-		SelectionArgs: []string {obj.IpHost.Host},
-	}
+	obj.IpState, err = server.IpRepo{}.FetchState(ip)
+	return err
 }

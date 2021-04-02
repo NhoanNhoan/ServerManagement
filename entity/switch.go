@@ -192,7 +192,7 @@ func (obj *Switch) InsertIpComp(ip IpAddress) icomp {
 						"IP_HOST",
 					},
 		Values: [][]string {
-			[]string {obj.Id, ip.IpNet.Id, ip.IpHost},
+			[]string {obj.Id},
 		},
 	}
 }

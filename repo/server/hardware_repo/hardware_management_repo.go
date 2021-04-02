@@ -1,4 +1,4 @@
-package hardware
+package hardware_repo
 
 import (
 	"CURD/entity/server/hardware"

@@ -8,7 +8,7 @@ import (
 )
 
 type Tag struct {
-	TagId, Title string
+	TagId, Title, TagTypeId string
 }
 
 func (tag *Tag) InitTagId() {
@@ -60,6 +60,35 @@ func FetchTags(comp qcomp) []Tag {
 	}
 
 	return tags
+}
+
+func FetchTagsByTagType(TagType string) []Tag {
+	comp := makeFetchTagByTagTypeComp(TagType)
+	return fetchTagByComp(comp)
+}
+
+func fetchTagByComp(comp qcomp) []Tag {
+	tags := make([]Tag, 0)
+	return tags
+}
+
+func makeFetchTagByTagTypeComp(TagType string) qcomp {
+	return makeFetchTagComp (
+		"TagType = ? AND Tag.TagTypeId = TagType.Id",
+				[]string {
+					TagType,
+				})
+}
+
+func makeFetchTagComp(selection string, selectionArgs []string) qcomp {
+	return qcomp {}
+}
+
+func fetchTagsByTypeComp(TagType string) qcomp {
+	return qcomp {
+		Tables: []string {"TAG", "TAGTYPE"},
+		Columns: []string {"ID", },
+	}
 }
 
 func makeFetchAllComponent() qcomp {

@@ -17,29 +17,6 @@ type IpNet struct {
 	Netmask int
 }
 
-func (net IpNet) ToInstance(args ...string) Entity {
-	Id, Value := args[0], args[1]
-	return IpNet{Id: Id, Value: Value}
-}
-
-func GetIpNets() []IpNet {
-	comp := database.MakeQueryAll([]string {"IP_NET"},
-							[]string {"Id", "value", "netmask"})
-	ipNets := getEntities(comp, func (rows *sql.Rows) Entity {
-		var id, des, netmask string
-		err := rows.Scan(&id, &des, &netmask)
-		netmaskInt, _ := strconv.Atoi(netmask)
-
-		if nil != err {
-			panic (err)
-		}
-
-		return IpNet {Id: id, Value: des, Netmask: netmaskInt}
-	})
-
-	return toIpNetSplice(ipNets)
-}
-
 func (net *IpNet) GetValue() string {
 	if "" != net.Value {
 		return net.Value
@@ -97,16 +74,6 @@ func (net *IpNet) queryNetmaskComp() qcomp {
 		Selection: "ID = ?",
 		SelectionArgs: []string {net.Id},
 	}
-}
-
-func toIpNetSplice(entities []Entity) []IpNet {
-	ipNets := make([]IpNet, len(entities))
-
-	for i := range entities {
-		ipNets[i] = entities[i].(IpNet)
-	}
-
-	return ipNets
 }
 
 func (net *IpNet) Insert() error {

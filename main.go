@@ -6,7 +6,6 @@ import (
 	"CURD/page"
 	"CURD/page/error_page"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/sessions"
@@ -19,82 +18,41 @@ func setupRouter() *gin.Engine {
 	r := gin.Default()
 	r.Static("/public", "./public")
 	store := cookie.NewStore([]byte("secret"))
-	r.Use(sessions.Sessions("mysessions", store))	
+	r.Use(sessions.Sessions("mysessions", store))
 
-	// client := r.Group("/api")
-	// {
-	// 	client.GET("/story", func (c *gin.Context) {
-	// 		c.HTML(http.StatusOK, "templates/index.html", gin.H {
-	// 			"title": "Page",
-	// 		})
-	// 	})
-
-	// 	client.GET("/story/hello", func (c *gin.Context) {
-	// 		c.HTML(http.StatusOK, "templates/hello.html", gin.H {
-	// 			"title": "Hello",
-	// 		})
-	// 	})
-
-	// 	client.GET("/server/:name", func (c *gin.Context) {
-	// 		serverName := c.Query("name")
-	// 		c.HTML(http.StatusOK, "templates/details.html", gin.H {
-	// 			"title": serverName,
-	// 			"Name": server.Name,
-	// 			"Position": server.Position,/vendor/md
-	// 			"Status": server.Status,
-	// 			"Thermal": server.Thermal,
-	// 			"Temperature": server.Temperature,
-	// 		})
-	// 	})
-
-	// 	client.POST("/story", func (c * gin.Context) {
-	// 		file, _ := c.FormFile("file")
-	// 		c.SaveUploadedFile(file, file.Filename)
-	// 		c.String(http.StatusOK, fmt.Sprintf("'%s' uploaded!", file.Filename))
-	// 	})
-
-	// 	client.PATCH("/story/update/:id", controllers.Update)
-	// 	client.DELETE("/story/:id", controllers.Delete)
-	// }
-
-	// servers := []model.Server {
-	// 				makeServer(),
-	// 				makeServer(),
-	// 				makeServer(),
-	// 				makeServer(),
-	// 				makeServer(),
-	// 			}
-
-	// dc1 := model.DataCenter{"ABC", "Data Center 1"}
-	// dc2 := model.DataCenter{"XYZ", "Data Center 2"}
-	// dc3 := model.DataCenter{"PQS", "Data Center 3"}
-	// dc4 := model.DataCenter{"DEF", "Data Center 4"}
-
-	// home := page.Home{[]model.DataCenter{dc1, dc2, dc3, dc4}}
 
 	Login(r)
 	Logout(r)
 	Authen(r)
+
+	// Server routing Area
 	HandleHome(r)
-	HandleFilter(r)
+	//HandleFilter(r)
 	HandleSearch(r)
-	HandleSearchTags(r)
+	//HandleSearchTags(r)
 	HandleServers(r)
-	HandleInfo(r)	
-	HandleUpdateServer(r)
-	HandleEditServices(r)
-	HandleExecuteEditServices(r)
+	//HandleInfo(r)
+	HandleEditServer(r)
+	//HandleEditServices(r)
+	//HandleExecuteEditServices(r)
 	HandleExecuteModify(r)
 	HandleRegisterServer(r)
 	HandleExecuteRegister(r)
+	// End of server routing area
+
+	// Error routing area
 	HandleErrorRegister(r)
 	HandleListError(r)
 	HandleViewError(r)
 	HandleErrorExecuteUpdate(r)
+	// end of error routing area
 
+	// Switch routing area
 	HandleRegisterSwitch(r)
 	HandleExecuteRegisterSwitch(r)
+	// end of switch routing area
 
+	// Ip Management routing area
 	HandleRegistrationIp(r)
 	HandleExecuteRegisterIp(r)
 	HandleViewIp(r)
@@ -102,30 +60,7 @@ func setupRouter() *gin.Engine {
 	HandleSearchIp(r)
 	HandleListIpNet(r)
 	HandleDeleteIpNet(r)
-
-	// HandleLogin(r)
-	// HandleRegisterServer(r, nil)
-	// HandleSummary(r)
-	// HandleErrorRegister(r)
-	// HandleModifyError(r)
-	// HandleViewError(r)
-
-	// using bind json
-	// r.POST("/login", func (c *gin.Context) {
-	// 	var json Login
-	// 	if err := c.BindJSON(&json); nil != err {
-	// 		c.JSON(http.StatusBadRequest, gin.H {"error": err.Error()})
-	// 		return
-	// 	}
-
-	// 	if json.User != "manu" || json.Password != "123" {
-	// 		c.JSON(http.StatusUnauthorized, gin.H {"status": "unauthorized"})
-	// 		return
-	// 	}
-
-	// 	c.JSON(http.StatusOK, gin.H {"status": "you are logged in"})
-	// 	fmt.Println(json)
-	// })
+	// end of IpManagement routing area
 
 	return r
 }
@@ -183,7 +118,12 @@ func HandleHome(router *gin.Engine) {
 	router.GET("/", func(c *gin.Context) {
 		CheckAuthen(c)
 		home := page.Home{}
-		home.New()
+		err := home.New()
+
+		if nil != err {
+			panic (err)
+		}
+
 		router.LoadHTMLFiles("templates/AdminLTE/index.html")
 		c.HTML(http.StatusOK, "templates/AdminLTE/index.html", home)
 	})
@@ -208,35 +148,32 @@ func HandleFilter(router *gin.Engine) {
 func HandleSearch(router *gin.Engine) {
 	router.POST("/search", func (c *gin.Context) {
 		CheckAuthen(c)
-		net := c.PostForm("txtNet")
-		host := c.PostForm("txtHost")
+		ip := c.PostForm("txtIp")
 
-		infoPage := page.Information{}
-		infoPage.Prepare(net, host)
-
-		if "" != infoPage.Server.Id {
-			router.LoadHTMLFiles("templates/server/information.html")
-			c.HTML(http.StatusOK, "templates/server/information.html", infoPage)
-		} else {
-			router.LoadHTMLFiles("templates/server/not_found_server.html")
-			c.HTML(http.StatusOK, "templates/server/not_found_server.html", nil)
+		var resultPage page.UpdateServer
+		if err := resultPage.NewByIpServer(ip); nil != err {
+			c.String(http.StatusOK, err.Error())
+			return
 		}
+
+		router.LoadHTMLFiles("templates/server/edit.html")
+		c.HTML(http.StatusOK, "templates/server/edit.html", resultPage)
 	})
 }
 
-func HandleSearchTags(router *gin.Engine) {
-	router.POST("/tags", func (c *gin.Context) {
-		CheckAuthen(c)
-		values := c.PostForm("txtTags")
-		tags := strings.Split(values, ",")
-
-		f := page.Filter{}
-		f.SearchServersByMultiTags(tags)
-
-		router.LoadHTMLFiles("templates/server/filter.html")
-		c.HTML(http.StatusOK, "templates/server/filter.html", f)
-	})
-}
+//func HandleSearchTags(router *gin.Engine) {
+//	router.POST("/tags", func (c *gin.Context) {
+//		CheckAuthen(c)
+//		values := c.PostForm("txtTags")
+//		tags := strings.Split(values, ",")
+//
+//		f := page.Filter{}
+//		f.SearchServersByMultiTags(tags)
+//
+//		router.LoadHTMLFiles("templates/server/filter.html")
+//		c.HTML(http.StatusOK, "templates/server/filter.html", f)
+//	})
+//}
 
 func HandleServers(r *gin.Engine) {
 	r.POST("/server/list", func(c *gin.Context) {
@@ -248,65 +185,81 @@ func HandleServers(r *gin.Engine) {
 		}
 
 		server := page.Servers{DC, nil, nil}
+		var err error
 
 		if "" != tagId {
-			server.GetServersByTagId(tagId)
+			err = server.FetchServerByTagId(tagId)
 		} else {
-			server.New(DC.Id)
+			err = server.FetchServerByDCId(DC.Id)
+		}
+
+		if nil != err {
+			panic (err)
 		}
 
 		r.LoadHTMLFiles("templates/server/list.html")
 		c.HTML(http.StatusOK, "templates/server/list.html", server)
 	})
 }
+//
+//func HandleInfo(r *gin.Engine) {
+//	r.POST("/server/information", func(c *gin.Context) {
+//		CheckAuthen(c)
+//		idServer := c.PostForm("txtIdServer")
+//
+//		var infoPage page.Information
+//		infoPage.New(idServer)
+//
+//		r.LoadHTMLFiles("templates/server/information.html")
+//		c.HTML(http.StatusOK, "templates/server/information.html", infoPage)
+//	})
+//}
 
-func HandleInfo(r *gin.Engine) {
-	r.POST("/server/information", func(c *gin.Context) {
+func HandleDeleteServer(r *gin.Engine) {
+	r.POST("/server/delete", func (c *gin.Context) {
 		CheckAuthen(c)
-		idServer := c.PostForm("txtIdServer")
 
-		var infoPage page.Information
-		infoPage.New(idServer)
+		deletionPage := page.ExecuteDeleteServer{}
+		msg := deletionPage.ExecuteDelete(c)
 
-		r.LoadHTMLFiles("templates/server/information.html")
-		c.HTML(http.StatusOK, "templates/server/information.html", infoPage)
+		c.String(http.StatusOK, msg)
 	})
 }
 
-func HandleUpdateServer(r *gin.Engine) {
-	r.POST("/server/modify", func(c *gin.Context) {
+func HandleEditServer(r *gin.Engine) {
+	r.POST("/server/edit", func(c *gin.Context) {
 		CheckAuthen(c)
 
 		serverId := c.PostForm("txtIdServer")
 		var updatePage page.UpdateServer
 		updatePage.New(serverId)
 
-		r.LoadHTMLFiles("templates/server/modify.html")
-		c.HTML(http.StatusOK, "templates/server/modify.html", updatePage)
+		r.LoadHTMLFiles("templates/server/edit.html")
+		c.HTML(http.StatusOK, "templates/server/edit.html", updatePage)
 	})
 }
 
-func HandleEditServices(r *gin.Engine) {
-	r.POST("/server/services", func (c *gin.Context) {
-		CheckAuthen(c)
-		var edit page.EditServices
-		edit.New(c)
+//func HandleEditServices(r *gin.Engine) {
+//	r.POST("/server/services", func (c *gin.Context) {
+//		CheckAuthen(c)
+//		var edit page.EditServices
+//		edit.New(c)
+//
+//		r.LoadHTMLFiles("templates/server/services.html")
+//		c.HTML(http.StatusOK, "templates/server/services.html", edit)
+//	})
+//}
 
-		r.LoadHTMLFiles("templates/server/services.html")
-		c.HTML(http.StatusOK, "templates/server/services.html", edit)
-	})
-}
-
-func HandleExecuteEditServices(r *gin.Engine) {
-	r.POST("/server/execute_edit_services", func (c *gin.Context) {
-		CheckAuthen(c)
-		var exServices page.ExecuteEditServices
-		exServices.Execute(c)
-
-		r.LoadHTMLFiles("templates/server/execute_modify.html")
-		c.HTML(http.StatusOK, "templates/server/execute_modify.html", exServices)
-	})
-}
+//func HandleExecuteEditServices(r *gin.Engine) {
+//	r.POST("/server/execute_edit_services", func (c *gin.Context) {
+//		CheckAuthen(c)
+//		var exServices page.ExecuteEditServices
+//		exServices.Execute(c)
+//
+//		r.LoadHTMLFiles("templates/server/execute_modify.html")
+//		c.HTML(http.StatusOK, "templates/server/execute_modify.html", exServices)
+//	})
+//}
 
 func HandleExecuteModify(r *gin.Engine) {
 	r.POST("server/execute_modify", func(c *gin.Context) {
@@ -479,6 +432,12 @@ func HandleSearchIp(r *gin.Engine) {
 
 		ip := page.SearchIp{}
 		ip.New(c)
+
+		if "" != ip.IpState {
+			c.String(http.StatusOK, ip.IpState)
+		} else {
+			c.String(http.StatusOK, "No Ip Found")
+		}
 	})
 }
 

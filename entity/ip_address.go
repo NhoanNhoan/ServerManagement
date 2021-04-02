@@ -2,16 +2,51 @@ package entity
 
 import (
 	"CURD/database"
+	"strconv"
+	"strings"
 )
 
 type IpAddress struct {
-	IpNet
-	IpHost string
+	Netmask int
+	Octet1, Octet2, Octet3, Octet4 string
+	State string
+}
+
+func (ip IpAddress) String() string {
+	return strings.Join([]string {
+		ip.Octet1,
+		ip.Octet2,
+		ip.Octet3,
+		ip.Octet4,
+	}, ".")
+}
+
+func (ip *IpAddress) Parse(content string) bool {
+	octets := strings.Split(content, ".")
+	if len(octets) < 4 {
+		return false
+	}
+
+	splitNetmask := strings.Split(octets[3], "/")
+	if len(splitNetmask) < 2 {
+		return false
+	}
+
+	ip.set(octets...)
+	return true
+}
+
+func (ip *IpAddress) set(octets ...string) {
+	ip.Octet1 = octets[0]
+	ip.Octet2 = octets[1]
+	ip.Octet3 = octets[2]
+
+	values := strings.Split(octets[3], "/")
+	ip.Octet4 = values[0]
+	ip.Netmask, _ = strconv.Atoi(values[1])
 }
 
 func (obj *IpAddress) New(ipNetValue string, ipHost string) {
-	obj.IpNet = IpNet {Value: ipNetValue}
-	obj.IpHost = ipHost
 }
 
 func (ip *IpAddress) Insert(Id string) error {
@@ -31,15 +66,9 @@ func (ip *IpAddress) makeServerIComp(Id string) icomp {
 		Values: [][]string {
 			[]string {
 				Id,
-				ip.IpNet.Id,
-				ip.IpHost,
 			},
 		},
 	}
-}
-
-func (obj *IpAddress) String() string {
-	return obj.IpNet.Value + obj.IpHost
 }
 
 
@@ -55,6 +84,6 @@ func (obj *IpAddress) makeCheckExistsServerIpQueryComponent(ServerId string) dat
 		Tables: []string {"IP_SERVER"},
 		Columns: []string {"ID_IP_NET"},
 		Selection: "ID_SERVER = ? AND ID_IP_NET = ? AND IP_HOST = ?",
-		SelectionArgs: []string {ServerId, obj.IpNet.Id, obj.IpHost},
+		SelectionArgs: []string {ServerId},
 	}
 }

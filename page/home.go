@@ -2,9 +2,8 @@ package page
 
 import (
 	"CURD/database"
-	"database/sql"
 	"CURD/entity"
-	"CURD/model"
+	"CURD/repo/server"
 )
 
 type Home struct {
@@ -14,49 +13,22 @@ type Home struct {
 	NumUnresolvedErrors int
 }
 
-func (h *Home) New() {
-	component := makeDCQueryComponent()
-	rows, err := database.Query(component)
-	defer rows.Close()
-
+func (h *Home) New() error {
+	var err error
+	h.DCs, err = server.DCRepo{}.FetchAll()
 	if nil != err {
-		panic (err)
+		return err
 	}
 
-	err = h.fetch(rows)
-
+	h.Tags, err = server.TagRepo{}.FetchAll()
 	if nil != err {
-		panic (err)
+		return err
 	}
 
-	h.Tags = entity.FetchAllTags()
 	h.initNumUnresolvedErrors()
-	h.AllIpNet = entity.GetIpNets()
-}
+	//h.AllIpNet = entity.GetIpNets()
 
-func makeDCQueryComponent() database.QueryComponent {
-	return database.QueryComponent {
-		Tables: []string {"DC"},
-		Columns: []string {model.DC_ID, 
-						model.DC_DESCRIPTION,
-					},
-		Selection: "",
-		SelectionArgs: nil,
-		GroupBy: "",
-		Having: "",
-		OrderBy: "",
-		Limit: "",
-	}
-}
-
-func (h *Home)fetch(rows *sql.Rows) (err error) {
-	var id, name string
-
-	for rows.Next() && rows.Scan(&id,&name) == nil {
-		h.DCs = append(h.DCs, entity.DataCenter {id, name})
-	}
-
-	return
+	return nil
 }
 
 func (h *Home) initNumUnresolvedErrors() {

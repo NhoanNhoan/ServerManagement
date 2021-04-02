@@ -136,16 +136,17 @@
                       <table class="table">
                           <thead class="bg-light">
                               <tr class="border-0">
-                                <th class="border-0">DC</th>
-                                <th class="border-0">Rack</th>
-                                <th class="border-0">UStart</th>
-                                <th class="border-0">UEnd</th>
-                                <th class="border-0">SSD</th>
-                                <th class="border-0">HDD</th>
-                                <th class="border-0">IP</th>
-                                <th class="border-0">Maker</th>
-                                <th class="border-0">Status</th>
-                                <th></th>
+                                  <th class="border-0">Order</th>
+                                  <th class="border-0">Rack</th>
+                                  <th class="border-0">U</th>
+                                  <th class="border-0">SSD</th>
+                                  <th class="border-0">HDD</th>
+                                  <th class="border-0">IP</th>
+                                  <th class="border-0">iDrac/iLo</th>
+                                  <th class="border-0">Maker</th>
+                                  <th class="border-0">Status</th>
+                                  <th class="border-0">Serve</th>
+                                  <th></th>
                               </tr>
                           </thead>
                           <tbody id="tbody">
@@ -194,7 +195,8 @@
     let curPage = 1
 
     class Server {
-        constructor(id, dc, rack, ustart, uend, ssd, hdd, ip, maker, status) {
+        constructor(order, id, dc, rack, ustart, uend, ssd, hdd, ip, redfish_ip, maker, status, serve_state) {
+            this.order = order
             this.id = id
             this.dc = dc
             this.rack = rack
@@ -203,14 +205,17 @@
             this.ssd = ssd
             this.hdd = hdd
             this.ip = ip
+            this.redfish_ip = redfish_ip
             this.maker = maker
             this.status = status
+            this.serve_state = serve_state
         }
     }
 
     function makeListServer() {
         {{ range $i, $server := .Items }}
             listServer.push(new Server(
+                "{{ $i }}",
                 "{{ $server.Id }}",
                 "{{ $server.DC.Description }}",
                 "{{ $server.Rack.Description }}",
@@ -218,15 +223,17 @@
                 "{{ $server.UEnd.Description }}",
                 "{{ $server.SSD }}",
                 "{{ $server.HDD }}",
-                {{ $len := len .IpAddrs}}
+                {{ $len := len .IpAddrs }}
                 {{ if eq $len 0}}
-                    "UNKNOWN"
+                "UNKNOWN"
                 {{ else }}
                     {{ $ip := index .IpAddrs 0}}
-                    "{{ .MakeIpAddressStr $ip.IpNet.Value $ip.IpHost }}"
+                "{{ $ip.Octet1 }}.{{ $ip.Octet2 }}.{{ $ip.Octet3 }}.{{ $ip.Octet4 }}"
                 {{ end }},
+                "{{ $server.RedfishIp }}",
                 "{{ .Maker }}",
-                "{{ .ServerStatus.Description }}"))
+                "{{ .ServerStatus.Description }}",
+                "{{ .ServeCustomer.Description }}"))
         {{ end }}
     }
 
@@ -270,7 +277,7 @@
     }
 
     function drawList() {
-        const tbody = document.getElementById("tbody");
+        var tbody = document.getElementById("tbody")
         tbody.innerHTML = ""
 
         for (let i = curStart; i <= curEnd && i < listServer.length; i++) {
@@ -280,22 +287,23 @@
     }
 
     function makeTrItem(server) {
+        // let frm = document.createElement("form")
+        // frm.setAttribute("method", "post")
+        // frm.setAttribute("action", "edit")
+
         let create = (e) => document.createElement(e)
         let set = (e, n, v) => e.setAttribute(n, v)
 
         let tr = create("tr")
 
-        let tdDc = create("td")
-        tdDc.innerText = server.dc
+        let tdOrder = create("td")
+        tdOrder.innerText = server.order
 
         let tdRack = create("td")
         tdRack.innerText = server.rack
 
-        let tdUStart = create("td")
-        tdUStart.innerText = server.ustart
-
-        let tdUEnd = create("td")
-        tdUEnd.innerText = server.uend
+        let tdU = create("td")
+        tdU.innerText = "[" + server.ustart + "-" + server.uend + "]"
 
         let tdSsd = create("td")
         tdSsd.innerText = server.ssd
@@ -306,24 +314,33 @@
         let tdIp = create("td")
         tdIp.innerText = server.ip
 
+        let tdRedfishIp = create("td")
+        tdRedfishIp.innerText = server.redfish_ip
+
         let tdMaker = create("td")
         tdMaker.innerText = server.maker
 
         let tdStatus = create("td")
         tdStatus.innerText = server.status
 
+        let tdServe = create("td")
+        tdServe.innerText = server.serve_state
+
         let tdMore = createTdMore(server)
 
-        tr.appendChild(tdDc)
+        tr.appendChild(tdOrder)
         tr.appendChild(tdRack)
-        tr.appendChild(tdUStart)
-        tr.appendChild(tdUEnd)
+        tr.appendChild(tdU)
         tr.appendChild(tdSsd)
         tr.appendChild(tdHdd)
         tr.appendChild(tdIp)
+        tr.appendChild(tdRedfishIp)
         tr.appendChild(tdMaker)
         tr.appendChild(tdStatus)
+        tr.appendChild(tdServe)
         tr.appendChild(tdMore)
+        //
+        // frm.appendChild(tr)
 
         return tr
     }
@@ -333,7 +350,7 @@
 
         let frm = document.createElement("form")
         frm.setAttribute("method", "post")
-        frm.setAttribute("action", "modify")
+        frm.setAttribute("action", "edit")
 
         let input = document.createElement("input")
         input.setAttribute("type", "hidden")

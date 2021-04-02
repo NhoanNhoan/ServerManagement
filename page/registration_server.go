@@ -17,40 +17,40 @@ type RegistrationServer struct {
 }
 
 func (r *RegistrationServer) New() {
-	r.initAllDataCenters()
-	r.initAllRacks()
-	r.initAllRackUnits()
-	r.initAllPortType()
-	r.initAllServerStates()
-	r.initAllIpNets()
-	r.initTags()
+	//r.initAllDataCenters()
+	//r.initAllRacks()
+	//r.initAllRackUnits()
+	//r.initAllPortType()
+	//r.initAllServerStates()
+	//r.initAllIpNets()
+	//r.initTags()
 }
 
-
-func (r *RegistrationServer) initAllDataCenters() {
-	r.AllDataCenters = entity.GetDCs()
-}
-
-func (r *RegistrationServer) initAllRacks() {
-	r.AllRacks = entity.GetRacks()
-}
-
-func (r *RegistrationServer) initAllRackUnits() {
-	r.AllRackUnits = entity.GetRackUnits()
-}
-
-func (r *RegistrationServer) initAllPortType() {
-	r.AllPortTypes = entity.GetPortTypes()
-}
-
-func (r *RegistrationServer) initAllServerStates() {
-	r.AllServerStates = entity.GetServerStates()
-}
-
-func (r *RegistrationServer) initAllIpNets() {
-	r.AllIpNets = entity.GetIpNets()
-}
-
-func (r *RegistrationServer) initTags() {
-	r.Tags = entity.FetchAllTags()
-}
+//
+//func (r *RegistrationServer) initAllDataCenters() {
+//	r.AllDataCenters = entity.GetDCs()
+//}
+//
+//func (r *RegistrationServer) initAllRacks() {
+//	r.AllRacks = entity.GetRacks()
+//}
+//
+//func (r *RegistrationServer) initAllRackUnits() {
+//	r.AllRackUnits = entity.GetRackUnits()
+//}
+//
+//func (r *RegistrationServer) initAllPortType() {
+//	r.AllPortTypes = entity.GetPortTypes()
+//}
+//
+//func (r *RegistrationServer) initAllServerStates() {
+//	r.AllServerStates = entity.GetServerStates()
+//}
+//
+//func (r *RegistrationServer) initAllIpNets() {
+//	r.AllIpNets = entity.GetIpNets()
+//}
+//
+//func (r *RegistrationServer) initTags() {
+//	r.Tags = entity.FetchAllTags()
+//}
