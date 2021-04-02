@@ -109,10 +109,10 @@ func (obj *ExecuteModify) ExecuteIpServer() {
 
 	for i := range obj.Server.IpAddrs {
 		err := obj.Server.IpAddrs[i].Insert(obj.Server.Id)
-		obj.Server.UpdateIpHostState(i)
+		obj.Server.UpdateIpHostState(i, "used")
 		if nil != err {
 			panic(err)
-		}	
+		}
 	}
 }
 
