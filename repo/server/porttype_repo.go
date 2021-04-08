@@ -24,3 +24,17 @@ func (repo PortTypeRepo) Fetch(comp qcomp,
 
 	return portTypes, nil
 }
+func (portType PortTypeRepo) FetchAll() ([]entity.PortType, error) {
+	comp := qcomp{
+		Tables: []string {"PORT_TYPE"},
+		Columns: []string {"ID", "DESCRIPTION"},
+	}
+
+	scan := func(obj interface{}, row *sql.Rows) (interface{}, error) {
+		center := obj.(entity.PortType)
+		err := row.Scan(&center.Id, &center.Description)
+		return center, err
+	}
+
+	return portType.Fetch(comp, scan)
+}

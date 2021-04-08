@@ -4,6 +4,7 @@ import (
 	"CURD/entity/server/hardware"
 	"CURD/repo/server"
 	"database/sql"
+	"strconv"
 )
 
 type HardwareRaidRepo struct {
@@ -38,4 +39,34 @@ func (repo HardwareRaidRepo) FetchByHardwareId(HardwareId string) ([]hardware.Ha
 	}
 
 	return HardwareRaids, err
+}
+
+func (repo HardwareRaidRepo) Insert(HardwareId string, HardwareRaidArr ...hardware.HardwareRaid) error {
+	comp := icomp {
+		Table: "HARDWARE_Raid",
+		Columns: []string {"HARDWARE_ID", "Raid_ID", "NUMBER_Raid"},
+		Values: repo.makeInsertValues(HardwareRaidArr...),
+	}
+
+	return repo.SqliteRepo.Insert(comp)
+}
+
+func (repo HardwareRaidRepo) makeInsertValues(HardwareRaidArr ...hardware.HardwareRaid) [][]string {
+	values := make([][]string, len(HardwareRaidArr))
+	for i := range values {
+		values[i] = []string {HardwareRaidArr[i].HardwareId,
+			HardwareRaidArr[i].RaidId,
+			strconv.Itoa(HardwareRaidArr[i].NumberRaid)}
+	}
+	return values
+}
+
+func (repo HardwareRaidRepo) Delete(HardwareConfigId string) error {
+	comp := dcomp{
+		Table:         "HARDWARE_Raid",
+		Selection:     "HARDWARE_ID = ?",
+		SelectionArgs: []string{HardwareConfigId},
+	}
+
+	return repo.SqliteRepo.Delete(comp)
 }

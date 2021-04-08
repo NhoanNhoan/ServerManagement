@@ -81,8 +81,8 @@
                                 <input class="form-control input-lg"
                                        type="text"
                                        placeholder="Ex: 42.118.242"
-                                       id="txtSubnet"
-                                       name="txtIpNet"/>
+                                       id="txtNetwork"
+                                       name="txtNetwork"/>
                             </div>
 
                             <div class="form-group">
@@ -119,18 +119,18 @@
                                         </tr>
                                         </thead>
                                         <tbody id="subnetContent">
-                                            {{ range .Items }}
+                                            {{ range .Portions }}
                                             <tr>
-                                                <input type="hidden" value="{{ .IpNet.Id }}">
-                                                <td>{{ .IpNet.Value }}/{{ .IpNet.Netmask }}</td>
+                                                <input type="hidden" value="{{ .Id }}">
+                                                <td>{{ .Value }}/{{ .Netmask }}</td>
                                                 <td>
                                                     <button type="button" onclick="filter_state_ips(this, 'available')">
-                                                        {{ .AvailableIpNets }}
+                                                        {{ .NumAvailableHosts }}
                                                     </button>
                                                 </td>
                                                 <td>
                                                     <button type="button" onclick="filter_state_ips(this, 'used')">
-                                                        {{ .UsedIpNets }}
+                                                        {{ .NumUsedHosts }}
                                                     </button>
                                                 </td>
                                                 <td><button type="button" onclick="get_ips(this)" class="btn btn-primary">View</button></td>
@@ -266,10 +266,10 @@
     // Add Subnet Area
 
     const add_subnet = function() {
-        let subnet = document.getElementById("txtSubnet").value
+        let subnet = document.getElementById("txtNetwork").value
         let netmask = document.getElementById("txtNetmask").value
 
-        document.getElementById("txtSubnet").value = ""
+        document.getElementById("txtNetwork").value = ""
         document.getElementById("txtNetmask").value = ""
 
         const xhttp = new XMLHttpRequest() || ActiveXObject();
@@ -282,7 +282,7 @@
 
         xhttp.open("POST", "execute_register_ip", true)
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
-        xhttp.send("txtIpNet=" + subnet + "&txtNetmask=" + netmask)
+        xhttp.send("txtNetwork=" + subnet + "&txtNetmask=" + netmask)
     }
 
     const subnetResponse = function(data) {
@@ -304,7 +304,7 @@
         let tr = document.createElement("tr")
         tr.appendChild(inputIdSubnet(item.Id))
         tr.appendChild(tdSubnet(item.Value, item.Netmask))
-        tr.appendChild(tdStateNums('available', item.AvailableHosts))
+        tr.appendChild(tdStateNums('available', item.NumAvailableHosts))
         tr.appendChild(tdStateNums('used', 0))
         tr.appendChild(tdBtn("view", "get_ips(this)", "btn btn-primary"))
         tr.appendChild(tdBtn("delete", "remove_ip(this)", "btn btn-danger"))
@@ -452,7 +452,7 @@
     function makeTrItem(host) {
         const tr = document.createElement("tr")
         const input = makeInputNetId(host.Id)
-        const tdHost = makeTdHost(host.Host)
+        const tdHost = makeTdHost([host.Octet1, host.Octet2, host.Octet3, host.Octet4].join("."))
         const select = makeSelectState(host)
 
         tr.appendChild(input)

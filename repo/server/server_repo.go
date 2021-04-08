@@ -81,7 +81,10 @@ func (s ServerRepo) makeFetchAllComp() qcomp {
 	return qcomp{
 		Tables: []string{
 			"SERVER",
-			"DC", "RACK", "RACK_UNIT AS USTART", "RACK_UNIT AS UEND",
+			"DC",
+			"RACK",
+			"RACK_UNIT AS USTART",
+			"RACK_UNIT AS UEND",
 			"PORT_TYPE",
 			"IP_ADDRESS",
 			"SERVER_STATUS",
@@ -94,8 +97,6 @@ func (s ServerRepo) makeFetchAllComp() qcomp {
 			"RACK.ID", "RACK.DESCRIPTION",
 			"USTART.ID", "USTART.DESCRIPTION",
 			"UEND.ID", "UEND.DESCRIPTION",
-			"SERVER.SSD", "SERVER.HDD",
-			"SERVER.MAKER",
 			"PORT_TYPE.ID", "PORT_TYPE.DESCRIPTION",
 			"SERVER.REDFISH_IP",
 			"SERVER.SERIAL_NUMBER",
@@ -160,16 +161,12 @@ func (s ServerRepo) FetchById(Id string) ([]interface{}, error) {
 	makeServer := func() interface{} {return entity.Server{}}
 	scanServer := func(obj interface{}, row *sql.Rows) (interface{}, error) {
 		server := obj.(entity.Server)
+		server.Id = Id
 		err := row.Scan(&server.DC.Id, &server.DC.Description,
 			&server.Rack.Id, &server.Rack.Description,
 			&server.UStart.Id, &server.UStart.Description,
 			&server.UEnd.Id, &server.UEnd.Description,
-			&server.SSD, &server.HDD,
-			&server.Maker,
 			&server.PortType.Id,&server.PortType.Description,
-			&server.RedfishIp,
-			&server.PortType.Id, &server.PortType.Description,
-			&server.SerialNumber,
 			&server.ServerStatus.Id, &server.ServerStatus.Description,
 			&server.ServerStatus.Id, &server.ServeCustomer.Description,
 			)
@@ -197,16 +194,11 @@ func (s ServerRepo) makeFetchServerByIdComp(id string) qcomp {
 		},
 
 		Columns: []string {
-			"SERVER.ID",
 			"DC.ID", "DC.DESCRIPTION",
 			"RACK.ID", "RACK.DESCRIPTION",
 			"USTART.ID", "USTART.DESCRIPTION",
 			"UEND.ID", "UEND.DESCRIPTION",
-			"SERVER.SSD", "SERVER.HDD",
-			"SERVER.MAKER",
 			"PORT_TYPE.ID", "PORT_TYPE.DESCRIPTION",
-			"SERVER.REDFISH_IP",
-			"SERVER.SERIAL_NUMBER",
 			"SERVER.ID_SERVER_STATUS", "SERVER_STATUS.DESCRIPTION",
 			"SERVER.ID_SERVE", "SERVE.DESCRIPTION",
 		},
@@ -214,21 +206,18 @@ func (s ServerRepo) makeFetchServerByIdComp(id string) qcomp {
 		Selection: strings.Join(
 			[]string {
 			"SERVER.ID = ?",
-			"SERVER.ID_DC = ?",
-			"SERVER.ID_RACK = ?",
-			"SERVER.ID_U_START = ?",
-			"SERVER.ID_U_END = ?",
-			"SERVER.ID_PORT_TYPE = ?",
-			"SERVER.ID_SERVER_STATUS = ?",
-			"SERVER.ID_SERVE = ?",
+			"SERVER.ID_DC = DC.ID",
+			"SERVER.ID_RACK = RACK.ID",
+			"SERVER.ID_U_START = USTART.ID",
+			"SERVER.ID_U_END = UEND.ID",
+			"SERVER.ID_PORT_TYPE = PORT_TYPE.ID",
+			"SERVER.ID_SERVER_STATUS = SERVER_STATUS.ID",
+			"SERVER.ID_SERVE = SERVE.ID",
 			},
 			" AND ",
 			),
 
-		SelectionArgs: []string {
-			id, "DC.ID", "RACK.ID", "USTART.ID", "UEND.ID",
-			"PORT_TYPE.ID", "SERVER_STATUS.ID", "SERVE.ID",
-		},
+		SelectionArgs: []string {id},
 	}
 }
 
@@ -248,10 +237,8 @@ func (s ServerRepo) Insert(servers... entity.Server) error {
 				"ID_U_END",
 				"ID_PORT_TYPE",
 				"ID_SERVER_STATUS",
-				"SSD",
-				"HDD",
-				"MAKER",
 				"SERIAL_NUMBER",
+				"ID_SERVE",
 				"id_STATUS_ROW",
 			},
 			Values: [][]string {
@@ -262,10 +249,8 @@ func (s ServerRepo) Insert(servers... entity.Server) error {
 					server.UEnd.Id,
 					server.PortType.Id,
 					server.ServerStatus.Id,
-					server.SSD,
-					server.HDD,
-					server.Maker,
 					server.SerialNumber,
+					server.ServeCustomer.Id,
 					"1",
 				},
 			},
@@ -295,7 +280,6 @@ func (s ServerRepo) Update(servers... interface{}) error {
 							"ID_PORT_TYPE = ?",
 							"SERIAL_NUMBER = ?",
 							"ID_SERVER_STATUS = ?",
-							"REDFISH_IP = ?",
 							"ID_SERVE = ?",
 						}, " AND "),
 					Values: []string {
@@ -308,7 +292,6 @@ func (s ServerRepo) Update(servers... interface{}) error {
 							server.PortType.Id,
 							server.SerialNumber,
 							server.ServerStatus.Id,
-							server.RedfishIp,
 							server.ServeCustomer.Id,
 						},
 					Selection: "id = ?",
@@ -335,4 +318,16 @@ func (s ServerRepo) Delete(servers... interface{}) error {
 	}
 
 	return nil
+}
+
+func (s ServerRepo) UpdateHardwareConfig(ServerId, HwId string) error {
+	comp := ucomp {
+		Table: "SERVER",
+		SetClause: "HARDWARE_CONFIG_ID = ?",
+		Values: []string {HwId},
+		Selection: "ID = ?",
+		SelectionArgs: []string {ServerId},
+	}
+
+	return s.repo.Update(comp)
 }

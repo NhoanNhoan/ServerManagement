@@ -16,11 +16,55 @@ func (repo ServerIpRepo) Insert(comp icomp) error {
 	return repo.SqliteRepo.Insert(comp)
 }
 
+// When insert a new ip address into server_ip table
+// the state of ip will change used state
+func (repo ServerIpRepo) InsertNormalIpAddresses(ServerId string, listIp ...entity.IpAddress) error {
+	comp := icomp{
+		Table: "SERVER_IP",
+		Columns: []string{
+			"SERVER_ID",
+			"Octet_1",
+			"Octet_2",
+			"Octet_3",
+			"Octet_4",
+			"Netmask",
+			"IP_TYPE_ID",
+		},
+		Values: repo.makeNormalValues(ServerId, listIp...),
+	}
+
+	ipRepo := IpRepo{}
+	for i := range listIp {
+		if err := ipRepo.UpdateState(listIp[i], "used"); nil != err {
+			return err
+		}
+	}
+	return repo.Insert(comp)
+}
+
+func (repo ServerIpRepo) InsertRedfishIpAddresses(ServerId string, list ...entity.IpAddress) error {
+	comp := icomp{
+		Table: "SERVER_IP",
+		Columns: []string{
+			"SERVER_ID",
+			"Octet_1",
+			"Octet_2",
+			"Octet_3",
+			"Octet_4",
+			"Netmask",
+			"IP_TYPE_ID",
+		},
+		Values: repo.makeRedfishValues(ServerId, list...),
+	}
+
+	return repo.Insert(comp)
+}
+
 func (repo ServerIpRepo) MakeIcomp(ServerId string, list ...entity.IpAddress) icomp {
 	return icomp{
-		Table: "IP_ADDRESS",
+		Table: "SERVER_IP",
 		Columns: []string{
-			"ServerId",
+			"SERVER_ID",
 			"Octet_1",
 			"Octet_2",
 			"Octet_3",
@@ -34,18 +78,48 @@ func (repo ServerIpRepo) MakeIcomp(ServerId string, list ...entity.IpAddress) ic
 func (repo ServerIpRepo) makeValues(ServerId string, list ...entity.IpAddress) [][]string {
 	values := make([][]string, len(list))
 	for i := range list {
-		values = append(values,
-			[]string{ServerId,
-				list[i].Octet1,
-				list[i].Octet2,
-				list[i].Octet3,
-				list[i].Octet4,
-				strconv.Itoa(list[i].Netmask),
-			})
+		values[i] = []string{ServerId,
+			list[i].Octet1,
+			list[i].Octet2,
+			list[i].Octet3,
+			list[i].Octet4,
+			strconv.Itoa(list[i].Netmask),
+		}
 	}
 	return values
 }
 
+func (repo ServerIpRepo) makeRedfishValues(ServerId string, list ...entity.IpAddress) [][]string {
+	values := make([][]string, len(list))
+	for i := range list {
+		values[i] = []string{ServerId,
+			list[i].Octet1,
+			list[i].Octet2,
+			list[i].Octet3,
+			list[i].Octet4,
+			strconv.Itoa(list[i].Netmask),
+			"2",
+		}
+	}
+	return values
+}
+
+func (repo ServerIpRepo) makeNormalValues(ServerId string, listIp ...entity.IpAddress) [][]string {
+	values := make([][]string, len(listIp))
+	for i := range listIp {
+		values[i] = []string{ServerId,
+			listIp[i].Octet1,
+			listIp[i].Octet2,
+			listIp[i].Octet3,
+			listIp[i].Octet4,
+			strconv.Itoa(listIp[i].Netmask),
+			"1",
+		}
+	}
+	return values
+}
+
+// Delete a ip address of server then set state of ip is available
 func (repo ServerIpRepo) Delete(serverId string, listIp ... entity.IpAddress) error {
 	if len(listIp) == 0 {
 		return nil
@@ -64,6 +138,11 @@ func (repo ServerIpRepo) Delete(serverId string, listIp ... entity.IpAddress) er
 			ip.Octet1, ip.Octet2,
 			ip.Octet3, ip.Octet4, string(ip.Netmask)}
 		if err := repo.SqliteRepo.Delete(comp); nil != err {
+			return err
+		}
+
+		ipRepo := IpRepo{}
+		if err := ipRepo.UpdateState(ip, "available"); nil != err {
 			return err
 		}
 	}

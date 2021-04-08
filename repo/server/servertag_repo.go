@@ -26,8 +26,7 @@ func (s ServerTagRepo) MakeInsComp(ServerId string, tags ...entity.Tag) icomp {
 func (repo ServerTagRepo)  makeValues(ServerId string, tags ...entity.Tag) [][]string {
 	values := make([][]string, len(tags))
 	for i := range tags {
-		values = append(values,
-			[]string{ServerId,tags[i].TagId})
+		values[i] = []string{ServerId, tags[i].TagId}
 	}
 	return values
 }

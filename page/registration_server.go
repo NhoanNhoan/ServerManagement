@@ -3,6 +3,7 @@ package page
 
 import (
 	"CURD/entity"
+	"CURD/repo/server"
 )
 
 
@@ -12,11 +13,49 @@ type RegistrationServer struct {
 	AllRackUnits []entity.RackUnit
 	AllPortTypes []entity.PortType
 	AllServerStates []entity.ServerStatus
-	AllIpNets []entity.IpNet
+	AllServes []entity.ServeCustomer
 	Tags []entity.Tag
+	HardwareData
 }
 
-func (r *RegistrationServer) New() {
+func (r *RegistrationServer) New() (err error) {
+	dcRepo := server.DCRepo{}
+	if r.AllDataCenters, err = dcRepo.FetchAll(); nil != err {
+		return err
+	}
+
+	rackRepo := server.RackRepo{}
+	if r.AllRacks, err = rackRepo.FetchAll(); nil != err {
+		return err
+	}
+
+	rackUnitRepo := server.RackUnitRepo{}
+	if r.AllRackUnits, err = rackUnitRepo.FetchAll(); nil != err {
+		return err
+	}
+
+	portTypeRepo := server.PortTypeRepo{}
+	if r.AllPortTypes, err = portTypeRepo.FetchAll(); nil != err {
+		return err
+	}
+
+	serverStateRepo := server.ServerStatusRepo{}
+	if r.AllServerStates, err = serverStateRepo.FetchAll(); nil != err {
+		return err
+	}
+
+	tagRepo := server.TagRepo{}
+	if r.Tags, err = tagRepo.FetchAll(); nil != err {
+		return err
+	}
+
+	serveCustomerRepo := server.ServeCustomerRepo{}
+	if r.AllServes, err = serveCustomerRepo.FetchAll(); nil != err {
+		return err
+	}
+
+	return r.HardwareData.New()
+
 	//r.initAllDataCenters()
 	//r.initAllRacks()
 	//r.initAllRackUnits()

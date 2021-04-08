@@ -122,15 +122,14 @@
                       <table class="table">
                           <thead class="bg-light">
                               <tr class="border-0">
+                                <th class="border-0">Order</th>
                                 <th class="border-0">DC</th>
                                 <th class="border-0">Rack</th>
-                                <th class="border-0">UStart</th>
-                                <th class="border-0">UEnd</th>
-                                <th class="border-0">SSD</th>
-                                <th class="border-0">HDD</th>
+                                <th class="border-0">U</th>
                                 <th class="border-0">IP</th>
-                                <th class="border-0">Maker</th>
+                                <th class="border-0">iDrac/iLo</th>
                                 <th class="border-0">Status</th>
+                                <th class="border-0">Serve</th>
                                 <th></th>
                               </tr>
                           </thead>
@@ -175,40 +174,39 @@
         let curPage = 1
 
         class Server {
-            constructor(id, dc, rack, ustart, uend, ssd, hdd, ip, maker, status) {
-                this.id = id
-                this.dc = dc
-                this.rack = rack
-                this.ustart = ustart
-                this.uend = uend
-                this.ssd = ssd
-                this.hdd = hdd
-                this.ip = ip
-                this.maker = maker
-                this.status = status
+            constructor(order, id, dc, rack, ustart, uend, ip, redfish, status) {
+              this.order = order
+              this.id = id
+              this.dc = dc
+              this.rack = rack
+              this.ustart = ustart
+              this.uend = uend
+              this.ip = ip
+              this.redfish = redfish
+              this.status = status
             }
         }
 
         function makeListServer() {
             {{ range $i, $server := .Servers }}
             listServer.push(new Server(
-                "{{ $server.Id }}",
-                "{{ $server.DC.Description }}",
-                "{{ $server.Rack.Description }}",
-                "{{ $server.UStart.Description }}",
-                "{{ $server.UEnd.Description }}",
-                "{{ $server.SSD }}",
-                "{{ $server.HDD }}",
-                {{ $len := len .IpAddrs}}
-            {{ if eq $len 0}}
-            "UNKNOWN"
-            {{ else }}
-            {{ $ip := index .IpAddrs 0}}
-            "{{ .MakeIpAddressStr $ip.IpNet.Value $ip.IpHost }}"
-            {{ end }},
-            "{{ .Maker }}",
-                "{{ .ServerStatus.Description }}"))
-            {{ end }}
+                    "{{ $i }}",
+                    "{{ $server.Id }}",
+                    "{{ $server.DC.Description }}",
+                    "{{ $server.Rack.Description }}",
+                    "{{ $server.UStart.Description }}",
+                    "{{ $server.UEnd.Description }}",
+                    {{ $len := len .IpAddrs }}
+                    {{ if eq $len 0}}
+                    "UNKNOWN"
+                    {{ else }}
+                    {{ $ip := index .IpAddrs 0}}
+                    "{{ $ip.Octet1 }}.{{ $ip.Octet2 }}.{{ $ip.Octet3 }}.{{ $ip.Octet4 }}"
+                    {{ end }},
+                    "{{ $server.RedfishIp.Octet1 }}.{{ $server.RedfishIp.Octet2 }}.{{ $server.RedfishIp.Octet3 }}.{{ $server.RedfishIp.Octet4 }}",
+                  "{{ .ServerStatus.Description }}",
+                  "{{ .ServeCustomer.Description }}"))
+          {{ end }}
         }
 
         function getNumberOfPages() {
@@ -261,85 +259,81 @@
         }
 
         function makeTrItem(server) {
-            let create = (e) => document.createElement(e)
-            let set = (e, n, v) => e.setAttribute(n, v)
+          let create = (e) => document.createElement(e)
+          let set = (e, n, v) => e.setAttribute(n, v)
 
-            let tr = create("tr")
+          let tr = create("tr")
 
-            let tdDc = create("td")
-            tdDc.innerText = server.dc
+          let tdOrder = create("td")
+          tdOrder.innerText = server.order
 
-            let tdRack = create("td")
-            tdRack.innerText = server.rack
+          let tdDC = create("td")
+          tdDC.innerText = server.dc
 
-            let tdUStart = create("td")
-            tdUStart.innerText = server.ustart
+          let tdRack = create("td")
+          tdRack.innerText = server.rack
 
-            let tdUEnd = create("td")
-            tdUEnd.innerText = server.uend
+          let tdU = create("td")
+          tdU.innerText = "[" + server.ustart + "-" + server.uend + "]"
 
-            let tdSsd = create("td")
-            tdSsd.innerText = server.ssd
+          let tdIp = create("td")
+          tdIp.innerText = server.ip
 
-            let tdHdd = create("td")
-            tdHdd.innerText = server.hdd
+          let tdRedfishIp = create("td")
+          tdRedfishIp.innerText = server.redfish_ip
 
-            let tdIp = create("td")
-            tdIp.innerText = server.ip
+          let tdStatus = create("td")
+          tdStatus.innerText = server.status
 
-            let tdMaker = create("td")
-            tdMaker.innerText = server.maker
+          let tdServe = create("td")
+          tdServe.innerText = server.serve_state
 
-            let tdStatus = create("td")
-            tdStatus.innerText = server.status
+          let tdMore = createTdMore(server)
 
-            let tdMore = createTdMore(server)
+          tr.appendChild(tdOrder)
+          tr.appendChild(tdDC)
+          tr.appendChild(tdRack)
+          tr.appendChild(tdU)
+          tr.appendChild(tdIp)
+          tr.appendChild(tdRedfishIp)
+          tr.appendChild(tdStatus)
+          tr.appendChild(tdServe)
+          tr.appendChild(tdMore)
 
-            tr.appendChild(tdDc)
-            tr.appendChild(tdRack)
-            tr.appendChild(tdUStart)
-            tr.appendChild(tdUEnd)
-            tr.appendChild(tdSsd)
-            tr.appendChild(tdHdd)
-            tr.appendChild(tdIp)
-            tr.appendChild(tdMaker)
-            tr.appendChild(tdStatus)
-            tr.appendChild(tdMore)
-
-            return tr
+          return tr
         }
 
         function createTdMore(server) {
-            let tdMore = document.createElement("td")
+          let tdMore = document.createElement("td")
 
-            let frm = document.createElement("form")
-            frm.setAttribute("method", "post")
-            frm.setAttribute("action", "modify")
+          let frm = document.createElement("form")
+          frm.setAttribute("method", "post")
+          frm.setAttribute("action", "server/edit")
 
-            let input = document.createElement("input")
-            input.setAttribute("type", "hidden")
-            input.setAttribute("name", "txtIdServer")
-            input.setAttribute("value", server.id)
+          let input = document.createElement("input")
+          input.setAttribute("type", "hidden")
+          input.setAttribute("name", "txtIdServer")
+          input.setAttribute("value", server.id)
 
-            let a = document.createElement("a")
-            a.setAttribute("onclick", "this.parentNode.submit()")
-            a.innerText = "More"
-            a.style.cursor = "pointer"
-            a.style.color = "#0000ff"
+          let a = document.createElement("a")
+          a.setAttribute("onclick", "this.parentNode.submit()")
+          a.innerText = "More"
+          a.style.cursor = "pointer"
+          a.style.color = "#0000ff"
 
-            frm.appendChild(input)
-            frm.appendChild(a)
+          frm.appendChild(input)
+          frm.appendChild(a)
 
-            tdMore.appendChild(frm)
+          tdMore.appendChild(frm)
 
-            return tdMore
+          return tdMore
         }
 
         function check() {
-            document.getElementById("next").disabled = curPage === getNumberOfPages()
-            document.getElementById("previous").disabled = curPage === 1
-            document.getElementById("first").disabled = curPage === 1
-            document.getElementById("last").disabled = curPage === getNumberOfPages()
+          document.getElementById("next").disabled = curPage === getNumberOfPages()
+          document.getElementById("previous").disabled = curPage === 1
+          document.getElementById("first").disabled = curPage === 1
+          document.getElementById("last").disabled = curPage === getNumberOfPages()
         }
 
         function load() {

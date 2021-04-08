@@ -139,11 +139,8 @@
                                   <th class="border-0">Order</th>
                                   <th class="border-0">Rack</th>
                                   <th class="border-0">U</th>
-                                  <th class="border-0">SSD</th>
-                                  <th class="border-0">HDD</th>
                                   <th class="border-0">IP</th>
                                   <th class="border-0">iDrac/iLo</th>
-                                  <th class="border-0">Maker</th>
                                   <th class="border-0">Status</th>
                                   <th class="border-0">Serve</th>
                                   <th></th>
@@ -195,18 +192,15 @@
     let curPage = 1
 
     class Server {
-        constructor(order, id, dc, rack, ustart, uend, ssd, hdd, ip, redfish_ip, maker, status, serve_state) {
+        constructor(order, id, dc, rack, ustart, uend, ip, redfish_ip, status, serve_state) {
             this.order = order
             this.id = id
             this.dc = dc
             this.rack = rack
             this.ustart = ustart
             this.uend = uend
-            this.ssd = ssd
-            this.hdd = hdd
             this.ip = ip
             this.redfish_ip = redfish_ip
-            this.maker = maker
             this.status = status
             this.serve_state = serve_state
         }
@@ -221,8 +215,6 @@
                 "{{ $server.Rack.Description }}",
                 "{{ $server.UStart.Description }}",
                 "{{ $server.UEnd.Description }}",
-                "{{ $server.SSD }}",
-                "{{ $server.HDD }}",
                 {{ $len := len .IpAddrs }}
                 {{ if eq $len 0}}
                 "UNKNOWN"
@@ -231,7 +223,6 @@
                 "{{ $ip.Octet1 }}.{{ $ip.Octet2 }}.{{ $ip.Octet3 }}.{{ $ip.Octet4 }}"
                 {{ end }},
                 "{{ $server.RedfishIp }}",
-                "{{ .Maker }}",
                 "{{ .ServerStatus.Description }}",
                 "{{ .ServeCustomer.Description }}"))
         {{ end }}
@@ -287,10 +278,6 @@
     }
 
     function makeTrItem(server) {
-        // let frm = document.createElement("form")
-        // frm.setAttribute("method", "post")
-        // frm.setAttribute("action", "edit")
-
         let create = (e) => document.createElement(e)
         let set = (e, n, v) => e.setAttribute(n, v)
 
@@ -305,20 +292,11 @@
         let tdU = create("td")
         tdU.innerText = "[" + server.ustart + "-" + server.uend + "]"
 
-        let tdSsd = create("td")
-        tdSsd.innerText = server.ssd
-
-        let tdHdd = create("td")
-        tdHdd.innerText = server.hdd
-
         let tdIp = create("td")
         tdIp.innerText = server.ip
 
         let tdRedfishIp = create("td")
         tdRedfishIp.innerText = server.redfish_ip
-
-        let tdMaker = create("td")
-        tdMaker.innerText = server.maker
 
         let tdStatus = create("td")
         tdStatus.innerText = server.status
@@ -331,16 +309,11 @@
         tr.appendChild(tdOrder)
         tr.appendChild(tdRack)
         tr.appendChild(tdU)
-        tr.appendChild(tdSsd)
-        tr.appendChild(tdHdd)
         tr.appendChild(tdIp)
         tr.appendChild(tdRedfishIp)
-        tr.appendChild(tdMaker)
         tr.appendChild(tdStatus)
         tr.appendChild(tdServe)
         tr.appendChild(tdMore)
-        //
-        // frm.appendChild(tr)
 
         return tr
     }

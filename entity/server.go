@@ -21,7 +21,7 @@ type Server struct {
 	SerialNumber string
 	ServerStatus
 	ServeCustomer
-	RedfishIp string
+	RedfishIp IpAddress
 	IpAddrs []IpAddress
 	Services []string
 	Events []ServerEvent

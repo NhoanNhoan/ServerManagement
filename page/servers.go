@@ -5,6 +5,7 @@ import (
 	"CURD/entity"
 	"CURD/repo/server"
 	"database/sql"
+	"strings"
 )
 
 type Servers struct {
@@ -31,11 +32,8 @@ func (s Servers) makeQueryServersComp(DCId string) database.QueryComponent {
 						"RACK.Description",
 						"USTART.Description",
 						"UEND.Description",
-						"SSD",
-						"HDD",
 						"PORT_TYPE.Description",
 						"SERVER_STATUS.Description",
-						"SERVER.MAKER",
 						"SERVE.DESCRIPTION"},
 		Selection: "SERVER.ID_DC = ? AND " +
 				"SERVER.ID_RACK = RACK.ID AND " + 
@@ -61,28 +59,23 @@ func (s Servers) makeQueryCompByTagId(tagId string, dcId string) database.QueryC
 							"RACK_UNIT AS UEND", 
 							"PORT_TYPE",
 							"SERVER_STATUS",
-							"STATUS_ROW",
 							"SERVER_TAG AS ST"},
 			Columns: []string {"SERVER.ID",
 							"RACK.Description",
 							"USTART.Description",
 							"UEND.Description",
-							"SERVER.SSD",
-							"SERVER.HDD",
 							"PORT_TYPE.Description",
 							"SERVER.SERIAL_NUMBER",
 							"SERVER_STATUS.Description",
-							"SERVER.MAKER",
 							"SERVER.REDFISH_IP"},
 			Selection: "SERVER.ID_DC = ? AND " +
 					"SERVER.ID_RACK = RACK.ID AND " + 
 					"SERVER.ID_U_START = USTART.ID AND " + 
 					"SERVER.ID_U_END = UEND.ID AND " + 
 					"SERVER.ID_PORT_TYPE = PORT_TYPE.ID AND " + 
-					"SERVER.ID_SERVER_STATUS = SERVER_STATUS.ID AND " + 
-					"STATUS_ROW.DESCRIPTION = ? AND SERVER.ID_STATUS_ROW = STATUS_ROW.ID AND " +
+					"SERVER.ID_SERVER_STATUS = SERVER_STATUS.ID AND " +
 					"ST.TAGID = ? AND SERVER.ID = ST.SERVERID",
-			SelectionArgs: []string {dcId, "available", tagId},
+			SelectionArgs: []string {dcId, tagId},
 			GroupBy: "",
 			Having: "",
 			OrderBy: "",
@@ -98,11 +91,8 @@ func (s *Servers) fetchServers(comp database.QueryComponent) error {
 			&server.Rack.Description,
 			&server.UStart.Description,
 			&server.UEnd.Description,
-			&server.SSD,
-			&server.HDD,
 			&server.PortType.Description,
 			&server.ServerStatus.Description,
-			&server.Maker,
 			&server.ServeCustomer.Description)
 		return server, err
 	}
@@ -145,7 +135,7 @@ func (s *Servers) fetchRedfishIp() (err error) {
 
 		if len(ips) > 0 {
 			redfishIp := ips[0]
-			s.Items[i].RedfishIp = redfishIp.String()
+			s.Items[i].RedfishIp = redfishIp
 		}
 	}
 
@@ -167,4 +157,52 @@ func (s *Servers) initTags() error {
 	var err error
 	s.Tags, err = server.TagRepo{}.Fetch(comp, scanTag)
 	return err
+}
+
+// Show page from request ip
+func (s *Servers) FetchServersByIpAddress(ip string) error {
+	ipAddress := s.parseIpAddress(ip)
+	comp := s.makeQueryCompByIpAddress(ipAddress)
+	return s.fetchServers(comp)
+}
+
+func (s *Servers) parseIpAddress(ip string) entity.IpAddress {
+	octets := strings.Split(ip, ".")
+	return entity.IpAddress{
+		Octet1: octets[0],
+		Octet2: octets[1],
+		Octet3: octets[2],
+		Octet4: octets[3],
+	}
+}
+
+func (s *Servers) makeQueryCompByIpAddress(ip entity.IpAddress) database.QueryComponent {
+	return database.QueryComponent {
+		Tables: []string {"SERVER",
+			"SERVER_IP",
+			"DC",
+			"RACK",
+			"RACK_UNIT AS USTART",
+			"RACK_UNIT AS UEND",
+			"PORT_TYPE",
+			"SERVER_STATUS",
+			"SERVER_TAG AS ST"},
+		Columns: []string {"SERVER.ID",
+			"DC.Description",
+			"RACK.Description",
+			"USTART.Description",
+			"UEND.Description",
+			"PORT_TYPE.Description",
+			"SERVER_STATUS.Description",},
+		Selection: "SERVER_IP.OCTET_1 = ? AND SERVER_IP.OCTET_2 = ? AND SERVER_IP.OCTET_3 = ? AND SERVER_IP.OCTET_4 = ? AND " +
+			"SERVER.ID = SERVER_IP.SERVER_ID AND " +
+			"SERVER.ID_DC = DC.ID AND " +
+			"SERVER.ID_RACK = RACK.ID AND " +
+			"SERVER.ID_U_START = USTART.ID AND " +
+			"SERVER.ID_U_END = UEND.ID AND " +
+			"SERVER.ID_PORT_TYPE = PORT_TYPE.ID AND " +
+			"SERVER.ID_SERVER_STATUS = SERVER_STATUS.ID AND " +
+			"SERVER.ID = ST.SERVERID",
+		SelectionArgs: []string {ip.Octet1, ip.Octet2, ip.Octet3, ip.Octet4},
+	}
 }

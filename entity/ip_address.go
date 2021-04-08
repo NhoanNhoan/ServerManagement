@@ -10,6 +10,7 @@ type IpAddress struct {
 	Netmask int
 	Octet1, Octet2, Octet3, Octet4 string
 	State string
+	NetworkPortion
 }
 
 func (ip IpAddress) String() string {

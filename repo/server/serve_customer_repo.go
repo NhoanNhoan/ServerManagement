@@ -6,56 +6,56 @@ import (
 	"database/sql"
 )
 
-type RackUnitRepo struct {
+type ServeCustomerRepo struct {
 	SqliteRepo
 }
 
-func (unit RackUnitRepo) Fetch(comp qcomp,
-	scan func(obj interface{}, rows *sql.Rows) (interface{}, error)) ([]entity.RackUnit, error) {
-	makeRackUnit := func() interface{} { return entity.RackUnit{} }
-	entities, err := unit.SqliteRepo.Query(comp, makeRackUnit, scan)
+func (r ServeCustomerRepo) Fetch(comp qcomp,
+	scan func(obj interface{}, rows *sql.Rows) (interface{}, error)) ([]entity.ServeCustomer, error) {
+	makeServe := func() interface{} { return entity.ServeCustomer{} }
+	entities, err := r.SqliteRepo.Query(comp, makeServe, scan)
 	if nil != err {
 		return nil, err
 	}
 
-	units := make([]entity.RackUnit, len(entities))
-	for i := range units {
-		units[i] = entities[i].(entity.RackUnit)
+	Serves := make([]entity.ServeCustomer, len(entities))
+	for i := range Serves {
+		Serves[i] = entities[i].(entity.ServeCustomer)
 	}
 
-	return units, nil
+	return Serves, nil
 }
 
-func (RackUnit RackUnitRepo) FetchAll() ([]entity.RackUnit, error) {
+func (Serve ServeCustomerRepo) FetchAll() ([]entity.ServeCustomer, error) {
 	comp := qcomp{
-		Tables: []string {"Rack_Unit"},
+		Tables: []string {"Serve"},
 		Columns: []string {"ID", "DESCRIPTION"},
 	}
 
 	scan := func(obj interface{}, row *sql.Rows) (interface{}, error) {
-		center := obj.(entity.RackUnit)
+		center := obj.(entity.ServeCustomer)
 		err := row.Scan(&center.Id, &center.Description)
 		return center, err
 	}
 
-	return RackUnit.Fetch(comp, scan)
+	return Serve.Fetch(comp, scan)
 }
 
-func (RackUnit RackUnitRepo) FetchId(Description string) string {
+func (Serve ServeCustomerRepo) FetchId(Description string) string {
 	comp := qcomp {
-		Tables: []string {"Rack_Unit"},
+		Tables: []string {"Serve"},
 		Columns: []string {"ID"},
 		Selection: "DESCRIPTION  =?",
 		SelectionArgs: []string {Description},
 	}
 
 	scan := func (obj interface{}, row *sql.Rows) (interface{}, error) {
-		RackUnit := obj.(entity.RackUnit)
-		err := row.Scan(&RackUnit.Id)
-		return RackUnit, err
+		Serve := obj.(entity.ServeCustomer)
+		err := row.Scan(&Serve.Id)
+		return Serve, err
 	}
 
-	entities, err := RackUnit.Fetch(comp, scan)
+	entities, err := Serve.Fetch(comp, scan)
 	if nil != err {
 		return ""
 	}
@@ -67,9 +67,9 @@ func (RackUnit RackUnitRepo) FetchId(Description string) string {
 	return entities[0].Id
 }
 
-func (RackUnit RackUnitRepo) IsExistsDescription(Description string) bool {
+func (Serve ServeCustomerRepo) IsExistsDescription(Description string) bool {
 	comp := qcomp {
-		Tables: []string {"Rack_Unit"},
+		Tables: []string {"Serve"},
 		Columns: []string {"ID"},
 		Selection: "DESCRIPTION = ?",
 		SelectionArgs: []string {Description},
@@ -85,12 +85,12 @@ func (RackUnit RackUnitRepo) IsExistsDescription(Description string) bool {
 	return row.Next()
 }
 
-func (repo RackUnitRepo) IsExists(RackUnitId string) bool {
+func (repo ServeCustomerRepo) IsExists(ServeId string) bool {
 	comp := qcomp {
-		Tables: []string {"Rack_Unit"},
+		Tables: []string {"Serve"},
 		Columns: []string {"ID"},
 		Selection: "ID = ?",
-		SelectionArgs: []string {RackUnitId},
+		SelectionArgs: []string {ServeId},
 	}
 
 	row, err := database.Query(comp)
@@ -103,7 +103,7 @@ func (repo RackUnitRepo) IsExists(RackUnitId string) bool {
 	return row.Next()
 }
 
-func (repo RackUnitRepo) GenerateId() string {
+func (repo ServeCustomerRepo) GenerateId() string {
 	Id := database.GeneratePrimaryKey(true,
 		true, true,
 		false, "R", 6)
@@ -117,14 +117,14 @@ func (repo RackUnitRepo) GenerateId() string {
 	return Id
 }
 
-func (repo RackUnitRepo) Insert(RackUnits ...entity.RackUnit) error {
-	values := make([][]string, len(RackUnits))
+func (repo ServeCustomerRepo) Insert(Serves ...entity.ServeCustomer) error {
+	values := make([][]string, len(Serves))
 	for i := range values {
-		values[i] = []string {RackUnits[i].Id, RackUnits[i].Description}
+		values[i] = []string {Serves[i].Id, Serves[i].Description}
 	}
 
 	comp := icomp {
-		Table: "Rack_Unit",
+		Table: "Serve",
 		Columns: []string {"ID", "DESCRIPTION"},
 		Values: values,
 	}

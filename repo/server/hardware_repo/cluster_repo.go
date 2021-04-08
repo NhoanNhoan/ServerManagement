@@ -43,3 +43,29 @@ func (repo ClusterRepo) FetchAllClusterServers() ([]hardware.ClusterServer, erro
 
 	return repo.Fetch(comp, scan)
 }
+
+func (repo ClusterRepo) FetchClusterByServerId(ServerId string) (*hardware.ClusterServer, error) {
+	comp := qcomp {
+		Tables: []string {"SERVER AS S", "HARDWARE_CONFIG AS H", "CLUSTER_SERVER AS C"},
+		Columns: []string {"C.ID"},
+		Selection: "S.ID = ? AND S.HARDWARE_CONFIG_ID = H.ID AND H.CLUSTER_SERVER_ID = C.ID",
+		SelectionArgs: []string {ServerId},
+	}
+
+	scan := func (obj interface{}, row *sql.Rows) (interface{}, error) {
+		cluster := obj.(hardware.ClusterServer)
+		err := row.Scan(&cluster.Id)
+		return cluster, err
+	}
+
+	clusters, err := repo.Fetch(comp, scan)
+	if nil != err {
+		return nil, err
+	}
+
+	if len(clusters) == 0 {
+		return nil, nil
+	}
+
+	return &clusters[0], nil
+}

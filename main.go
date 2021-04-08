@@ -5,7 +5,9 @@ import (
 	"CURD/entity/error_entity"
 	"CURD/page"
 	"CURD/page/error_page"
+	"CURD/repo/server"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/sessions"
@@ -29,7 +31,7 @@ func setupRouter() *gin.Engine {
 	HandleHome(r)
 	//HandleFilter(r)
 	HandleSearch(r)
-	//HandleSearchTags(r)
+	HandleSearchTags(r)
 	HandleServers(r)
 	//HandleInfo(r)
 	HandleEditServer(r)
@@ -150,30 +152,34 @@ func HandleSearch(router *gin.Engine) {
 		CheckAuthen(c)
 		ip := c.PostForm("txtIp")
 
-		var resultPage page.UpdateServer
-		if err := resultPage.NewByIpServer(ip); nil != err {
+		var resultPage page.Servers
+		if err := resultPage.FetchServersByIpAddress(ip); nil != err {
 			c.String(http.StatusOK, err.Error())
 			return
 		}
 
-		router.LoadHTMLFiles("templates/server/edit.html")
-		c.HTML(http.StatusOK, "templates/server/edit.html", resultPage)
+		router.LoadHTMLFiles("templates/server/list.html")
+		c.HTML(http.StatusOK, "templates/server/list.html", resultPage)
 	})
 }
 
-//func HandleSearchTags(router *gin.Engine) {
-//	router.POST("/tags", func (c *gin.Context) {
-//		CheckAuthen(c)
-//		values := c.PostForm("txtTags")
-//		tags := strings.Split(values, ",")
-//
-//		f := page.Filter{}
-//		f.SearchServersByMultiTags(tags)
-//
-//		router.LoadHTMLFiles("templates/server/filter.html")
-//		c.HTML(http.StatusOK, "templates/server/filter.html", f)
-//	})
-//}
+func HandleSearchTags(router *gin.Engine) {
+	router.POST("/tags", func (c *gin.Context) {
+		CheckAuthen(c)
+		values := c.PostForm("txtTags")
+		tags := strings.Split(values, ",")
+
+		f := page.Filter{}
+		err := f.SearchServersByMultiTags(tags)
+		if nil != err {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
+
+		router.LoadHTMLFiles("templates/server/filter.html")
+		c.HTML(http.StatusOK, "templates/server/filter.html", f)
+	})
+}
 
 func HandleServers(r *gin.Engine) {
 	r.POST("/server/list", func(c *gin.Context) {
@@ -232,7 +238,10 @@ func HandleEditServer(r *gin.Engine) {
 
 		serverId := c.PostForm("txtIdServer")
 		var updatePage page.UpdateServer
-		updatePage.New(serverId)
+		err := updatePage.New(serverId)
+		if nil != err {
+			panic (err)
+		}
 
 		r.LoadHTMLFiles("templates/server/edit.html")
 		c.HTML(http.StatusOK, "templates/server/edit.html", updatePage)
@@ -267,6 +276,9 @@ func HandleExecuteModify(r *gin.Engine) {
 		// server := getServerFromPostForm(c)
 		var executeModify page.ExecuteModify
 		executeModify.New(c)
+		if err := executeModify.Execute(); nil != err {
+			panic (err)
+		}
 
 		r.LoadHTMLFiles("templates/server/execute_modify.html")
 		c.HTML(http.StatusOK,
@@ -377,7 +389,14 @@ func HandleExecuteRegister(r *gin.Engine) {
 	r.POST("/server/execute_register", func (c *gin.Context) {
 		CheckAuthen(c)
 		var registrationPage page.ExecuteRegister
-		registrationPage.New(c)
+		var err error
+		if err = registrationPage.New(c); nil != err {
+			c.String(http.StatusOK, err.Error())
+		}
+
+		if err = registrationPage.Execute(); nil != err {
+			c.String(http.StatusOK, err.Error())
+		}
 		r.LoadHTMLFiles("templates/server/execute_register.html")
 		c.HTML(http.StatusOK, "templates/server/execute_register.html", registrationPage)
 	})
@@ -396,10 +415,17 @@ func HandleExecuteRegisterIp(r *gin.Engine) {
 	r.POST("/server/execute_register_ip", func (c *gin.Context) {
 		CheckAuthen(c)
 
-		ex := page.ExecuteRegisterIp{}
-		ex.New(c)
+		regis := page.NetworkPortionRegistration{}
+		regis.SetMsg("success")
+		if err := regis.New(c); nil != err {
+			regis.SetMsg(err.Error())
+		}
 
-		c.JSON(http.StatusOK, ex)
+		if err := regis.Execute(); nil != err {
+			regis.SetMsg(err.Error())
+		}
+
+		c.JSON(http.StatusOK, regis)
 	})
 }
 
@@ -408,7 +434,10 @@ func HandleViewIp(r *gin.Engine) {
 		CheckAuthen(c)
 
 		listIp := page.ListIp{}
-		listIp.New(c)
+		if err := listIp.New(c); nil != err {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
 
 		c.JSON(http.StatusOK, listIp.IpArr)
 	})
@@ -431,12 +460,17 @@ func HandleSearchIp(r *gin.Engine) {
 		CheckAuthen(c)
 
 		ip := page.SearchIp{}
-		ip.New(c)
+		err := ip.New(c)
+
+		if nil != err {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
 
 		if "" != ip.IpState {
 			c.String(http.StatusOK, ip.IpState)
 		} else {
-			c.String(http.StatusOK, "No Ip Found")
+			c.String(http.StatusOK, "Not found IP")
 		}
 	})
 }
@@ -445,8 +479,11 @@ func HandleListIpNet(r *gin.Engine) {
 	r.GET("/server/ip", func (c *gin.Context) {
 		CheckAuthen(c)
 
-		netView := page.ListIpNet{}
-		netView.New()
+		netView := page.ListNetworkPortions{}
+		if err := netView.New(); nil != err {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
 
 		r.LoadHTMLFiles("templates/server/list_ip_net.html")
 		c.HTML(http.StatusOK, "templates/server/list_ip_net.html", netView)
@@ -458,19 +495,10 @@ func HandleDeleteIpNet(r *gin.Engine) {
 		CheckAuthen(c)
 
 		netId := c.PostForm("txtNetId")
-		ipNet := entity.IpNet{Id: netId}
-		err := ipNet.Delete()
-		var msg string
-
-		if nil != err {
-			msg = "Error"
-		} else {
-			err = ipNet.DeleteAllHost()
-			if nil != err {
-				msg = "ERROR"
-			} else {
-				msg = "SUCCESS"
-			}
+		repo := server.NetworkPortionRepo{}
+		msg :="success"
+		if err := repo.Delete(netId); nil != err {
+			msg = err.Error()
 		}
 
 		c.String(http.StatusOK, msg)

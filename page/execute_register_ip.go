@@ -2,28 +2,49 @@ package page
 
 import (
 	"CURD/entity"
+	"CURD/repo/server"
+	"errors"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-type ExecuteRegisterIp struct {
+type NetworkPortionRegistration struct {
+	entity.NetworkPortion
+	NumAvailableHosts int
 	Msg string
-	AvailableHosts int
-	entity.IpNet
 }
 
-func (ex *ExecuteRegisterIp) New(c *gin.Context) {
-	ex.IpNet.Value = c.PostForm("txtIpNet")
-	ex.IpNet.Netmask, _ = strconv.Atoi(c.PostForm("txtNetmask"))
-	err := ex.IpNet.Insert()
-
-	if nil != err {
-		ex.Msg = "Can't insert new ip net"
-		panic (err)
+func (regis *NetworkPortionRegistration) New(c *gin.Context) (err error) {
+	if err = regis.initNetworkPortion(c); nil == err {
+		regis.initNumHosts()
+		return
 	}
-
-	ex.AvailableHosts = ex.IpNet.CalculateHosts()
-	ex.Msg = "Success"
+	return
 }
 
+func (regis *NetworkPortionRegistration) initNetworkPortion(c *gin.Context) (err error) {
+	raw := c.PostForm("txtNetwork")
+	if regis.NetworkPortion.Value, err = server.StadardlizeNetworkPortion(raw); nil != err {
+		return err
+	}
+	regis.NetworkPortion.Netmask, err = strconv.Atoi(c.PostForm("txtNetmask"))
+	if nil != err {
+		err = errors.New("Netmask is wrong!")
+	}
+	return
+}
+
+func (regis *NetworkPortionRegistration) initNumHosts() {
+	regis.NumAvailableHosts = regis.NetworkPortion.CalculateNumHosts()
+}
+
+func (regis *NetworkPortionRegistration) Execute() (err error) {
+	repo := server.NetworkPortionRepo{}
+	regis.NetworkPortion.Id = repo.GenerateId()
+	return repo.Insert(regis.NetworkPortion)
+}
+
+func (regis *NetworkPortionRegistration) SetMsg(msg string) {
+	regis.Msg = msg
+}

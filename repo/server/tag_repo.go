@@ -46,7 +46,7 @@ func (repo TagRepo) IdOf(title string) (string, error) {
 	comp := qcomp{
 		Tables: []string {"TAG"},
 		Columns: []string {"TAGID"},
-		Selection: "TAGTITLE = ?",
+		Selection: "TITLE = ?",
 		SelectionArgs: []string {title},
 	}
 

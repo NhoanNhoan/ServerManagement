@@ -15,19 +15,19 @@ func (obj *UpdateStateIp) New(c *gin.Context) {
 	netId := c.PostForm("txtNetId")
 	reqStr := c.PostForm("txtIpStates")
 
-	obj.makeHostsByRequestString(reqStr, netId)
+	obj.parseIpAddress(reqStr, netId)
 	if err := obj.ExecuteUpdate(); nil != err  {
 		panic (err)
 	}
 	obj.Msg = "Success"
 }
 
-func (obj *UpdateStateIp) makeHostsByRequestString(reqStr string, netId string) {
-	hostContents := strings.Split(reqStr, ";")
-	obj.Hosts = make([]entity.IpHost, len(hostContents))
+func (obj *UpdateStateIp) parseIpAddress(reqStr string, netId string) {
+	content := strings.Split(reqStr, ";")
+	obj.Hosts = make([]entity.IpHost, len(content))
 
-	for idx := range hostContents {
-		if values := strings.Split(hostContents[idx], "-"); len(values) == 2 {
+	for idx := range content {
+		if values := strings.Split(content[idx], "-"); len(values) == 2 {
 			obj.Hosts[idx] = entity.IpHost {
 				IpNet: entity.IpNet{Id: netId},
 				Host: values[0],

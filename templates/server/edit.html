@@ -350,12 +350,12 @@
                     <div class="panel panel-default">
                       <div class="panel-heading">HARDWARE CONFIGURATION</div>
                       <div class="panel-body">
-                        <div class="form-group">
-                          <label for="txtCluster">Cluster</label>
-                          <input type="hidden" name="txtCluster" value="">
-                          <select class="form-control">
-                            {{ range .HardwareTemplate.Clusters }}
-                            <option value="{{ .Id }}">{{ .Name }}</option>
+                        <div class="form-group" id="clusterArea">
+                          <label for="clusterArea">Cluster</label>
+                          <input type="hidden" name="txtCluster" value="{{ .ClusterId }}">
+                          <select id="cbCluster" class="form-control" onchange="change_cluster()">
+                            {{ range .HardwareData.Clusters }}
+                            <option id="{{ .Id }}" value="{{ .Id }}">{{ .Name }}</option>
                             {{ end }}
                           </select>
                         </div>
@@ -363,80 +363,187 @@
                         <div class="form-group">
                           <label for="txtChassis">Chassis</label>
                           <input type="hidden" name="txtChassis" value="">
-                          <select class="form-control">
-                            {{ range .HardwareTemplate.Chassis }}
-                            <option value="{{ .Id }}">{{ .Information }}</option>
+                          <select class="form-control" id="cbChassis">
+                            {{ range .HardwareData.Chassis }}
+                            <option id="{{ .Id }}" value="{{ .Id }}">{{ .Information }}</option>
                             {{ end }}
                           </select>
                         </div>
 
                         <div class="form-group" id="cpuArea">
-                          <div class="col-sm-9">
-                            <label for="txtCluster">CPU</label>
-                            <input type="hidden" name="txtCluster" value="">
-                            <select class="form-control">
-                              {{ range .HardwareTemplate.CPUs }}
-                              <option value="{{ .Id }}">{{ .Information }}</option>
-                              {{ end }}
-                            </select>
-                          </div>
-                          <div class="col-sm-3">
-                            <label for="txtNumDisks">Number</label>
-                            <input class="form-control input-sm"
-                                   type="text"
-                                   name="txtMaker"/>
-                          </div>
-                          <button type="button" class="form-control btn btn-primary btn-sm" onclick="add(this)">add cpu</button>
+                            <div id="cbCPUArea" class="col-sm-9">
+                              <label for="txtCluster">CPU</label>
+                              <input type="hidden" name="txtCluster" value="">
+                              <select class="form-control" id="cbCPU">
+                                {{ range .HardwareData.CPUs }}
+                                <option id="{{ .Id }}" value="{{ .Id }}">{{ .Information }}</option>
+                                {{ end }}
+                              </select>
+                            </div>
+                            <div id="txtNumCpuArea" class="col-sm-3">
+                              <label for="txtNumDisks">Number</label>
+                              <input class="form-control input-sm"
+                                     type="text"
+                                     id="txtNumCPU"
+                                     name="txtNumCPU"/>
+                            </div>
+                          <button type="button" class="form-control btn btn-primary btn-sm" onclick="add_component(this, 'cbCPUArea', 'txtNumCpuArea')">add cpu</button>
                         </div>
 
-                        <div class="form-group">
-                          <div class="col-sm-9">
-                            <label for="txtCluster">RAM</label>
-                            <input type="hidden" name="txtCluster" value="">
-                            <select class="form-control">
-                              {{ range .HardwareTemplate.RAMs }}
-                              <option value="{{ .Id }}">{{ .Information }}</option>
-                              {{ end }}
-                            </select>
-                          </div>
-                          <div class="col-sm-3">
-                            <label for="txtNumDisks">Number</label>
-                            <input class="form-control input-sm"
-                                   type="text"
-                                   name="txtMaker"/>
-                          </div>
+                        <div id="ramArea" class="form-group">
+                            <div id="cbRAMArea" class="col-sm-9">
+                              <label for="txtCluster">RAM</label>
+                              <input type="hidden" name="txtCluster" value="">
+                              <select class="form-control" id="cbRAM">
+                                {{ range .HardwareData.RAMs }}
+                                <option id="{{ .Id }}" value="{{ .Id }}">{{ .Information }}</option>
+                                {{ end }}
+                              </select>
+                            </div>
+                            <div id="txtNumRAMArea" class="col-sm-3">
+                              <label for="txtNumDisks">Number</label>
+                              <input class="form-control input-sm"
+                                     type="text"
+                                     id="txtNumRAM"
+                                     name="txtNumRAM"/>
+                            </div>
 
-                          <button type="button" class="form-control btn btn-primary btn-sm">add ram</button>
+                          <button type="button" class="form-control btn btn-primary btn-sm" onclick="add_component(this, 'cbRAMArea', 'txtNumRAMArea')">add ram</button>
                         </div>
 
-                        <div class="form-group">
-                          <div class="col-sm-9">
-                            <label for="txtCluster">Disk</label>
+                        <div id="diskArea" class="form-group">
+                            <div id="cbDiskArea" class="col-sm-9">
+                              <label for="txtCluster">Disk</label>
+                              <input type="hidden" name="txtCluster" value="">
+                              <select class="form-control" id="cbDisk">
+                                {{ range .HardwareData.Disks }}
+                                <option id="{{ .Id }}" value="{{ .Id }}">{{ .Information }}</option>
+                                {{ end }}
+                              </select>
+                            </div>
+                            <div id="txtNumDiskArea" class="col-sm-3">
+                              <label for="txtNumDisks">Number</label>
+                              <input class="form-control input-sm"
+                                     type="text"
+                                     id="txtNumDisk"
+                                     name="txtNumDisk"/>
+                            </div>
+
+                          <button id="btnAddDisk"
+                                  type="button"
+                                  class="form-control btn btn-primary btn-sm"
+                                  onclick="add_component(this, 'cbDiskArea', 'txtNumDiskArea')">add disk</button>
+                        </div>
+
+                        <div id="raidArea" class="form-group">
+                          <div id="cbRaidArea" class="col-sm-9">
+                            <label for="cbRaid">Raid</label>
                             <input type="hidden" name="txtCluster" value="">
-                            <select class="form-control">
-                              {{ range .HardwareTemplate.Disks }}
-                              <option value="{{ .Id }}">{{ .Information }}</option>
+                            <select class="form-control" id="cbRaid">
+                              {{ range .HardwareData.Raids }}
+                              <option id="{{ .Id }}" value="{{ .Id }}">{{ .Information }}</option>
                               {{ end }}
                             </select>
                           </div>
-                          <div class="col-sm-3">
-                            <label for="txtNumDisks">Number</label>
+                          <div id="txtNumRaidArea" class="col-sm-3">
+                            <label for="txtNumRaid">Number</label>
                             <input class="form-control input-sm"
                                    type="text"
-                                   name="txtMaker"/>
+                                   id="txtNumRaid"
+                                   name="txtMumRaid"/>
                           </div>
 
-                          <button type="button" class="form-control btn btn-primary btn-sm">add disk</button>
+                          <button id="btnAddRaid"
+                                  type="button"
+                                  class="form-control btn btn-primary btn-sm"
+                                  onclick="add_component(this, 'cbRaidArea', 'txtNumRaidArea')">add raid</button>
+                        </div>
+
+                        <div id="nicArea" class="form-group">
+                          <div id="cbNicArea" class="col-sm-9">
+                            <label for="txtCluster">Nic</label>
+                            <input type="hidden" name="txtCluster" value="">
+                            <select class="form-control" id="cbNic">
+                              {{ range .HardwareData.NICs }}
+                              <option id="{{ .Id }}" value="{{ .Id }}">{{ .Information }}</option>
+                              {{ end }}
+                            </select>
+                          </div>
+                          <div id="txtNumNicArea" class="col-sm-3">
+                            <label for="txtNumNics">Number</label>
+                            <input class="form-control input-sm"
+                                   type="text"
+                                   id="txtNumNic"
+                                   name="txtNumNic"/>
+                          </div>
+
+                          <button id="btnAddNic"
+                                  type="button"
+                                  class="form-control btn btn-primary btn-sm"
+                                  onclick="add_component(this, 'cbNicArea', 'txtNumNicArea')">add Nic</button>
+                        </div>
+
+                        <div id="psuArea" class="form-group">
+                          <div id="cbPsuArea" class="col-sm-9">
+                            <label for="txtCluster">Psu</label>
+                            <input type="hidden" name="txtCluster" value="">
+                            <select class="form-control" id="cbPsu">
+                              {{ range .HardwareData.PSUs }}
+                              <option id="{{ .Id }}" value="{{ .Id }}">{{ .Information }}</option>
+                              {{ end }}
+                            </select>
+                          </div>
+                          <div id="txtNumPsuArea" class="col-sm-3">
+                            <label for="txtNumPsus">Number</label>
+                            <input class="form-control input-sm"
+                                   type="text"
+                                   id="txtNumPsu"
+                                   name="txtNumPsu"/>
+                          </div>
+
+                          <button id="btnAddPsu"
+                                  type="button"
+                                  class="form-control btn btn-primary btn-sm"
+                                  onclick="add_component(this, 'cbPsuArea', 'txtNumPsuArea')">add Psu</button>
+                        </div>
+
+                        <div id="mntArea" class="form-group">
+                          <div id="cbMntArea" class="col-sm-9">
+                            <label for="txtCluster">Management</label>
+                            <input type="hidden" name="txtCluster" value="">
+                            <select class="form-control" id="cbMnt">
+                              {{ range .HardwareData.Managements }}
+                              <option id="{{ .Id }}" value="{{ .Id }}">{{ .Information }}</option>
+                              {{ end }}
+                            </select>
+                          </div>
+                          <div id="txtNumMntArea" class="col-sm-3">
+                            <label for="txtNumMnts">Number</label>
+                            <input class="form-control input-sm"
+                                   type="text"
+                                   id="txtNumMnt"
+                                   name="txtNumMnt"/>
+                          </div>
+
+                          <button id="btnAddMnt"
+                                  type="button"
+                                  class="form-control btn btn-primary btn-sm"
+                                  onclick="add_component(this, 'cbMntArea', 'txtNumMntArea')">add Mnt</button>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <button type="button"
-                          class="form-control btn btn-primary"
-                          onclick="addHwConfigArea()">add hardware config</button>
+
+                  <input type="hidden" id="txtAllCPUs" name="txtAllCPUs">
+                  <input type="hidden" id="txtAllRAMs" name="txtAllRAMs">
+                  <input type="hidden" id="txtAllDisks" name="txtAllDisks">
+                  <input type="hidden" id="txtAllNICs" name="txtAllNICs">
+                  <input type="hidden" id="txtAllRaids" name="txtAllRaids">
+                  <input type="hidden" id="txtAllPSUs" name="txtAllPSUs">
+                  <input type="hidden" id="txtAllMNTs" name="txtAllMNTs">
 
                   <div class="col-sm-4">
-                    <button type="button" class="btn btn-primary" onclick="collect_ip()">save change</button>
+                    <button type="button" class="btn btn-primary" onclick="submit_frm()">save change</button>
                   </div>
                 </form>
               </div>
@@ -447,7 +554,7 @@
       </div>
         <div class="module-small bg-dark"></div>
     </main>
-    <!--  
+    <!--
     JavaScripts
     =============================================
     -->
@@ -479,7 +586,8 @@
       function select() {
         for (var idx = 0; idx < arguments.length; idx++) {
           var element = document.getElementById(arguments[idx])
-          element.selected = true
+          if (null != element)
+            element.selected = true
         }
       }
 
@@ -495,6 +603,7 @@
         set_value("txtAllIp", list_ip)
         collect_tags()
         collect_switch()
+        collect_component()
         set_value("txtAllTag", tags)
         set_value("txtSwitch", ls_switch)
         get("frm_modify").submit()
@@ -672,7 +781,7 @@
 
       function makeArea(id, lbl, inputId, btnName) {
         let area = document.createElement("div")
-        area.setAttribute(id)
+        area.setAttribute("id", id)
 
         area.appendChild(makeLabel(lbl, inputId))
         area.appendChild(makeInput(inputId))
@@ -764,11 +873,212 @@
           }
         }
       }
+
+      // Hardware Template events
+      function add_component(e, select_id, input_id) {
+        parent = e.parentNode
+        select = document.getElementById(select_id).cloneNode(true)
+        input_id = document.getElementById(input_id).cloneNode(true)
+
+        parent.appendChild(select)
+        parent.appendChild(input_id)
+        parent.appendChild(e)
+      }
+
+      class HardwareConfig {
+        constructor(chassis, cpu, ram, disk, nic, raid, mnt) {
+          this.chassis = chassis
+          this.cpu = cpu
+          this.ram = ram
+          this.disk = disk
+          this.nic = nic
+          this.raid = raid
+          this.mnt = mnt
+        }
+      }
+
+
+      var configs = {}
+      var number_comp = {}
+
+      function init_configs() {
+        configs = {"cl0001": ['c00001', ['c00001'], ['r00001'],
+                             ['d00001', 'd00002', 'd00003'], ['n00001', 'n00002'],
+                             ['r00001'], ['m00001'], ['p00001']],
+                    "cl0002": ['c00001', ['c00001'], ['r00001'],
+                              ['d00001', 'd00002'], ['n00001', 'n00002'], ['r00001'], ['m00001', 'm00002', 'm00003'], ['p00001']],
+                    "cl0003": [['c00002'], ['c00002'], ['r00001'],
+                            ['d00002', 'd00003'], ['n00001', 'n00002'], ['r00001'], ['m00001', 'm00002', 'm00003'], ['p00001']],
+          "cl0004": [['c00003'], ['c00001'], ['r00001'],
+            ['d00002', 'd00003'], ['n00001', 'n00002'], ['r00001'], ['m00001', 'm00002', 'm00003'], ['p00001']],
+          "cl0005": [['c00002'], ['c00002'], ['r00001'],
+            ['d00002', 'd00003'], ['n00001', 'n00002'], ['r00001'], ['m00001', 'm00002', 'm00003'], ['p00001']],
+          "cl0006": [['c00002'], ['c00002'], ['r00001'],
+            ['d00002', 'd00003'], ['n00001', 'n00002'], ['r00001'], ['m00001', 'm00002', 'm00003'], ['p00001']],
+          "cl0007": [['c00002'], ['c00002'], ['r00001'],
+            ['d00002'], ['n00001', 'n00002'], ['r00001'], ['m00001', 'm00002', 'm00003'], ['p00001']],
+          "cl0008": [['c00002'], ['c00002'], ['r00001'],
+            ['d00002'], ['n00001', 'n00002'], ['r00001'], ['m00001', 'm00002', 'm00003'], ['p00001']],
+          "cl0009": [['c00002'], ['c00002'], ['r00001'],
+            ['d00002', 'd00003'], ['n00001', 'n00002'], ['r00001'], ['m00001', 'm00002', 'm00003'], ['p00001']]
+        }
+      }
+
+      function init_number() {
+        number_comp = {
+          "cl0001": [1, [2], [4], [2, 6, 18], [1, 2], [1, 2], [1, 1, 1], [1]],
+          "cl0002": [1, [2], [4], [2, 24], [1], [1, 2], [1, 1, 1], [1]],
+          "cl0003": [1, [2], [2], [2, 8], [1], [1, 2], [1, 1, 1], [1]],
+          "cl0004": [1, [2], [4], [2, 24], [1], [1, 2], [1, 1, 1], [1]],
+          "cl0005": [1, [2], [4], [2, 8], [1], [1, 2], [1, 1, 1], [1]],
+          "cl0006": [1, [2], [2], [2, 2], [1], [1, 2], [1, 1, 1], [1]],
+          "cl0007": [1, [2], [2], [2], [1], [1, 2], [1, 1, 1], [1]],
+          "cl0008": [1, [2], [4], [2], [1], [1, 2], [1, 1, 1], [1]],
+          "cl0009": [1, [2], [4], [2, 2], [1, 2], [1, 1, 1], [1]]
+        }
+      }
+
+      function change_cluster() {
+        init_configs()
+        init_number()
+
+        const CHASSIS = 0
+        const CPU = 1
+        const RAM = 2
+        const DISK = 3
+        const NIC = 4
+        const RAID = 5
+        const MNT = 6
+        const PSU = 7
+
+        val = document.getElementById("cbCluster").value
+        config = configs[val]
+        number = number_comp[val]
+
+        if (null == config) {
+          return
+        }
+
+        area_append("cpuArea", config[CPU], "btnAddcpu", "cbCpuArea", "txtNumCpuArea")
+        area_remove("cpuArea", config[CPU])
+        set_select(document.getElementById("cpuArea").getElementsByTagName("select"), config[CPU])
+        set_input(document.getElementById("cpuArea").getElementsByTagName("input"), number[CPU])
+
+        area_append("ramArea", config[RAM], "btnAddRam", "cbRamArea", "txtNumRAMArea")
+        area_remove("ramArea", config[RAM])
+        set_select(document.getElementById("ramArea").getElementsByTagName("select"), config[RAM])
+        set_input(document.getElementById("ramArea").getElementsByTagName("input"), number[RAM])
+
+        area_append("diskArea", config[DISK], "btnAddDisk", "cbDiskArea", "txtNumDiskArea")
+        area_remove("diskArea", config[DISK])
+        set_select(document.getElementById("diskArea").getElementsByTagName("select"), config[DISK])
+        set_input(document.getElementById("diskArea").getElementsByTagName("input"), number[DISK])
+
+        area_append("nicArea", config[NIC], "btnAddNic", "cbNicArea", "txtNumNicArea")
+        area_remove("nicArea", config[NIC])
+        set_select(document.getElementById("nicArea").getElementsByTagName("select"), config[NIC])
+        set_input(document.getElementById("nicArea").getElementsByTagName("input"), number[NIC])
+
+        area_append("raidArea", config[RAID], "btnAddRaid", "cbRaidArea", "txtNumRaidArea")
+        area_remove("raidArea", config[RAID])
+        set_select(document.getElementById("raidArea").getElementsByTagName("select"), config[RAID])
+        set_input(document.getElementById("raidArea").getElementsByTagName("input"), number[RAID])
+
+        area_append("mntArea", config[MNT], "btnAddMnt", "cbMntArea", "txtNumMntArea")
+        area_remove("mntArea", config[MNT])
+        set_select(document.getElementById("mntArea").getElementsByTagName("select"), config[MNT])
+        set_input(document.getElementById("mntArea").getElementsByTagName("input"), number[MNT])
+
+        area_append("psuArea", config[PSU], "btnAddPsu", "cbPsuArea", "txtNumPsuArea")
+        area_remove("psuArea", config[PSU])
+        set_select(document.getElementById("psuArea").getElementsByTagName("select"), config[PSU])
+        set_input(document.getElementById("psuArea").getElementsByTagName("input"), number[PSU])
+      }
+
+      function area_append(id, items, btn, cb, txt) {
+        area = document.getElementById(id)
+        while (area.getElementsByTagName("select").length < items.length) {
+          add_component(document.getElementById(btn), cb, txt)
+        }
+      }
+
+      function area_remove(id, items) {
+        area = document.getElementById(id)
+        while (area.getElementsByTagName("select").length > items.length) {
+          area.removeChild(area.getElementsByTagName("select")[0].parentNode)
+          area.removeChild(area.getElementsByTagName("input")[0].parentNode)
+        }
+      }
+
+      function set_select(list_select, items) {
+        for (var i = 0; i < list_select.length; i++) {
+          list_select[i].value = items[i]
+        }
+      }
+
+      function set_input(inputs, values) {
+        value_idx = 0
+        for (var i = 0; i < inputs.length; i++) {
+          if (inputs[i].type != "hidden") {
+            inputs[i].value = values[value_idx]
+            value_idx += 1
+          }
+        }
+      }
+
+      function collect_component() {
+        set_input_component("txtAllCPUs", "cbCPUArea", "txtNumCpuArea")
+        set_input_component("txtAllRAMs", "cbRAMArea", "txtNumRAMArea")
+        set_input_component("txtAllDisks", "cbDiskArea", "txtNumDiskArea")
+        set_input_component("txtAllNICs", "cbNicArea", "txtNumNicArea")
+        set_input_component("txtAllRaids", "cbRaidArea", "txtNumRaidArea")
+        set_input_component("txtAllPSUs", "cbPsuArea", "txtNumPsuArea")
+        set_input_component("txtAllMNTs", "cbMntArea", "txtNumMntArea")
+      }
+
+      function set_input_component(id, select_area_id, input_area_id) {
+        var input = document.getElementById(id)
+        var content = ""
+        select_values = collect_select(select_area_id)
+        input_values = collect_input(input_area_id)
+
+        for (var i = 0; i < select_values.length; i++) {
+          content += select_values[i] + "-" + input_values[i]
+        }
+
+        input.value = content
+      }
+
+      function collect_select(select_area_id) {
+        var select_area = document.getElementById(select_area_id)
+        var selects = select_area.getElementsByTagName("select")
+        var selected_values = []
+
+        for (var i = 0; i < selects.length; i++) {
+          selected_values.push(selects[i].value)
+        }
+
+        return selected_values
+      }
+
+      function collect_input(input_area_id) {
+        var input_area = document.getElementById(input_area_id)
+        var inputs = input_area.getElementsByTagName("input")
+        var input_values = []
+
+        for (var i = 0; i < inputs.length; i++) {
+          if ("hidden" != inputs[i].type) {
+            input_values.push(inputs[i].value == "" ? 0 : inputs[i].value)
+          }
+        }
+
+        return input_values
+      }
+
+      select("{{ .ClusterId }}")
+      // End of Hardware Template events
     </script>
   </body>
 </html>
-<script type="text/javascript">
-
-</script>
 
 {{ end }}

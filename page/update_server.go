@@ -10,19 +10,19 @@ import (
 	"errors"
 )
 
-type HardwareTemplate struct {
+type HardwareData struct {
 	CPUs        []hardware.CPU
-	Clusters	[]hardware.ClusterServer
-	Chassis		[]hardware.Chassis
+	Clusters    []hardware.ClusterServer
+	Chassis     []hardware.Chassis
 	RAMs        []hardware.RAM
 	Disks       []hardware.Disk
 	NICs        []hardware.NIC
 	Raids       []hardware.Raid
-	PSUs		[]hardware.PSU
+	PSUs        []hardware.PSU
 	Managements []hardware.Management
 }
 
-func (template *HardwareTemplate) New() (err error) {
+func (template *HardwareData) New() (err error) {
 	cpuRepo := hardware_repo.CPURepo{}
 	if template.CPUs, err = cpuRepo.FetchAllCPUs(); nil != err {
 		return err
@@ -45,6 +45,11 @@ func (template *HardwareTemplate) New() (err error) {
 
 	nicRepo := hardware_repo.NICRepo{}
 	if template.NICs, err = nicRepo.FetchAllNICs(); nil != err {
+		return err
+	}
+
+	chassisRepo := hardware_repo.ChassisRepo{}
+	if template.Chassis, err = chassisRepo.FetchAllChassiss(); nil != err {
 		return err
 	}
 
@@ -74,6 +79,7 @@ type SwitchInfo struct {
 
 type UpdateServer struct {
 	entity.Server
+	ClusterId 		  string
 	DCs               []entity.DataCenter
 	Racks             []entity.Rack
 	RackUnits         []entity.RackUnit
@@ -84,13 +90,15 @@ type UpdateServer struct {
 	Tagged            []entity.Tag
 	Untagged          []entity.Tag
 	ConnectedSwitches []SwitchInfo
-	HardwareTemplate
+	HardwareData
 }
 
 func (obj *UpdateServer) New(ServerId string) (err error) {
 	if err = obj.makeServer(ServerId); nil != err {
 		return
 	}
+	// Note
+	err = obj.initClusterId()
 	if err = obj.initDCs(); nil != err {
 		return
 	}
@@ -124,8 +132,7 @@ func (obj *UpdateServer) New(ServerId string) (err error) {
 	if err = obj.initSwitchArr(); nil != err {
 		return err
 	}
-
-	return obj.HardwareTemplate.New()
+	return obj.HardwareData.New()
 }
 
 func (obj *UpdateServer) NewByIpServer(ip string) (err error) {
@@ -161,7 +168,7 @@ func (obj *UpdateServer) makeServer(Id string) error {
 		var redfishIpAddrs []entity.IpAddress
 		redfishIpAddrs, err = server.ServerIpRepo{}.FetchRedfishIp(obj.Server.Id)
 		if len(redfishIpAddrs) > 0 {
-			obj.Server.RedfishIp = redfishIpAddrs[0].String()
+			obj.Server.RedfishIp = redfishIpAddrs[0]
 		}
 	}
 
@@ -179,9 +186,6 @@ func (obj UpdateServer) scanServer(content interface{}, row *sql.Rows) (interfac
 		&server.UStart.Description,
 		&server.UEnd.Id,
 		&server.UEnd.Description,
-		&server.SSD,
-		&server.HDD,
-		&server.Maker,
 		&server.PortType.Id,
 		&server.PortType.Description,
 		&server.SerialNumber,
@@ -190,6 +194,20 @@ func (obj UpdateServer) scanServer(content interface{}, row *sql.Rows) (interfac
 	)
 
 	return server, err
+}
+
+func (obj *UpdateServer) initClusterId() error {
+	cluster, err := hardware_repo.ClusterRepo{}.FetchClusterByServerId(obj.Server.Id)
+	if nil != err {
+		return err
+	}
+
+	if nil == cluster {
+		return errors.New("Not found cluster")
+	}
+
+	obj.ClusterId = cluster.Id
+	return nil
 }
 
 func (obj *UpdateServer) setServerIpAddresses() (err error) {
@@ -220,9 +238,6 @@ func (obj *UpdateServer) makeFetchServerComp() database.QueryComponent {
 			"USTART.DESCRIPTION",
 			"UEND.ID",
 			"UEND.DESCRIPTION",
-			"S.SSD",
-			"S.HDD",
-			"S.MAKER",
 			"PT.ID",
 			"PT.DESCRIPTION",
 			"S.SERIAL_NUMBER",

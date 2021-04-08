@@ -24,3 +24,19 @@ func (repo ServerStatusRepo) Fetch(comp qcomp,
 
 	return states, nil
 }
+
+func (ServerState ServerStatusRepo) FetchAll() ([]entity.ServerStatus, error) {
+	comp := qcomp{
+		Tables: []string {"SERVER_STATUS"},
+		Columns: []string {"ID", "DESCRIPTION"},
+	}
+
+	scan := func(obj interface{}, row *sql.Rows) (interface{}, error) {
+		center := obj.(entity.ServerStatus)
+		err := row.Scan(&center.Id, &center.Description)
+		return center, err
+	}
+
+	return ServerState.Fetch(comp, scan)
+}
+

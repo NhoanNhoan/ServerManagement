@@ -3,7 +3,10 @@ package page
 import (
 	"CURD/database"
 	"CURD/entity"
+	"CURD/entity/server/hardware"
 	"CURD/repo/server"
+	"CURD/repo/server/hardware_repo"
+	"errors"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -87,6 +90,7 @@ func (p parser) tag_splice() []entity.Tag {
 }
 
 func (p parser) tag_splice_init(titles []string) (tags []entity.Tag) {
+	tags = make([]entity.Tag, len(titles))
 	for i := range titles {
 		tags[i].Title = titles[i]
 		tags[i].TagId, _ = server.TagRepo{}.IdOf(titles[i])
@@ -95,10 +99,18 @@ func (p parser) tag_splice_init(titles []string) (tags []entity.Tag) {
 }
 
 type ExecuteModify struct {
-	entity.Server
 	Msg           string
+	entity.Server
 	SwitchConnArr []entity.SwitchConnection
 	Tags          []entity.Tag
+	hardware.HardwareConfig
+	HardwareCpuItems  []hardware.HardwareCpu
+	HardwareRamItems  []hardware.HardwareRam
+	HardwareDiskItems []hardware.HardwareDisk
+	HardwareNicItems  []hardware.HardwareNic
+	HardwareRaidItems []hardware.HardwareRaid
+	HardwarePsuItems  []hardware.HardwarePsu
+	HardwareMntItems  []hardware.HardwareManagement
 }
 
 type execute = func() error
@@ -115,6 +127,15 @@ func (obj *ExecuteModify) New(c *gin.Context) {
 	obj.Server.ServerStatus = p.server_state()
 	obj.Server.IpAddrs = p.list_ip()
 	obj.Tags = p.tag_splice()
+
+	hwParser := HardwareParser{c}
+	obj.HardwareCpuItems = hwParser.HardwareCPUArray()
+	obj.HardwareRamItems = hwParser.HardwareRAMArray()
+	obj.HardwareDiskItems = hwParser.HardwareDiskArray()
+	obj.HardwareNicItems = hwParser.HardwareNicArray()
+	obj.HardwareRaidItems = hwParser.HardwareRaidArray()
+	obj.HardwarePsuItems = hwParser.HardwarePsuArray()
+	obj.HardwareMntItems = hwParser.HardwareMntArray()
 }
 
 func (obj ExecuteModify) Execute() error {
@@ -123,6 +144,7 @@ func (obj ExecuteModify) Execute() error {
 		obj.executeListIpServer,
 		obj.executeTag,
 		obj.executeSwitchConnection,
+		obj.executeHardwareComponents,
 	})
 }
 
@@ -168,6 +190,113 @@ func (obj ExecuteModify) executeSwitchConnection() error {
 	}
 
 	return err
+}
+
+func (obj ExecuteModify) executeHardwareComponents() error {
+	hwConfig, err := hardware_repo.HardwareConfigRepo{}.FetchByServerId(obj.Server.Id)
+	if nil != err {
+		return err
+	}
+
+	if nil == hwConfig {
+		return errors.New("Not found hardware configuration of the server")
+	}
+
+	if err = obj.executeHardwareCPUs(hwConfig.Id); nil != err {
+		return err
+	}
+
+	if err = obj.executeHardwareRams(hwConfig.Id); nil != err {
+		return err
+	}
+
+	if err = obj.executeHardwareDisks(hwConfig.Id); nil != err {
+		return err
+	}
+
+	if err = obj.executeHardwareNics(hwConfig.Id); nil != err {
+		return err
+	}
+
+	if err = obj.executeHardwareRaids(hwConfig.Id); nil != err {
+		return err
+	}
+
+	if err = obj.executeHardwarePsus(hwConfig.Id); nil != err {
+		return err
+	}
+
+	return obj.executeHardwareMnts(hwConfig.Id)
+}
+
+func (obj ExecuteModify) executeHardwareCPUs(HardwareId string) (err error) {
+	cpuRepo := hardware_repo.HardwareCPURepo{}
+
+	if err = cpuRepo.Delete(HardwareId); nil != err {
+		return err
+	}
+
+	return cpuRepo.Insert(HardwareId, obj.HardwareCpuItems...)
+}
+
+func (obj ExecuteModify) executeHardwareRams(HardwareId string) (err error) {
+	RamRepo := hardware_repo.HardwareRamRepo{}
+
+	if err = RamRepo.Delete(HardwareId); nil != err {
+		return err
+	}
+
+	return RamRepo.Insert(HardwareId, obj.HardwareRamItems...)
+}
+
+func (obj ExecuteModify) executeHardwareDisks(HardwareId string) (err error) {
+	DiskRepo := hardware_repo.HardwareDiskRepo{}
+
+	if err = DiskRepo.Delete(HardwareId); nil != err {
+		return err
+	}
+
+	return DiskRepo.Insert(HardwareId, obj.HardwareDiskItems...)
+}
+
+func (obj ExecuteModify) executeHardwareNics(HardwareId string) (err error) {
+	NicRepo := hardware_repo.HardwareNicRepo{}
+
+	if err = NicRepo.Delete(HardwareId); nil != err {
+		return err
+	}
+
+	return NicRepo.Insert(HardwareId, obj.HardwareNicItems...)
+}
+
+func (obj ExecuteModify) executeHardwareRaids(HardwareId string) (err error) {
+	RaidRepo := hardware_repo.HardwareRaidRepo{}
+
+	if err = RaidRepo.Delete(HardwareId); nil != err {
+		return err
+	}
+
+	return RaidRepo.Insert(HardwareId, obj.HardwareRaidItems...)
+}
+
+func (obj ExecuteModify) executeHardwarePsus(HardwareId string) (err error) {
+	PsuRepo := hardware_repo.HardwarePsuRepo{}
+
+	if err = PsuRepo.Delete(HardwareId); nil != err {
+		return err
+	}
+
+	return PsuRepo.Insert(HardwareId, obj.HardwarePsuItems...)
+}
+
+func (obj ExecuteModify) executeHardwareMnts(HardwareId string) (err error) {
+	MntRepo := hardware_repo.HardwareManagementRepo{}
+
+	if err = MntRepo.Delete(HardwareId); nil != err {
+		return err
+	}
+
+	return MntRepo.Insert(HardwareId, obj.HardwareMntItems...)
 }
 
 //
