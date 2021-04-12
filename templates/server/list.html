@@ -130,7 +130,7 @@
 
           <div class="col-xl-9 col-lg-12 col-md-6 col-sm-12 col-12">
           <div class="card">
-              <h3 class="card-header">Servers: {{ len .Items }}</h3>
+              <h3 class="card-header" id="txtNumServers">Servers: {{ len .Items }}</h3>
               <div class="card-body p-0">
                   <div class="table-responsive" id="page">
                       <table class="table">
@@ -141,8 +141,10 @@
                                   <th class="border-0">U</th>
                                   <th class="border-0">IP</th>
                                   <th class="border-0">iDrac/iLo</th>
+                                  <th class="border-0">Server Function</th>
                                   <th class="border-0">Status</th>
                                   <th class="border-0">Serve</th>
+                                  <th></th>
                                   <th></th>
                               </tr>
                           </thead>
@@ -185,6 +187,35 @@
 </html>
 
 <script type="text/javascript">
+    // Ajax
+    const send_request = function(e, server_id, path) {
+        const xhttp = new XMLHttpRequest() || ActiveXObject();
+
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                alert (this.responseText)
+                remove_server(server_id)
+                reorder()
+                loadList()
+                document.getElementById("txtNumServers").innerText = "Servers: " + listServer.length
+            }
+        }
+
+        xhttp.open('GET', path, true);
+        xhttp.send();
+    }
+
+    const remove_server = function(id) {
+        listServer = listServer.filter(server => server.id != id)
+    }
+
+    const reorder = function() {
+        for (var i = 0; i < listServer.length; i++) {
+            listServer[i].order = i
+        }
+    }
+    // End of Ajax
+
     let listServer = []
     const numberPerPage = 15
     let curStart = 0
@@ -192,7 +223,7 @@
     let curPage = 1
 
     class Server {
-        constructor(order, id, dc, rack, ustart, uend, ip, redfish_ip, status, serve_state) {
+        constructor(order, id, dc, rack, ustart, uend, ip, redfish_ip, cluster, status, serve_state) {
             this.order = order
             this.id = id
             this.dc = dc
@@ -201,12 +232,14 @@
             this.uend = uend
             this.ip = ip
             this.redfish_ip = redfish_ip
+            this.function = cluster
             this.status = status
             this.serve_state = serve_state
         }
     }
 
     function makeListServer() {
+        {{ $cluster := .ClusterServers }}
         {{ range $i, $server := .Items }}
             listServer.push(new Server(
                 "{{ $i }}",
@@ -223,6 +256,7 @@
                 "{{ $ip.Octet1 }}.{{ $ip.Octet2 }}.{{ $ip.Octet3 }}.{{ $ip.Octet4 }}"
                 {{ end }},
                 "{{ $server.RedfishIp }}",
+                "{{ index $cluster $i }}",
                 "{{ .ServerStatus.Description }}",
                 "{{ .ServeCustomer.Description }}"))
         {{ end }}
@@ -298,6 +332,9 @@
         let tdRedfishIp = create("td")
         tdRedfishIp.innerText = server.redfish_ip
 
+        let tdServerFunction = create("td")
+        tdServerFunction.innerText = server.function
+
         let tdStatus = create("td")
         tdStatus.innerText = server.status
 
@@ -306,14 +343,18 @@
 
         let tdMore = createTdMore(server)
 
+        let tdDelete = createTdDelete(server)
+
         tr.appendChild(tdOrder)
         tr.appendChild(tdRack)
         tr.appendChild(tdU)
         tr.appendChild(tdIp)
         tr.appendChild(tdRedfishIp)
+        tr.appendChild(tdServerFunction)
         tr.appendChild(tdStatus)
         tr.appendChild(tdServe)
         tr.appendChild(tdMore)
+        tr.appendChild(tdDelete)
 
         return tr
     }
@@ -342,6 +383,26 @@
         tdMore.appendChild(frm)
 
         return tdMore
+    }
+
+    function createTdDelete(server) {
+        let tdDelete = document.createElement("td")
+
+        let input = document.createElement("input")
+        input.setAttribute("type", "hidden")
+        input.setAttribute("name", "txtServerId")
+        input.setAttribute("value", server.id)
+
+        let a = document.createElement("a")
+        a.setAttribute("onclick", "send_request(this, '" + server.id + "',  '/server/delete?txtServerId=" + server.id + "')")
+        a.innerText = "Delete"
+        a.style.cursor = "pointer"
+        a.style.color = "#0000ff"
+
+        tdDelete.appendChild(input)
+        tdDelete.appendChild(a)
+
+        return tdDelete
     }
 
     function check() {

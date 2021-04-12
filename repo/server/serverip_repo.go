@@ -134,9 +134,9 @@ func (repo ServerIpRepo) Delete(serverId string, listIp ... entity.IpAddress) er
 	}
 
 	for _, ip := range listIp {
-		comp.SelectionArgs = []string {serverId,
-			ip.Octet1, ip.Octet2,
-			ip.Octet3, ip.Octet4, string(ip.Netmask)}
+		comp.SelectionArgs = []string {
+			serverId, ip.Octet1, ip.Octet2,
+			ip.Octet3, ip.Octet4, strconv.Itoa(ip.Netmask)}
 		if err := repo.SqliteRepo.Delete(comp); nil != err {
 			return err
 		}

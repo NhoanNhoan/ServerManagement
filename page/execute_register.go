@@ -200,7 +200,7 @@ func ParseServerIpAddrs(c *gin.Context) ([]entity.IpAddress, error) {
 
 	for i := range listIp {
 		values := strings.Split(rawIp[i], ".")
-		if len(values) < 4 {
+		if len(values) != 4 {
 			return nil, errors.New(rawIp[i] + " is not like format")
 		}
 

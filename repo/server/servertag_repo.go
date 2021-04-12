@@ -31,11 +31,11 @@ func (repo ServerTagRepo)  makeValues(ServerId string, tags ...entity.Tag) [][]s
 	return values
 }
 
-func (repo ServerTagRepo) Delte(comp dcomp) error {
+func (repo ServerTagRepo) Delete(comp dcomp) error {
 	return repo.SqliteRepo.Delete(comp)
 }
 
-func (repo ServerTagRepo) MakeDelteComp(ServerId string) dcomp {
+func (repo ServerTagRepo) MakeDeleteComp(ServerId string) dcomp {
 	return dcomp{
 		Table: "SERVER_TAG",
 		Selection: "SERVERID = ?",

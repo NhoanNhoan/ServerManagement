@@ -135,7 +135,6 @@
                     <label for="txtRack">Rack</label>
                     <input class="form-control input-lg"
                            type="text"
-                           placeholder="number of disks"
                            id="txtRack"
                            name="txtRack"
                            value="{{.Server.Rack.Description}}"/>
@@ -145,7 +144,6 @@
                     <label for="txtUStart">U Start</label>
                     <input class="form-control input-lg"
                            type="text"
-                           placeholder="number of disks"
                            id="txtUStart"
                            name="txtUStart"
                            value="{{.Server.UStart.Description}}"/>
@@ -155,7 +153,6 @@
                     <label for="txtUEnd">U End</label>
                     <input class="form-control input-lg"
                            type="text"
-                           placeholder="number of disks"
                            id="txtUEnd"
                            name="txtUEnd"
                            value="{{.Server.UEnd.Description}}"/>
@@ -178,6 +175,16 @@
                         {{ end }}
                       </select>
                   </div>
+
+                  <div class="form-group">
+                    <label for="exampleFormControlSelect1">Status</label>
+                    <select class="form-control" id="exampleFormControlSelect1" name="cbServeCus">
+                      {{ range $state := .ServeCus }}
+                      <option id="{{$state.Id}}" value="{{$state.Id}}">{{$state.Description}}</option>
+                      {{ end }}
+                    </select>
+                  </div>
+
                   <div id="switchArea">
                   {{ $switchArr := .SwitchArr }}
                   {{ $cables := .Cables }}
@@ -295,16 +302,16 @@
                     <label for="exampleFormControlSelect1">Untagged</label>
                       <div class='form-horizontal well'>
                         <div class='control-group'>
-                          <div class='input-select-tag'>
+                          <div >
                             <div class='selected-tags' 
                                 id='untaggedarea'>
                               {{ range .Untagged }}
-                                <span 
+                                <span
                                     class='alert button alert-info'
                                     onclick='move_tag(this, "untaggedarea", "taggedarea")'>
                                     {{ .Title }}
-                                </span> 
-                                {{ end }}
+                                </span>
+                              {{ end }}
                             </div> 
                             <div class='clear'></div>
                           </div>
@@ -318,7 +325,7 @@
                     <input class="form-control input-lg"
                            type="text"
                            name="txtRedfishIp"
-                          value="{{ .Server.RedfishIp }}"/>
+                          value="{{ .Server.RedfishIp }}/{{ .Server.RedfishIp.Netmask }}"/>
                   </div>
 
                   <div class="form-group" id="ipArea">
@@ -327,7 +334,7 @@
                     <div class="form-group">
                       <input class="form-control input-lg"
                              type="text"
-                              value="{{.Octet1}}.{{.Octet2}}.{{.Octet3}}.{{.Octet4}}"/>
+                              value="{{.Octet1}}.{{.Octet2}}.{{.Octet3}}.{{.Octet4}}/{{.Netmask}}"/>
                     </div>
                     {{ end }}
                   </div>
@@ -862,7 +869,7 @@
       }
 
       function collect_ip() {
-        let divs= document.getElementById("ipArea").getElementsByTagName("div")
+        let divs = document.getElementById("ipArea").getElementsByTagName("div")
         for (i = 0; i < divs.length; i++) {
           let inputs = divs[i].getElementsByTagName("input")
           for (j = 0; j < inputs.length; j++) {

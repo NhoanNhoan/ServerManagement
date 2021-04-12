@@ -98,7 +98,7 @@ func (repo HardwareConfigRepo) GenerateId() string {
 	for repo.IsExists(Id) {
 		Id = database.GeneratePrimaryKey(true,
 			true, true,
-			false, "R", 6)
+			false, "HW", 6)
 	}
 
 	return Id
@@ -120,4 +120,39 @@ func (repo HardwareConfigRepo) IsExists(Id string) bool {
 	defer row.Close()
 
 	return row.Next()
+}
+
+func (repo HardwareConfigRepo) FetchConfigId(ServerId string) (string, error) {
+	comp := qcomp {
+		Tables: []string {"SERVER AS S", "HARDWARE_CONFIG AS H"},
+		Columns: []string {"H.ID"},
+		Selection: "S.HARDWARE_CONFIG_ID = ?",
+		SelectionArgs: []string {ServerId},
+	}
+
+	scan := func (obj interface{}, row *sql.Rows) (interface{}, error) {
+		hw := obj.(hardware.HardwareConfig)
+		err := row.Scan(&hw.Id)
+		return hw, err
+	}
+
+	hws, err := repo.Fetch(comp, scan)
+	if nil != err || len(hws) == 0 {return "", err}
+	return hws[0].Id, err
+}
+
+func (repo HardwareConfigRepo) FetchClusterServer(ServerId string) (string, error) {
+	comp := qcomp {
+		Tables: []string {"SERVER AS S", "HARDWARE_CONFIG AS H", "CLUSTER_SERVER AS C"},
+		Columns: []string {"C.NAME"},
+		Selection: "S.ID = ? AND S.HARDWARE_CONFIG_ID = H.ID AND H.CLUSTER_SERVER_ID = C.ID",
+		SelectionArgs: []string {ServerId},
+	}
+
+	row, err := database.Query(comp)
+	if nil != err {return "", err}
+	defer row.Close()
+	clusterName := ""
+	if row.Next(){err = row.Scan(&clusterName)}
+	return clusterName, err
 }

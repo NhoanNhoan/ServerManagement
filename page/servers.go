@@ -4,12 +4,14 @@ import (
 	"CURD/database"
 	"CURD/entity"
 	"CURD/repo/server"
+	"CURD/repo/server/hardware_repo"
 	"database/sql"
 	"strings"
 )
 
 type Servers struct {
 	entity.DataCenter
+	ClusterServers []string
 	Items []entity.Server
 	Tags []entity.Tag
 }
@@ -46,6 +48,17 @@ func (s Servers) makeQueryServersComp(DCId string) database.QueryComponent {
 	}
 }
 
+func (s *Servers) initClusterServers() (err error) {
+	s.ClusterServers = make([]string, len(s.Items))
+	repo := hardware_repo.HardwareConfigRepo{}
+	for i := range s.Items {
+		s.ClusterServers[i], err = repo.FetchClusterServer(s.Items[i].Id)
+		if nil != err {return}
+	}
+
+	return
+}
+
 func (s *Servers) FetchServerByTagId(tagId string) error {
 	comp := s.makeQueryCompByTagId(tagId, s.DataCenter.Id)
 	return s.fetchServers(comp)
@@ -67,7 +80,7 @@ func (s Servers) makeQueryCompByTagId(tagId string, dcId string) database.QueryC
 							"PORT_TYPE.Description",
 							"SERVER.SERIAL_NUMBER",
 							"SERVER_STATUS.Description",
-							"SERVER.REDFISH_IP"},
+			},
 			Selection: "SERVER.ID_DC = ? AND " +
 					"SERVER.ID_RACK = RACK.ID AND " + 
 					"SERVER.ID_U_START = USTART.ID AND " + 
@@ -112,7 +125,7 @@ func (s *Servers) fetchServers(comp database.QueryComponent) error {
 		err = s.initTags()
 	}
 
-	return err
+	return s.initClusterServers()
 }
 
 func (s *Servers) FetchServerIpsItems() (err error) {

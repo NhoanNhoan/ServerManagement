@@ -85,6 +85,7 @@ type UpdateServer struct {
 	RackUnits         []entity.RackUnit
 	PortTypes         []entity.PortType
 	ServerStates      []entity.ServerStatus
+	ServeCus		  []entity.ServeCustomer
 	SwitchArr         []entity.Switch
 	Cables            []entity.CableType
 	Tagged            []entity.Tag
@@ -132,6 +133,8 @@ func (obj *UpdateServer) New(ServerId string) (err error) {
 	if err = obj.initSwitchArr(); nil != err {
 		return err
 	}
+
+	obj.ServeCus, err = server.ServeCustomerRepo{}.FetchAll()
 	return obj.HardwareData.New()
 }
 

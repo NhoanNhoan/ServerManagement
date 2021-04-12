@@ -269,19 +269,17 @@ func (s ServerRepo) Update(servers... interface{}) error {
 		server := obj.(entity.Server)
 		if err := database.Update(ucomp{
 					Table: "SERVER",
-					SetClause: strings.Join(
-						[]string {
-							"ID_DC = ?",
-							"ID_RACK = ?",
-							"ID_U_START = ?",
-							"ID_U_END = ?",
-							"SSD = ?",
-							"HDD = ?",
-							"ID_PORT_TYPE = ?",
-							"SERIAL_NUMBER = ?",
-							"ID_SERVER_STATUS = ?",
+					SetClause:
+							"ID_DC = ?," +
+							"ID_RACK = ?," +
+							"ID_U_START = ?," +
+							"ID_U_END = ?," +
+							"SSD = ?," +
+							"HDD = ?," +
+							"ID_PORT_TYPE = ?," +
+							"SERIAL_NUMBER = ?," +
+							"ID_SERVER_STATUS = ?," +
 							"ID_SERVE = ?",
-						}, " AND "),
 					Values: []string {
 							server.DC.Id,
 							server.Rack.Id,

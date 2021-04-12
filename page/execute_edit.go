@@ -7,6 +7,8 @@ import (
 	"CURD/repo/server"
 	"CURD/repo/server/hardware_repo"
 	"errors"
+	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -39,21 +41,45 @@ func (p parser) dc() entity.DataCenter {
 }
 
 func (p parser) rack() entity.Rack {
-	return entity.Rack{
-		Description: p.parse("txtRack"),
+	rack := entity.Rack{Description: p.c.PostForm("txtRack")}
+	rackRepo := server.RackRepo{}
+
+	if !rack.IsExistsRackDescription() {
+		rack.Id = rackRepo.GenerateId()
+		rackRepo.Insert(rack)
+	} else {
+		rack.Id = rackRepo.FetchId(rack.Description)
 	}
+
+	return rack
 }
 
 func (p parser) u_start() entity.RackUnit {
-	return entity.RackUnit{
-		Description: p.parse("txtUStart"),
+	rackUnit := entity.RackUnit{Description: p.c.PostForm("txtUStart")}
+	rackUnitRepo := server.RackUnitRepo{}
+
+	if !rackUnit.IsExistsRackUnitDescription() {
+		rackUnit.Id = rackUnitRepo.GenerateId()
+		rackUnitRepo.Insert(rackUnit)
+	} else {
+		rackUnit.Id = rackUnitRepo.FetchId(rackUnit.Description)
 	}
+
+	return rackUnit
 }
 
 func (p parser) uend() entity.RackUnit {
-	return entity.RackUnit{
-		Description: p.parse("txtUEnd"),
+	rackUnit := entity.RackUnit{Description: p.c.PostForm("txtUEnd")}
+	rackUnitRepo := server.RackUnitRepo{}
+
+	if !rackUnit.IsExistsRackUnitDescription() {
+		rackUnit.Id = rackUnitRepo.GenerateId()
+		rackUnitRepo.Insert(rackUnit)
+	} else {
+		rackUnit.Id = rackUnitRepo.FetchId(rackUnit.Description)
 	}
+
+	return rackUnit
 }
 
 func (p parser) port_type() entity.PortType {
@@ -68,20 +94,86 @@ func (p parser) server_state() entity.ServerStatus {
 	}
 }
 
-func (p parser) list_ip() []entity.IpAddress {
-	raw := p.parse("txtAllIp")
-	values := strings.Split(raw, ",")
-	return p.list_ip_by(values)
+func (p parser) serve() entity.ServeCustomer {
+	return entity.ServeCustomer{
+		Id: p.parse("cbServeCus"),
+	}
 }
 
-func (p parser) list_ip_by(values []string) (list []entity.IpAddress) {
-	for i := range values {
-		ip := entity.IpAddress{}
-		if ip.Parse(values[i]) {
-			list = append(list, ip)
+func (p parser) list_ip() ([]entity.IpAddress, error) {
+	rawContent := p.parse("txtAllIp")
+	if "" == rawContent {
+		return nil, nil
+	}
+
+	rawIp := strings.Split(rawContent, ", ")
+	listIp := make([]entity.IpAddress, len(rawIp))
+
+	for i := range listIp {
+		values := strings.Split(rawIp[i], ".")
+		if len(values) < 4 {
+			return nil, errors.New(rawIp[i] + " is not like format")
+		}
+
+		numbers := strings.Split(values[3], "/")
+		if len(numbers) < 2 {
+			continue
+		}
+
+		var netmask int
+		var err error
+		if netmask, err = strconv.Atoi(numbers[1]); nil != err {
+			return nil, err
+		}
+
+		listIp[i] = entity.IpAddress{
+			Octet1: values[0],
+			Octet2: values[1],
+			Octet3: values[2],
+			Octet4: numbers[0],
+			Netmask: netmask,
 		}
 	}
-	return
+
+	return listIp, nil
+}
+
+func (p parser) redfish_ip() (entity.IpAddress, error) {
+	rawContent := p.parse("txtRedfishIp")
+	if "" == rawContent {
+		return entity.IpAddress{}, nil
+	}
+
+	rawIp := strings.Split(rawContent, ", ")
+	listIp := make([]entity.IpAddress, len(rawIp))
+
+	for i := range listIp {
+		values := strings.Split(rawIp[i], ".")
+		if len(values) < 4 {
+			return entity.IpAddress{}, errors.New(rawIp[i] + " is not like format")
+		}
+
+		numbers := strings.Split(values[3], "/")
+		if len(numbers) < 2 {
+			continue
+		}
+
+		var netmask int
+		var err error
+		if netmask, err = strconv.Atoi(numbers[1]); nil != err {
+			return entity.IpAddress{}, err
+		}
+
+		listIp[i] = entity.IpAddress{
+			Octet1: values[0],
+			Octet2: values[1],
+			Octet3: values[2],
+			Octet4: numbers[0],
+			Netmask: netmask,
+		}
+	}
+
+	return listIp[0], nil
 }
 
 func (p parser) tag_splice() []entity.Tag {
@@ -115,7 +207,7 @@ type ExecuteModify struct {
 
 type execute = func() error
 
-func (obj *ExecuteModify) New(c *gin.Context) {
+func (obj *ExecuteModify) New(c *gin.Context) (err error) {
 	p := parser{c}
 
 	obj.Server = p.server()
@@ -125,7 +217,10 @@ func (obj *ExecuteModify) New(c *gin.Context) {
 	obj.Server.UEnd = p.uend()
 	obj.Server.PortType = p.port_type()
 	obj.Server.ServerStatus = p.server_state()
-	obj.Server.IpAddrs = p.list_ip()
+	obj.Server.ServeCustomer = p.serve()
+	obj.Server.IpAddrs, err = p.list_ip()
+	if nil != err {return}
+	obj.Server.RedfishIp, err = p.redfish_ip()
 	obj.Tags = p.tag_splice()
 
 	hwParser := HardwareParser{c}
@@ -136,6 +231,8 @@ func (obj *ExecuteModify) New(c *gin.Context) {
 	obj.HardwareRaidItems = hwParser.HardwareRaidArray()
 	obj.HardwarePsuItems = hwParser.HardwarePsuArray()
 	obj.HardwareMntItems = hwParser.HardwareMntArray()
+
+	return
 }
 
 func (obj ExecuteModify) Execute() error {
@@ -145,32 +242,47 @@ func (obj ExecuteModify) Execute() error {
 		obj.executeTag,
 		obj.executeSwitchConnection,
 		obj.executeHardwareComponents,
+		obj.executeRedfishIp,
 	})
 }
 
 func (obj ExecuteModify) executes(methods []execute) (err error) {
-	for i := 0; i < len(methods) && nil != err; i++ {
+	for i := 0; i < len(methods) && nil == err; i++ {
 		err = methods[i]()
 	}
 	return err
 }
 
 func (obj ExecuteModify) updateServer() error {
+	fmt.Println ("Server Id: ", obj.Server.Id)
 	return server.ServerRepo{}.Update(obj.Server)
 }
 
 func (obj ExecuteModify) executeListIpServer() (err error) {
+	if len(obj.IpAddrs) == 0 {
+		return
+	}
+
 	r := server.ServerIpRepo{}
 	err = r.Delete(obj.Server.Id, obj.Server.IpAddrs...)
 	if nil == err {
-		err = r.Insert(r.MakeIcomp(obj.Server.Id, obj.Server.IpAddrs...))
+		err = r.InsertNormalIpAddresses(obj.Server.Id, obj.Server.IpAddrs...)
 	}
 	return
 }
 
+func (obj ExecuteModify) executeRedfishIp() error {
+	ipRepo := server.ServerIpRepo{}
+	if err := ipRepo.Delete(obj.Server.Id, obj.Server.RedfishIp); nil != err {return err}
+	if err := ipRepo.InsertRedfishIpAddresses(obj.Server.Id, obj.Server.RedfishIp); nil != err {
+		return err
+	}
+	return nil
+}
+
 func (obj ExecuteModify) executeTag() (err error) {
 	r := server.ServerTagRepo{}
-	err = r.Delete(r.MakeDelteComp(obj.Server.Id))
+	err = r.Delete(r.MakeDeleteComp(obj.Server.Id))
 	if nil == err {
 		err = r.Insert(obj.Server.Id, obj.Tags...)
 	}
@@ -192,41 +304,45 @@ func (obj ExecuteModify) executeSwitchConnection() error {
 	return err
 }
 
-func (obj ExecuteModify) executeHardwareComponents() error {
-	hwConfig, err := hardware_repo.HardwareConfigRepo{}.FetchByServerId(obj.Server.Id)
-	if nil != err {
-		return err
-	}
+func (obj *ExecuteModify) executeHardwareComponents() error {
+	repo := hardware_repo.HardwareConfigRepo{}
+	hwConfig, err := repo.FetchByServerId(obj.Server.Id)
+	if nil != err {return err}
 
 	if nil == hwConfig {
-		return errors.New("Not found hardware configuration of the server")
+		serverRepo := server.ServerRepo{}
+		obj.HardwareConfig.Id = repo.GenerateId()
+		if err = serverRepo.UpdateHardwareConfig(obj.Server.Id, obj.HardwareConfig.Id); nil != err {
+			return err
+		}
+		repo.Insert(obj.HardwareConfig)
 	}
 
-	if err = obj.executeHardwareCPUs(hwConfig.Id); nil != err {
+	if err = obj.executeHardwareCPUs(obj.HardwareConfig.Id); nil != err {
 		return err
 	}
 
-	if err = obj.executeHardwareRams(hwConfig.Id); nil != err {
+	if err = obj.executeHardwareRams(obj.HardwareConfig.Id); nil != err {
 		return err
 	}
 
-	if err = obj.executeHardwareDisks(hwConfig.Id); nil != err {
+	if err = obj.executeHardwareDisks(obj.HardwareConfig.Id); nil != err {
 		return err
 	}
 
-	if err = obj.executeHardwareNics(hwConfig.Id); nil != err {
+	if err = obj.executeHardwareNics(obj.HardwareConfig.Id); nil != err {
 		return err
 	}
 
-	if err = obj.executeHardwareRaids(hwConfig.Id); nil != err {
+	if err = obj.executeHardwareRaids(obj.HardwareConfig.Id); nil != err {
 		return err
 	}
 
-	if err = obj.executeHardwarePsus(hwConfig.Id); nil != err {
+	if err = obj.executeHardwarePsus(obj.HardwareConfig.Id); nil != err {
 		return err
 	}
 
-	return obj.executeHardwareMnts(hwConfig.Id)
+	return obj.executeHardwareMnts(obj.HardwareConfig.Id)
 }
 
 func (obj ExecuteModify) executeHardwareCPUs(HardwareId string) (err error) {
@@ -234,6 +350,10 @@ func (obj ExecuteModify) executeHardwareCPUs(HardwareId string) (err error) {
 
 	if err = cpuRepo.Delete(HardwareId); nil != err {
 		return err
+	}
+
+	for i := range obj.HardwareCpuItems {
+		obj.HardwareCpuItems[i].HardwareId = HardwareId
 	}
 
 	return cpuRepo.Insert(HardwareId, obj.HardwareCpuItems...)
@@ -246,6 +366,11 @@ func (obj ExecuteModify) executeHardwareRams(HardwareId string) (err error) {
 		return err
 	}
 
+	for i := range obj.HardwareRamItems {
+		obj.HardwareRamItems[i].HardwareId = HardwareId
+	}
+
+
 	return RamRepo.Insert(HardwareId, obj.HardwareRamItems...)
 }
 
@@ -256,6 +381,11 @@ func (obj ExecuteModify) executeHardwareDisks(HardwareId string) (err error) {
 		return err
 	}
 
+	for i := range obj.HardwareDiskItems {
+		obj.HardwareDiskItems[i].HardwareId = HardwareId
+	}
+
+
 	return DiskRepo.Insert(HardwareId, obj.HardwareDiskItems...)
 }
 
@@ -264,6 +394,10 @@ func (obj ExecuteModify) executeHardwareNics(HardwareId string) (err error) {
 
 	if err = NicRepo.Delete(HardwareId); nil != err {
 		return err
+	}
+
+	for i := range obj.HardwareNicItems {
+		obj.HardwareNicItems[i].HardwareId = HardwareId
 	}
 
 	return NicRepo.Insert(HardwareId, obj.HardwareNicItems...)
@@ -276,6 +410,10 @@ func (obj ExecuteModify) executeHardwareRaids(HardwareId string) (err error) {
 		return err
 	}
 
+	for i := range obj.HardwareRaidItems {
+		obj.HardwareRaidItems[i].HardwareId = HardwareId
+	}
+
 	return RaidRepo.Insert(HardwareId, obj.HardwareRaidItems...)
 }
 
@@ -286,6 +424,10 @@ func (obj ExecuteModify) executeHardwarePsus(HardwareId string) (err error) {
 		return err
 	}
 
+	for i := range obj.HardwarePsuItems {
+		obj.HardwarePsuItems[i].HardwareId = HardwareId
+	}
+
 	return PsuRepo.Insert(HardwareId, obj.HardwarePsuItems...)
 }
 
@@ -294,6 +436,10 @@ func (obj ExecuteModify) executeHardwareMnts(HardwareId string) (err error) {
 
 	if err = MntRepo.Delete(HardwareId); nil != err {
 		return err
+	}
+
+	for i := range obj.HardwareMntItems {
+		obj.HardwareMntItems[i].HardwareId = HardwareId
 	}
 
 	return MntRepo.Insert(HardwareId, obj.HardwareMntItems...)

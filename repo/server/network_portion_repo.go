@@ -64,7 +64,7 @@ func (repo NetworkPortionRepo) FetchHosts(portion entity.NetworkPortion) ([]enti
 func (repo NetworkPortionRepo) FetchHostsByState(portion entity.NetworkPortion,
 	state string) ([]entity.IpAddress, error) {
 	comp := qcomp {
-		Tables: []string {"NETWORK_PORTION AS N", "IP_ADDRESS AS I"},
+		Tables: []string {"IP_ADDRESS AS I"},
 		Columns: []string {"I.OCTET_1", "I.OCTET_2", "I.OCTET_3", "I.OCTET_4", "I.STATE"},
 		Selection: "I.NETWORK_PORTION_ID = ? AND i.STATE = ?",
 		SelectionArgs: []string {portion.Id, state},

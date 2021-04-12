@@ -40,6 +40,7 @@ func setupRouter() *gin.Engine {
 	HandleExecuteModify(r)
 	HandleRegisterServer(r)
 	HandleExecuteRegister(r)
+	HandleDeleteServer(r)
 	// End of server routing area
 
 	// Error routing area
@@ -148,7 +149,7 @@ func HandleFilter(router *gin.Engine) {
 }
 
 func HandleSearch(router *gin.Engine) {
-	router.POST("/search", func (c *gin.Context) {
+	router.POST("/server/search", func (c *gin.Context) {
 		CheckAuthen(c)
 		ip := c.PostForm("txtIp")
 
@@ -190,7 +191,7 @@ func HandleServers(r *gin.Engine) {
 			c.PostForm("txtName"),
 		}
 
-		server := page.Servers{DC, nil, nil}
+		server := page.Servers{DC, nil, nil, nil}
 		var err error
 
 		if "" != tagId {
@@ -222,13 +223,21 @@ func HandleServers(r *gin.Engine) {
 //}
 
 func HandleDeleteServer(r *gin.Engine) {
-	r.POST("/server/delete", func (c *gin.Context) {
+	r.GET("/server/delete", func (c *gin.Context) {
 		CheckAuthen(c)
 
-		deletionPage := page.ExecuteDeleteServer{}
-		msg := deletionPage.ExecuteDelete(c)
+		p := page.ExecuteDeleteServer{}
+		if err := p.New(c); nil != err {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
 
-		c.String(http.StatusOK, msg)
+		if err := p.Execute(c); nil != err {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
+
+		c.String(http.StatusOK, "Deleted")
 	})
 }
 
@@ -275,7 +284,9 @@ func HandleExecuteModify(r *gin.Engine) {
 		CheckAuthen(c)
 		// server := getServerFromPostForm(c)
 		var executeModify page.ExecuteModify
-		executeModify.New(c)
+		if err := executeModify.New(c); nil != err {
+			panic(err)
+		}
 		if err := executeModify.Execute(); nil != err {
 			panic (err)
 		}
