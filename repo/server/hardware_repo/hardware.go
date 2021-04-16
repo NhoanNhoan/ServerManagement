@@ -156,3 +156,25 @@ func (repo HardwareConfigRepo) FetchClusterServer(ServerId string) (string, erro
 	if row.Next(){err = row.Scan(&clusterName)}
 	return clusterName, err
 }
+
+func (repo HardwareConfigRepo) Delete(HwId string) error {
+	comp := dcomp {
+		Table: "HARDWARE_CONFIG",
+		Selection: "ID = ?",
+		SelectionArgs: []string {HwId},
+	}
+
+	return repo.SqliteRepo.Delete(comp)
+}
+
+func (repo HardwareConfigRepo) Update(HwConfig hardware.HardwareConfig) error {
+	comp := ucomp {
+		Table: "HARDWARE_CONFIG",
+		SetClause: "CHASSIS_ID = ?, CLUSTER_SERVER_ID = ?",
+		Values: []string {HwConfig.ChassisId, HwConfig.ClusterId},
+		Selection: "ID = ?",
+		SelectionArgs: []string {HwConfig.Id},
+	}
+
+	return repo.SqliteRepo.Update(comp)
+}

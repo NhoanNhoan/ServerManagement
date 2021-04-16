@@ -106,7 +106,7 @@ func (p parser) list_ip() ([]entity.IpAddress, error) {
 		return nil, nil
 	}
 
-	rawIp := strings.Split(rawContent, ", ")
+	rawIp := strings.Split(rawContent, ",")
 	listIp := make([]entity.IpAddress, len(rawIp))
 
 	for i := range listIp {
@@ -178,7 +178,7 @@ func (p parser) redfish_ip() (entity.IpAddress, error) {
 
 func (p parser) tag_splice() []entity.Tag {
 	raw := p.parse("txtAllTag")
-	return p.tag_splice_init(strings.Split(raw, ", "))
+	return p.tag_splice_init(strings.Split(raw, ","))
 }
 
 func (p parser) tag_splice_init(titles []string) (tags []entity.Tag) {
@@ -224,6 +224,7 @@ func (obj *ExecuteModify) New(c *gin.Context) (err error) {
 	obj.Tags = p.tag_splice()
 
 	hwParser := HardwareParser{c}
+	obj.HardwareConfig = hwParser.HardwareConfig()
 	obj.HardwareCpuItems = hwParser.HardwareCPUArray()
 	obj.HardwareRamItems = hwParser.HardwareRAMArray()
 	obj.HardwareDiskItems = hwParser.HardwareDiskArray()
@@ -281,8 +282,20 @@ func (obj ExecuteModify) executeRedfishIp() error {
 }
 
 func (obj ExecuteModify) executeTag() (err error) {
+	fmt.Println ("Tags: ", obj.Tags)
+	fmt.Println ("Length: ", len(obj.Tags))
 	r := server.ServerTagRepo{}
 	err = r.Delete(r.MakeDeleteComp(obj.Server.Id))
+
+	tagRepo := server.TagRepo{}
+	for i := range obj.Tags {
+		obj.Tags[i].TagId, err = tagRepo.IdOf(obj.Tags[i].Title)
+		if nil != err {
+			return err
+		}
+		fmt.Println ("Tags Id: ", obj.Tags[i].TagId)
+	}
+
 	if nil == err {
 		err = r.Insert(obj.Server.Id, obj.Tags...)
 	}
@@ -309,13 +322,19 @@ func (obj *ExecuteModify) executeHardwareComponents() error {
 	hwConfig, err := repo.FetchByServerId(obj.Server.Id)
 	if nil != err {return err}
 
+	serverRepo := server.ServerRepo{}
+
 	if nil == hwConfig {
-		serverRepo := server.ServerRepo{}
 		obj.HardwareConfig.Id = repo.GenerateId()
 		if err = serverRepo.UpdateHardwareConfig(obj.Server.Id, obj.HardwareConfig.Id); nil != err {
 			return err
 		}
 		repo.Insert(obj.HardwareConfig)
+	} else {
+		obj.HardwareConfig.Id = hwConfig.Id
+		if err = repo.Update(obj.HardwareConfig); nil != err {
+			return err
+		}
 	}
 
 	if err = obj.executeHardwareCPUs(obj.HardwareConfig.Id); nil != err {

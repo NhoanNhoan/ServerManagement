@@ -128,6 +128,7 @@
                                 <th class="border-0">U</th>
                                 <th class="border-0">IP</th>
                                 <th class="border-0">iDrac/iLo</th>
+                                <th class="border-0">Server Function</th>
                                 <th class="border-0">Status</th>
                                 <th class="border-0">Serve</th>
                                 <th></th>
@@ -167,6 +168,7 @@
     <script src="../templates/assets/js/plugins.js"></script>
     <script src="../templates/assets/js/main.js"></script>
     <script>
+
         let listServer = []
         const numberPerPage = 15
         let curStart = 0
@@ -174,7 +176,7 @@
         let curPage = 1
 
         class Server {
-            constructor(order, id, dc, rack, ustart, uend, ip, redfish, status) {
+            constructor(order, id, dc, rack, ustart, uend, ip, redfish, cluster, status, serve_customer) {
               this.order = order
               this.id = id
               this.dc = dc
@@ -183,11 +185,14 @@
               this.uend = uend
               this.ip = ip
               this.redfish = redfish
+              this.cluster = cluster
               this.status = status
+              this.serve_state = serve_customer
             }
         }
 
         function makeListServer() {
+           {{ $cluster := .ClusterServers }}
             {{ range $i, $server := .Servers }}
             listServer.push(new Server(
                     "{{ $i }}",
@@ -204,6 +209,7 @@
                     "{{ $ip.Octet1 }}.{{ $ip.Octet2 }}.{{ $ip.Octet3 }}.{{ $ip.Octet4 }}"
                     {{ end }},
                     "{{ $server.RedfishIp.Octet1 }}.{{ $server.RedfishIp.Octet2 }}.{{ $server.RedfishIp.Octet3 }}.{{ $server.RedfishIp.Octet4 }}",
+                    "{{ index $cluster $i }}",
                   "{{ .ServerStatus.Description }}",
                   "{{ .ServeCustomer.Description }}"))
           {{ end }}
@@ -280,7 +286,10 @@
           tdIp.innerText = server.ip
 
           let tdRedfishIp = create("td")
-          tdRedfishIp.innerText = server.redfish_ip
+          tdRedfishIp.innerText = server.redfish
+
+          let tdServerFunction = create("td")
+          tdServerFunction.innerText = server.cluster
 
           let tdStatus = create("td")
           tdStatus.innerText = server.status
@@ -296,6 +305,7 @@
           tr.appendChild(tdU)
           tr.appendChild(tdIp)
           tr.appendChild(tdRedfishIp)
+          tr.appendChild(tdServerFunction)
           tr.appendChild(tdStatus)
           tr.appendChild(tdServe)
           tr.appendChild(tdMore)

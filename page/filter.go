@@ -4,14 +4,24 @@ import (
 	"CURD/database"
 	"CURD/entity"
 	"CURD/repo/server"
+	"CURD/repo/server/hardware_repo"
 	"database/sql"
+	"fmt"
+	"log"
+	"os"
 	"strings"
+)
+
+var (
+	InfoLogger *log.Logger
 )
 
 type Filter struct {
 	entity.Tag
+	ClusterServers []string
 	Tags []entity.Tag
 	Servers []entity.Server
+	Stats FilterStats
 }
 
 func (f *Filter) New(tag entity.Tag) error {
@@ -21,7 +31,24 @@ func (f *Filter) New(tag entity.Tag) error {
 		panic (err)
 	}
 
-	return f.initializeTags()
+	if err = f.initializeTags(); nil != err {
+		return err
+	}
+	if err = f.initClusterServers(); nil != err {return err}
+
+	f.Stats.Gather(*f)
+	return nil
+}
+
+func (f *Filter) initClusterServers() (err error) {
+	f.ClusterServers = make([]string, len(f.Servers))
+	repo := hardware_repo.HardwareConfigRepo{}
+	for i := range f.Servers {
+		f.ClusterServers[i], err = repo.FetchClusterServer(f.Servers[i].Id)
+		if nil != err {return}
+	}
+
+	return
 }
 
 func (f *Filter) SetTag(tag entity.Tag) {
@@ -172,6 +199,8 @@ func (f *Filter) SearchServersByMultiTags(tags []string) (err error) {
 		}
 	}
 
+	if err = f.initClusterServers(); nil != err {return err}
+
 	return f.fetchAllIps()
 }
 
@@ -189,6 +218,7 @@ func (f *Filter) fetchAllIps() (err error) {
 			return err
 		}
 
+		fmt.Println ("Redfish IP: ", redfishIps)
 		if len(redfishIps) > 0 {
 			f.Servers[i].RedfishIp = redfishIps[0]
 		}
@@ -226,3 +256,32 @@ func (f *Filter) makeSelection(tags []string) string {
 
 	return "TAG.TITLE = ? AND SERVER_TAG.TAGID = TAG.TAGID AND SERVER.ID = SERVER_TAG.SERVERID intersect " + strings.Join(selections, " intersect ")
 }
+
+type FilterStats struct {
+	ServersDC8Count int
+	ServersDC9Count int
+	ServersHNICount int
+}
+
+func (f *FilterStats) Gather(filter Filter) {
+	file, err := os.OpenFile("logs.txt", os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0666)
+	if nil != err {
+		panic (err)
+	}
+
+	InfoLogger = log.New(file, "INFO: ", log.Ldate | log.Ltime | log.Lshortfile)
+
+	for i := range filter.Servers {
+		if filter.Servers[i].DC.Description == "HCM-DC8" {
+			f.ServersDC8Count++
+			InfoLogger.Println ("DC8 count: ", f.ServersDC8Count)
+		} else if filter.Servers[i].DC.Description == "HCM-DC9" {
+			f.ServersDC9Count++
+			InfoLogger.Println ("DC9 count: ", f.ServersDC9Count)
+		} else {
+			f.ServersHNICount++
+			InfoLogger.Println ("HNI count: ", f.ServersHNICount)
+		}
+	}
+}
+

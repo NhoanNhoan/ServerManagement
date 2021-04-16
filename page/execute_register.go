@@ -92,8 +92,10 @@ func (obj *ExecuteRegister) Execute() (err error) {
 	}
 
 	ipRepo := server.ServerIpRepo{}
-	if err = ipRepo.InsertNormalIpAddresses(obj.Server.Id, obj.Server.IpAddrs...); nil != err {
-		return err
+	if 0 == len(obj.Server.IpAddrs) {
+		if err = ipRepo.InsertNormalIpAddresses(obj.Server.Id, obj.Server.IpAddrs...); nil != err {
+			return err
+		}
 	}
 
 	if err = ipRepo.InsertRedfishIpAddresses(obj.Server.Id, obj.Server.RedfishIp); nil != err {
@@ -195,7 +197,7 @@ func ParseServerIpAddrs(c *gin.Context) ([]entity.IpAddress, error) {
 		return nil, nil
 	}
 
-	rawIp := strings.Split(rawContent, ", ")
+	rawIp := strings.Split(rawContent, ",")
 	listIp := make([]entity.IpAddress, len(rawIp))
 
 	for i := range listIp {
@@ -270,16 +272,16 @@ func ParseServerTags(c *gin.Context) ([]entity.Tag, error) {
 
 	var err error
 	titles := strings.Split(c.PostForm("txtAllTag"), ",")
-		tags := make([]entity.Tag, len(titles))
+	tags := make([]entity.Tag, len(titles))
 
-		for i := range titles {
-			tags[i] = entity.Tag{Title: titles[i]}
-			tags[i].TagId, err = tagRepo.IdOf(tags[i].Title)
+	for i := range titles {
+		tags[i] = entity.Tag{Title: titles[i]}
+		tags[i].TagId, err = tagRepo.IdOf(tags[i].Title)
 
-			if nil != err {
+		if nil != err {
 				return nil,err
 			}
-		}
+	}
 
 		return tags, nil
 }
